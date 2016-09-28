@@ -1,0 +1,26 @@
+{
+    package peg
+
+    import "parser/ast"
+}
+
+IF = _ "if" _ "(" check:EXPRESSION ")" _ "{" consequent:EXPRESSION "}" _ "else" _ "{" alternate:EXPRESSION "}" _ EOF {
+    astNode := ast.NewIf(check.(ast.Exp), consequent.(ast.Exp), alternate.(ast.Exp));
+    return astNode, nil
+}
+
+EXPRESSION = TRUELITERAL / FALSELITERAL
+
+TRUELITERAL = _ "true" _ {
+    return ast.NewTrueLiteral(), nil;
+}
+
+FALSELITERAL = _ "false" _ {
+    return ast.NewFalseLiteral(), nil;
+}
+
+_ ← ( Whitespace / EOL )*
+
+Whitespace ← [ \t\r]
+EOL ← '\n'
+EOF ← !.
