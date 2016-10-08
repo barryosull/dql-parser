@@ -8,6 +8,10 @@ type Exp interface {
 	e()
 }
 
+type NullExp struct {
+
+}
+
 type TrueLiteral struct {
 	Value bool
 }
@@ -33,4 +37,5 @@ func NewFalseLiteral() FalseLiteral {
 func (e TrueLiteral) e()  {}
 func (e FalseLiteral) e() {}
 func (e If) e()           {}
+func (e NullExp) e()      {}
 

@@ -4,16 +4,23 @@
     import "parser/ast"
 
     func exp(astNode interface{}) ast.Exp {
+        if (astNode == nil) {
+            return ast.NullExp{};
+        }
         return astNode.(ast.Exp);
     }
 }
 
-IF = _ "if" _ "(" check:EXPRESSION ")" _ "{" consequent:EXPRESSION "}" _ "else" _ "{" alternate:EXPRESSION "}" _ EOF {
+EXPRESSION = TRUELITERAL / FALSELITERAL / IF
+
+IF = _ "if" _ "(" check:EXPRESSION ")" _ "{" consequent:EXPRESSION "}" _ alternate:(ELSE)? _ {
     astNode := ast.If{exp(check), exp(consequent), exp(alternate)};
     return astNode, nil
 }
 
-EXPRESSION = TRUELITERAL / FALSELITERAL
+ELSE = _ "else" _ "{" alternate:EXPRESSION "}" _ {
+    return alternate, nil;
+}
 
 TRUELITERAL = _ "true" _ {
     return ast.NewTrueLiteral(), nil;
