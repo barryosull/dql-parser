@@ -2,10 +2,14 @@
     package peg
 
     import "parser/ast"
+
+    func exp(astNode interface{}) ast.Exp {
+        return astNode.(ast.Exp);
+    }
 }
 
 IF = _ "if" _ "(" check:EXPRESSION ")" _ "{" consequent:EXPRESSION "}" _ "else" _ "{" alternate:EXPRESSION "}" _ EOF {
-    astNode := ast.NewIf(check.(ast.Exp), consequent.(ast.Exp), alternate.(ast.Exp));
+    astNode := ast.If{exp(check), exp(consequent), exp(alternate)};
     return astNode, nil
 }
 

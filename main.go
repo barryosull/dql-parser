@@ -1,21 +1,24 @@
 package main
 
 import (
+	//"parser/ast"
 	"fmt"
+	//"encoding/json"
+	"github.com/davecgh/go-spew/spew"
 	"os"
 	"parser/peg"
-	"github.com/davecgh/go-spew/spew"
 )
 
 func main() {
 	filepath := os.Args[1]
-	ast, err := peg.ParseFile(filepath)
+	astNode, err := peg.ParseFile(filepath)
 	if err != nil {
-		panic(err);
+		panic(err)
 	}
 
-	fmt.Println("AST: ");
-	spew.Dump(ast);
-	fmt.Println("\n");
-}
+	fmt.Println("AST: ")
 
+	spew.Dump(astNode)
+
+	fmt.Println("\n")
+}
