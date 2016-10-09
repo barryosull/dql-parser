@@ -8,6 +8,10 @@ type Exp interface {
 	e()
 }
 
+type ExpBlock struct {
+	Exps []Exp
+}
+
 type NullExp struct {
 
 }
@@ -38,4 +42,6 @@ func (e TrueLiteral) e()  {}
 func (e FalseLiteral) e() {}
 func (e If) e()           {}
 func (e NullExp) e()      {}
+func (e ExpBlock) e()     {}
+
 

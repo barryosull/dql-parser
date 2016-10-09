@@ -1,7 +1,11 @@
 {
     package peg
 
-    import "parser/ast"
+    import (
+        "fmt"
+        "parser/ast"
+        "github.com/davecgh/go-spew/spew"
+    )
 
     func exp(astNode interface{}) ast.Exp {
         if (astNode == nil) {
@@ -9,17 +13,33 @@
         }
         return astNode.(ast.Exp);
     }
+
+    func exps(astNodes []interface{}) []ast.Exp {
+        e := make([]ast.Exp, len(astNodes));
+        for i := 0; i < len(astNodes); i++ {
+            e[i] = exp(astNodes[i]);
+        }
+        return e;
+    }
 }
 
-EXPRESSION = TRUELITERAL / FALSELITERAL / IF
+EXPRESSIONBLOCK = expressions:EXPRESSION* {
+    return ast.ExpBlock{exps(expressions.([]interface{}))}, nil;
+}
 
-IF = _ "if" _ "(" check:EXPRESSION ")" _ "{" consequent:EXPRESSION "}" _ alternate:(ELSE)? _ {
+EXPRESSION = TRUELITERAL / FALSELITERAL / IF / RETURN
+
+IF = _ "if" _ "(" check:EXPRESSIONBLOCK ")" _ "{" consequent:EXPRESSIONBLOCK "}" _ alternate:(ELSE)? _ {
     astNode := ast.If{exp(check), exp(consequent), exp(alternate)};
     return astNode, nil
 }
 
 ELSE = _ "else" _ "{" alternate:EXPRESSION "}" _ {
     return alternate, nil;
+}
+
+RETURN = _ "return" _ expression:EXPRESSION {
+    return expression, nil;
 }
 
 TRUELITERAL = _ "true" _ {
