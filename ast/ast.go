@@ -24,6 +24,10 @@ type FalseLiteral struct {
 	Value bool
 }
 
+type Return struct {
+	Value Exp
+}
+
 type If struct {
 	Check      Exp
 	Consequent Exp
@@ -41,6 +45,7 @@ func NewFalseLiteral() FalseLiteral {
 func (e TrueLiteral) e()  {}
 func (e FalseLiteral) e() {}
 func (e If) e()           {}
+func (e Return) e()       {}
 func (e NullExp) e()      {}
 func (e ExpBlock) e()     {}
 

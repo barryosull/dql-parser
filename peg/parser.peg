@@ -39,7 +39,8 @@ ELSE = _ "else" _ "{" alternate:EXPRESSION "}" _ {
 }
 
 RETURN = _ "return" _ expression:EXPRESSION {
-    return expression, nil;
+    astNode := ast.Return{exp(expression)};
+    return astNode, nil;
 }
 
 TRUELITERAL = _ "true" _ {
