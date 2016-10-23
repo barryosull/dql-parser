@@ -9,7 +9,7 @@
 
     func exp(astNode interface{}) ast.Exp {
         if (astNode == nil) {
-            return ast.NullExp{};
+            return exp(ast.NullExp{ast.Ast{"NullExp"}});
         }
         return astNode.(ast.Exp);
     }
@@ -24,13 +24,13 @@
 }
 
 EXPRESSIONBLOCK = expressions:EXPRESSION* {
-    return ast.ExpBlock{exps(expressions.([]interface{}))}, nil;
+    return ast.ExpBlock{ast.Ast{"ExpBlock"}, exps(expressions.([]interface{}))}, nil;
 }
 
 EXPRESSION = TRUELITERAL / FALSELITERAL / IF / RETURN
 
 IF = _ "if" _ "(" check:EXPRESSIONBLOCK ")" _ "{" consequent:EXPRESSIONBLOCK "}" _ alternate:(ELSE)? _ {
-    astNode := ast.If{exp(check), exp(consequent), exp(alternate)};
+    astNode := ast.If{ast.Ast{"If"}, exp(check), exp(consequent), exp(alternate)};
     return astNode, nil
 }
 
@@ -39,16 +39,16 @@ ELSE = _ "else" _ "{" alternate:EXPRESSION "}" _ {
 }
 
 RETURN = _ "return" _ expression:EXPRESSION {
-    astNode := ast.Return{exp(expression)};
+    astNode := ast.Return{ast.Ast{"Return"}, exp(expression)};
     return astNode, nil;
 }
 
 TRUELITERAL = _ "true" _ {
-    return ast.NewTrueLiteral(), nil;
+    return ast.TrueLiteral{ast.Ast{"TrueLiteral"}, true}, nil;
 }
 
 FALSELITERAL = _ "false" _ {
-    return ast.NewFalseLiteral(), nil;
+    return ast.FalseLiteral{ast.Ast{"FalseLiteral"}, false}, nil;
 }
 
 _ ← ( Whitespace / EOL )*

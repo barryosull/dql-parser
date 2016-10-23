@@ -1,52 +1,46 @@
 package ast
 
-import (
-
-)
+type Ast struct {
+	Kind string
+}
 
 type Exp interface {
 	e()
 }
 
 type ExpBlock struct {
+	Ast
 	Exps []Exp
 }
 
 type NullExp struct {
-
+	Ast
 }
 
 type TrueLiteral struct {
+	Ast
 	Value bool
 }
 
 type FalseLiteral struct {
+	Ast
 	Value bool
 }
 
 type Return struct {
+	Ast
 	Value Exp
 }
 
 type If struct {
+	Ast
 	Check      Exp
 	Consequent Exp
 	Alternate  Exp
 }
 
-func NewTrueLiteral() TrueLiteral {
-	return TrueLiteral{true}
-}
+func (a Ast) e() {}
 
-func NewFalseLiteral() FalseLiteral {
-	return FalseLiteral{false}
-}
 
-func (e TrueLiteral) e()  {}
-func (e FalseLiteral) e() {}
-func (e If) e()           {}
-func (e Return) e()       {}
-func (e NullExp) e()      {}
-func (e ExpBlock) e()     {}
 
 

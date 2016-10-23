@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
+	"encoding/json"
 )
 
 func handleDqlStatement(w http.ResponseWriter, r *http.Request) {
@@ -33,7 +34,10 @@ func handleDqlStatement(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	io.WriteString(w, spew.Sdump(astNode))
+	//io.WriteString(w, spew.Sdump(astNode))
+
+	encoded, _ := json.Marshal(astNode)
+	io.WriteString(w, string(encoded))
 }
 
 func respondWithError(message string, w http.ResponseWriter) {
