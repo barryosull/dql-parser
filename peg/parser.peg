@@ -7,11 +7,12 @@
         "github.com/davecgh/go-spew/spew"
     )
 
-    func exp(astNode interface{}) ast.Exp {
-        if (astNode == nil) {
-            return exp(ast.NullExp{ast.Ast{"NullExp"}});
+    func exp(interfaceNode interface{}) ast.Exp {
+        if (interfaceNode == nil) {
+            return exp(ast.NullExp{});
         }
-        return astNode.(ast.Exp);
+        node := interfaceNode.(ast.Exp);
+        return ast.NewAst(node);
     }
 
     func exps(astNodes []interface{}) []ast.Exp {
@@ -24,13 +25,13 @@
 }
 
 EXPRESSIONBLOCK = expressions:EXPRESSION* {
-    return ast.ExpBlock{ast.Ast{"ExpBlock"}, exps(expressions.([]interface{}))}, nil;
+    return exp(ast.ExpBlock{exps(expressions.([]interface{}))}), nil;
 }
 
 EXPRESSION = TRUELITERAL / FALSELITERAL / IF / RETURN
 
 IF = _ "if" _ "(" check:EXPRESSIONBLOCK ")" _ "{" consequent:EXPRESSIONBLOCK "}" _ alternate:(ELSE)? _ {
-    astNode := ast.If{ast.Ast{"If"}, exp(check), exp(consequent), exp(alternate)};
+    astNode := ast.If{exp(check), exp(consequent), exp(alternate)};
     return astNode, nil
 }
 
@@ -39,16 +40,16 @@ ELSE = _ "else" _ "{" alternate:EXPRESSION "}" _ {
 }
 
 RETURN = _ "return" _ expression:EXPRESSION {
-    astNode := ast.Return{ast.Ast{"Return"}, exp(expression)};
+    astNode := ast.Return{exp(expression)};
     return astNode, nil;
 }
 
 TRUELITERAL = _ "true" _ {
-    return ast.TrueLiteral{ast.Ast{"TrueLiteral"}, true}, nil;
+    return ast.TrueLiteral{true}, nil;
 }
 
 FALSELITERAL = _ "false" _ {
-    return ast.FalseLiteral{ast.Ast{"FalseLiteral"}, false}, nil;
+    return ast.FalseLiteral{false}, nil;
 }
 
 _ ← ( Whitespace / EOL )*

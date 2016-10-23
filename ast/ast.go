@@ -1,45 +1,108 @@
 package ast
 
-type Ast struct {
-	Kind string
-}
+import (
+	"reflect"
+	"encoding/json"
+	"fmt"
+	"log"
+)
 
 type Exp interface {
 	e()
 }
 
+type Ast struct {
+	Kind string
+	Exp Exp
+}
+
+func NewAst(e Exp) Exp {
+	ast := Ast{};
+	ast.Kind = reflect.TypeOf(e).String();
+	ast.Exp = e;
+	return ast;
+}
+
+type JsonAst struct {
+	Kind string
+	Exp json.RawMessage
+}
+
+func (a *Ast) UnmarshalJSON(data []byte) error {
+
+	fmt.Println("decoding");
+
+	//Turn into generic Ast
+	jsonAst := new(JsonAst);
+	err := json.Unmarshal(data, jsonAst);
+	if err != nil {
+		log.Fatalln("error:", err)
+	}
+
+	var dst interface{};
+	switch jsonAst.Kind {
+	case "ast.ExpBlock":
+		dst = new(ExpBlock)
+	case "ast.NullExp":
+		dst = new(NullExp)
+	case "ast.TrueLiteral":
+		dst = new(TrueLiteral)
+	case "ast.FalseLiteral":
+		dst = new(FalseLiteral)
+	case "ast.Return":
+		dst = new(Return)
+	case "ast.If":
+		dst = new(If)
+	}
+
+	if (dst == nil) {
+		fmt.Println(string(data));
+		log.Fatalln("error: Unknown Kind of", jsonAst.Kind)
+	}
+
+	json.Unmarshal(jsonAst.Exp, dst)
+
+	a.Kind = jsonAst.Kind;
+	a.Exp = dst.(Exp);
+	return nil
+	//Create reflect Struct from the type
+	//http://stackoverflow.com/questions/23030884/is-there-a-way-to-create-an-instance-of-a-struct-from-a-string
+}
+
 type ExpBlock struct {
-	Ast
 	Exps []Exp
 }
 
 type NullExp struct {
-	Ast
+
 }
 
 type TrueLiteral struct {
-	Ast
 	Value bool
 }
 
 type FalseLiteral struct {
-	Ast
 	Value bool
 }
 
 type Return struct {
-	Ast
 	Value Exp
 }
 
 type If struct {
-	Ast
 	Check      Exp
 	Consequent Exp
 	Alternate  Exp
 }
 
 func (a Ast) e() {}
+func (a ExpBlock) e() {}
+func (a NullExp) e() {}
+func (a TrueLiteral) e() {}
+func (a FalseLiteral) e() {}
+func (a Return) e() {}
+func (a If) e() {}
+
 
 
 

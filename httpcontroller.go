@@ -5,6 +5,7 @@ import (
 	"io"
 	"github.com/davecgh/go-spew/spew"
 	"parser/peg"
+	"parser/ast"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -37,7 +38,12 @@ func handleDqlStatement(w http.ResponseWriter, r *http.Request) {
 	//io.WriteString(w, spew.Sdump(astNode))
 
 	encoded, _ := json.Marshal(astNode)
-	io.WriteString(w, string(encoded))
+	//fmt.Println(string(encoded));
+	//io.WriteString(w, string(encoded))
+	ast := new (ast.Ast);
+	json.Unmarshal(encoded, ast);
+
+	io.WriteString(w, spew.Sdump(ast))
 }
 
 func respondWithError(message string, w http.ResponseWriter) {
