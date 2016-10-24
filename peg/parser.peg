@@ -7,18 +7,17 @@
         "github.com/davecgh/go-spew/spew"
     )
 
-    func toAst(interfaceNode interface{}) ast.Ast {
-        if (interfaceNode == nil) {
+    func toAst(exp interface{}) ast.Ast {
+        if (exp == nil) {
             return toAst(ast.NullExp{});
         }
-        node := interfaceNode.(ast.Exp);
-        return ast.NewAst(node);
+        return ast.Ast{ exp.(ast.Exp) };
     }
 
-    func toAsts(astNodes []interface{}) []ast.Ast {
-        a := make([]ast.Ast, len(astNodes));
-        for i := 0; i < len(astNodes); i++ {
-            a[i] = toAst(astNodes[i]);
+    func toAsts(exps []interface{}) []ast.Ast {
+        a := make([]ast.Ast, len(exps));
+        for i := 0; i < len(exps); i++ {
+            a[i] = toAst(exps[i]);
         }
         return a;
     }
