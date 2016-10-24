@@ -16,7 +16,7 @@ type Ast struct {
 	Exp Exp
 }
 
-func NewAst(e Exp) Exp {
+func NewAst(e Exp) Ast {
 	ast := Ast{};
 	ast.Kind = reflect.TypeOf(e).String();
 	ast.Exp = e;
@@ -29,8 +29,6 @@ type JsonAst struct {
 }
 
 func (a *Ast) UnmarshalJSON(data []byte) error {
-
-	fmt.Println("decoding");
 
 	//Turn into generic Ast
 	jsonAst := new(JsonAst);
@@ -65,12 +63,10 @@ func (a *Ast) UnmarshalJSON(data []byte) error {
 	a.Kind = jsonAst.Kind;
 	a.Exp = dst.(Exp);
 	return nil
-	//Create reflect Struct from the type
-	//http://stackoverflow.com/questions/23030884/is-there-a-way-to-create-an-instance-of-a-struct-from-a-string
 }
 
 type ExpBlock struct {
-	Exps []Exp
+	Exps []Ast
 }
 
 type NullExp struct {
@@ -86,16 +82,15 @@ type FalseLiteral struct {
 }
 
 type Return struct {
-	Value Exp
+	Value Ast
 }
 
 type If struct {
-	Check      Exp
-	Consequent Exp
-	Alternate  Exp
+	Check      Ast
+	Consequent Ast
+	Alternate  Ast
 }
 
-func (a Ast) e() {}
 func (a ExpBlock) e() {}
 func (a NullExp) e() {}
 func (a TrueLiteral) e() {}

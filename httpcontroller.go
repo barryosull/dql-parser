@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"strings"
 	"encoding/json"
+	"bytes"
 )
 
 func handleDqlStatement(w http.ResponseWriter, r *http.Request) {
@@ -35,15 +36,21 @@ func handleDqlStatement(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	encoded, _ := json.Marshal(astNode)
+
+	decoded := new (ast.Ast);
+	json.Unmarshal(encoded, decoded);
+
+	io.WriteString(w, "AST:\n");
+	io.WriteString(w, string(encoded))
 	//io.WriteString(w, spew.Sdump(astNode))
 
-	encoded, _ := json.Marshal(astNode)
-	//fmt.Println(string(encoded));
-	//io.WriteString(w, string(encoded))
-	ast := new (ast.Ast);
-	json.Unmarshal(encoded, ast);
-
-	io.WriteString(w, spew.Sdump(ast))
+	reEncoded, _ := json.Marshal(astNode);
+	if (bytes.Compare(reEncoded, encoded) == 0) {
+		io.WriteString(w, "Encoding and decoding ASTs worked.")
+	} else {
+		io.WriteString(w, "Encoded ASTs are not the same")
+	}
 }
 
 func respondWithError(message string, w http.ResponseWriter) {
