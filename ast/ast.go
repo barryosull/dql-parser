@@ -4,12 +4,12 @@ type Exp interface {
 	e()
 }
 
-type Ast struct {
+type Node struct {
 	Exp Exp
 }
 
 type ExpBlock struct {
-	Exps []Ast
+	Exps []Node
 }
 
 type NullExp struct {
@@ -25,13 +25,13 @@ type FalseLiteral struct {
 }
 
 type Return struct {
-	Value Ast
+	Value Node
 }
 
 type If struct {
-	Check      Ast
-	Consequent Ast
-	Alternate  Ast
+	Check      Node
+	Consequent Node
+	Alternate  Node
 }
 
 func (a ExpBlock) e() {}

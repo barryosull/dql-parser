@@ -7,34 +7,34 @@
         "github.com/davecgh/go-spew/spew"
     )
 
-    func toAst(exp interface{}) ast.Ast {
+    func toNode(exp interface{}) ast.Node {
         if (exp == nil) {
-            return toAst(ast.NullExp{});
+            return toNode(ast.NullExp{});
         }
-        return ast.Ast{ exp.(ast.Exp) };
+        return ast.Node{ exp.(ast.Exp) };
     }
 
-    func toAsts(exps []interface{}) []ast.Ast {
-        a := make([]ast.Ast, len(exps));
+    func toNodes(exps []interface{}) []ast.Node {
+        a := make([]ast.Node, len(exps));
         for i := 0; i < len(exps); i++ {
-            a[i] = toAst(exps[i]);
+            a[i] = toNode(exps[i]);
         }
         return a;
     }
 }
 
 PROGRAM =  expressions:EXPRESSIONBLOCK {
-    return toAst(expressions), nil
+    return toNode(expressions), nil
 }
 
 EXPRESSIONBLOCK = expressions:EXPRESSION* {
-    return ast.ExpBlock{toAsts(expressions.([]interface{}))}, nil;
+    return ast.ExpBlock{toNodes(expressions.([]interface{}))}, nil;
 }
 
 EXPRESSION = TRUELITERAL / FALSELITERAL / IF / RETURN
 
 IF = _ "if" _ "(" check:EXPRESSIONBLOCK ")" _ "{" consequent:EXPRESSIONBLOCK "}" _ alternate:(ELSE)? _ {
-    astNode := ast.If{toAst(check), toAst(consequent), toAst(alternate)};
+    astNode := ast.If{toNode(check), toNode(consequent), toNode(alternate)};
     return astNode, nil
 }
 
@@ -43,7 +43,7 @@ ELSE = _ "else" _ "{" alternate:EXPRESSION "}" _ {
 }
 
 RETURN = _ "return" _ expression:EXPRESSION {
-    astNode := ast.Return{toAst(expression)};
+    astNode := ast.Return{toNode(expression)};
     return astNode, nil;
 }
 

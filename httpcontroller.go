@@ -38,7 +38,7 @@ func handleDqlStatement(w http.ResponseWriter, r *http.Request) {
 
 	encoded, _ := json.Marshal(astNode)
 
-	decoded := new (ast.Ast);
+	decoded := new (ast.Node);
 	json.Unmarshal(encoded, decoded);
 
 	io.WriteString(w, "AST:\n");

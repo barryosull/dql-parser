@@ -7,23 +7,23 @@ import (
 	"reflect"
 )
 
-type genericAst struct {
-	Kind string
-	Exp json.RawMessage
-}
-
-func (a Ast) MarshalJSON() ([]byte, error) {
-	kind := reflect.TypeOf(a.Exp).String();
+func (n Node) MarshalJSON() ([]byte, error) {
+	kind := reflect.TypeOf(n.Exp).String();
 	return json.Marshal(&struct {
 		Kind string
 		Exp  Exp
 	}{
 		Kind: kind,
-		Exp: a.Exp,
+		Exp: n.Exp,
 	})
 }
 
-func (a *Ast) UnmarshalJSON(data []byte) error {
+type genericAst struct {
+	Kind string
+	Exp json.RawMessage
+}
+
+func (n *Node) UnmarshalJSON(data []byte) error {
 
 	gAst := new(genericAst);
 	err := json.Unmarshal(data, gAst);
@@ -39,7 +39,7 @@ func (a *Ast) UnmarshalJSON(data []byte) error {
 	}
 
 	json.Unmarshal(gAst.Exp, dst)
-	a.Exp = dst.(Exp);
+	n.Exp = dst.(Exp);
 	return nil
 }
 
