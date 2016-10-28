@@ -41,9 +41,7 @@ func handleDqlStatement(w http.ResponseWriter, r *http.Request) {
 	decoded := new (ast.Node);
 	json.Unmarshal(encoded, decoded);
 
-	io.WriteString(w, "AST:\n");
 	io.WriteString(w, string(encoded))
-	//io.WriteString(w, spew.Sdump(astNode))
 
 	reEncoded, _ := json.Marshal(astNode);
 	if (bytes.Compare(reEncoded, encoded) == 0) {

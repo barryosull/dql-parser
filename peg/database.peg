@@ -1,0 +1,26 @@
+{
+    package peg
+
+    import (
+        "fmt"
+        "parser/database"
+    )
+}
+
+CMD = (CREATE / USE)
+
+CREATE = _ "create"i _ "database"i _ name:NAME _ {
+    return database.Create{name};
+}
+
+USE = _ "use"i _ "database"i _ name:Name _ {
+    return database.Use{name};
+}
+
+NAME = [a-zA-Z\-]
+
+_ ← ( Whitespace / EOL )*
+
+Whitespace ← [ \t\r]
+EOL ← '\n'
+EOF ← !.
