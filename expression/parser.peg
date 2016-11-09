@@ -2,18 +2,78 @@
     package expression
 }
 
-EXPRESSION = LITERAL / IDENTIFIER
+DOC = exp:EXPRESSION EOF {
+    return exp, nil;
+}
 
-LITERAL = BOOLEAN / NULL / STRING / INT / FLOAT
+EXPRESSION = ARITHMETIC / ASSIGNMENT/ LOGICAL / COMPARISON / LITERAL / IDENTIFIER / PARENTHESIS / UNARY
 
-BOOLEAN  = "true"/"false"
+LITERAL = STRING / FLOAT / BOOLEAN / NULL / INT  {
+    return "LITERAL", nil;
+}
 
-NULL  = "null"
+BOOLEAN  = "true"/"false" {
+    return "BOOLEAN", nil;
+}
 
-STRING = "\"" !["\\\n\r]* "\""
+NULL  = "null" {
+   return "NULL", nil;
+}
 
-INT = [0-9]+
+STRING = "\"" [a-zA-Z0-9]* "\"" {
+   return "STRING", nil;
+}
 
-FLOAT = ([0-9]*[.])?[0-9]+
+INT = [0-9]+ {
+   return "INT", nil;
+}
 
-IDENTIFIER = [a-zA-Z0-9]+
+FLOAT = [0-9]+ [.] [0-9]+ {
+   return "FLOAT", nil;
+}
+
+IDENTIFIER = [a-zA-Z]+ [a-zA-Z0-9]* {
+   return "IDENTIFIER", nil;
+}
+
+PARENTHESIS = "(" _ EXPRESSION _ ")" {
+   return "PARENTHESIS", nil;
+}
+
+UNARY = INCREMENT / DECREMENT / NEGATE / NOT / POSITIVE
+
+INCREMENT = IDENTIFIER "++" {
+    return "INCREMENT", nil;
+}
+
+DECREMENT = IDENTIFIER "--" {
+    return "DECREMENT", nil;
+}
+
+NEGATE = "-" IDENTIFIER {
+    return "NEGATE", nil;
+}
+
+NOT = "!" IDENTIFIER {
+    return "NOT", nil;
+}
+
+POSITIVE = "+" IDENTIFIER {
+    return "POSITIVE", nil;
+}
+
+ARITHMETIC = IDENTIFIER _ OPERATOR _ EXPRESSION
+
+OPERATOR = "+" / "-" / "/" / "*" / "%"
+
+ASSIGNMENT = IDENTIFIER _ "=" _ EXPRESSION
+
+LOGICAL = IDENTIFIER _ ("and" / "or") _ EXPRESSION
+
+COMPARISON = IDENTIFIER _ ("===" / "!==" / "==" / "!=" / "<=" / ">=" / "<" / ">") _ EXPRESSION
+
+_ ← ( Whitespace / EOL )*
+
+Whitespace ← [ \t\r]
+EOL ← '\n'
+EOF ← !.
