@@ -1,0 +1,19 @@
+{
+    package expression
+}
+
+EXPRESSION = LITERAL / IDENTIFIER
+
+LITERAL = BOOLEAN / NULL / STRING / INT / FLOAT
+
+BOOLEAN  = "true"/"false"
+
+NULL  = "null"
+
+STRING = "\"" !["\\\n\r]* "\""
+
+INT = [0-9]+
+
+FLOAT = ([0-9]*[.])?[0-9]+
+
+IDENTIFIER = [a-zA-Z0-9]+

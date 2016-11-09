@@ -1,0 +1,52 @@
+{
+    package peg
+
+    import (
+        "fmt"
+    )
+}
+
+OBJECT = _ "<|" _ kind:OBJECTKIND _ name:QUOTEDNAME _ prop:PROPERTIES? _ check:CHECK? _ funcs:FUNCTION* "|>" _ {
+
+}
+
+OBJECTKIND = kind:("value"i / "entity"i / "event"i / "command"i) {
+    //return string(kind);
+}
+
+QUOTEDNAME = "'" name:NAME "'" {
+    //return name;
+}
+
+NAME = name:[A-Za-z0-9\-_\\]* {
+    //return string(c.text)
+}
+
+PROPERTIES = "properties"i _ "{" props:PROPERTY* "}" {
+
+}
+
+PROPERTY = kind:NAME _ name:NAME _ ";" _ {
+
+}
+
+CHECK = "check" _ "{" expBlock:EXPBLOCK "}" _ {
+
+}
+
+FUNCTION = "function" _ name:NAME _ args:ARGUMENTS _ "{" expBlock:EXPBLOCK "}" _ {
+
+}
+
+EXPBLOCK = exps:EXPRESSION* {
+
+}
+
+EXPRESSION =
+
+
+_ ← ( Whitespace / EOL )*
+
+Whitespace ← [ \t\r]
+EOL ← '\n'
+EOF ← !.
