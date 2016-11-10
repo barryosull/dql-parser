@@ -74,6 +74,7 @@ func TestArithmetic(t *testing.T) {
 
 var assignment = []string {
 	"a = 1",
+	//"a.b = c",
 }
 
 func TestAssignment(t *testing.T) {
@@ -102,4 +103,32 @@ var comparison = []string {
 
 func TestComparison(t *testing.T) {
 	assertCanParse(comparison, t);
+}
+
+var objectAccess = []string{
+	"a->b",
+	"a->b->c",
+}
+
+func TestObjectAccess(t *testing.T) {
+	assertCanParse(objectAccess, t);
+}
+
+var methodCalls = []string{
+	"a->b()",
+	"a->b->z()",
+	"a->b(1)",
+	"a->b(1,2,3,4)",
+}
+
+func TestMethodCalls(t *testing.T) {
+	assertCanParse(methodCalls, t);
+}
+
+var compound = []string{
+	"(a + b) + (a - b) - a->b->c + a->b() - !b + a and b",
+}
+
+func TestCompound(t *testing.T) {
+	assertCanParse(compound, t);
 }
