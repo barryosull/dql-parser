@@ -75,6 +75,7 @@ func TestArithmetic(t *testing.T) {
 var assignment = []string {
 	"a = 1",
 	"a->b = c",
+	"a = 'value\\integer'(1)",
 }
 
 func TestAssignment(t *testing.T) {
