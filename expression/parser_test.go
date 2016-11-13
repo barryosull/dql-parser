@@ -6,12 +6,12 @@ import (
 )
 
 var literals = []string{
-	"true",
-	"false",
-	"null",
-	"\"string\"",
-	"1",
-	"2.4",
+	"true;",
+	"false;",
+	"null;",
+	"\"string\";",
+	"1;",
+	"2.4;",
 };
 
 func TestLiterals(t *testing.T) {
@@ -20,8 +20,8 @@ func TestLiterals(t *testing.T) {
 
 func assertCanParse(statements []string, t *testing.T) {
 	for _, statement := range statements {
+		Debug(true);
 		parsed, _ := Parse("", []byte(statement));
-		//fmt.Println(parsed);
 		if (parsed == nil) {
 			t.Error("Could not parse "+statement);
 		}
@@ -30,18 +30,19 @@ func assertCanParse(statements []string, t *testing.T) {
 }
 
 var identifiers = []string{
-	"a",
-	"b",
-	"sdadsasd",
-	"dsfsd12213",
+	"a;",
+	"b;",
+	"sdadsasd;",
+	"dsfsd12213;",
 }
 
 func TestIdentifiers(t *testing.T) {
 	assertCanParse(identifiers, t);
 }
 
+
 var parenthesisi = []string{
-	"(5)",
+	"(5);",
 }
 
 func TestParenthesis(t *testing.T) {
@@ -49,11 +50,11 @@ func TestParenthesis(t *testing.T) {
 }
 
 var unary = []string {
-	"+a",
-	"-a",
+	"+a;",
+	"-a;",
 	//"a++",
 	//"a--",
-	"!a",
+	"!a;",
 }
 
 func TestUnary(t *testing.T) {
@@ -61,11 +62,11 @@ func TestUnary(t *testing.T) {
 }
 
 var arithmetic = []string {
-	"a + b",
-	"a - b",
-	"a * b",
-	"a / b",
-	"a % b",
+	"a + b;",
+	"a - b;",
+	"a * b;",
+	"a / b;",
+	"a % b;",
 }
 
 func TestArithmetic(t *testing.T) {
@@ -73,18 +74,19 @@ func TestArithmetic(t *testing.T) {
 }
 
 var assignment = []string {
-	"a = 1",
-	"a->b = c",
-	"a = 'value\\integer'(1)",
+	"a = 1;",
+	"a->b = c;",
+	"a = 'value\\integer'(1);",
 }
 
 func TestAssignment(t *testing.T) {
 	assertCanParse(assignment, t);
 }
 
+
 var logical = []string {
-	"a and b",
-	"a or b",
+	"a and b;",
+	"a or b;",
 }
 
 func TestLogical(t *testing.T) {
@@ -92,23 +94,24 @@ func TestLogical(t *testing.T) {
 }
 
 var comparison = []string {
-	"a == b",
-	"a != b",
-	"a < b",
-	"a > b",
-	"a <= b",
-	"a >= b",
-	"a === b",
-	"a !== b",
+	"a == b;",
+	"a != b;",
+	"a < b;",
+	"a > b;",
+	"a <= b;",
+	"a >= b;",
+	"a === b;",
+	"a !== b;",
 }
 
 func TestComparison(t *testing.T) {
 	assertCanParse(comparison, t);
 }
 
+
 var objectAccess = []string{
-	"a->b",
-	"a->b->c",
+	"a->b;",
+	"a->b->c;",
 }
 
 func TestObjectAccess(t *testing.T) {
@@ -116,11 +119,11 @@ func TestObjectAccess(t *testing.T) {
 }
 
 var methodCalls = []string{
-	"a->b()",
-	"a->b->z()",
-	"a->b(1)",
-	"a->b(1,2,3,4)",
-	"a->b(1)->c()",
+	"a->b();",
+	"a->b->z();",
+	"a->b(1);",
+	"a->b(1,2,3,4);",
+	"a->b(1)->c();",
 }
 
 func TestMethodCalls(t *testing.T) {
@@ -128,8 +131,11 @@ func TestMethodCalls(t *testing.T) {
 }
 
 var compound = []string{
-	"(a + b) + (a - b)",
-	"(a + b) + (a - b) - a->b->c + a->b() - !b + a and b",
+	"a + (a - b);",
+	"(a + b) + (a - b);",
+	"(a + b) + (a - b) - a->b->c + a->b() - !b + a and b;",
+	"a->b = 'value\\integer'(1) - ('value\\integer'(1) + b) + (a - b) - a->b->c + a->b() - !b + a and b;",
+	"a = b + c = c + 24;",
 }
 
 func TestCompound(t *testing.T) {
@@ -137,7 +143,9 @@ func TestCompound(t *testing.T) {
 }
 
 var blocks = []string {
-	"a = 22;",
-	"b = 5 + 1;",
-	"c = b - a;",
+	"a = 22;\nb = 5 + 1;\n c= b - a;",
+}
+
+func TestBlocks(t *testing.T) {
+	assertCanParse(blocks, t);
 }

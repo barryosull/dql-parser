@@ -1,24 +1,34 @@
 {
     package expression
 
-    import "fmt"
+    //import "fmt"
 }
 
-DOC = exp:EXPRESSION EOF {
-    return exp, nil;
+DOC = stats:STATEMENTBLOCK EOF {
+    return stats, nil;
 }
 
-EXPRESSION = PARENTHESIS / ARITHMETIC / ASSIGNMENT/ LOGICAL / COMPARISON / METHODCALL / OBJECTACCESS / LITERAL / UNARY
+STATEMENTBLOCK = STATEMENT*
+
+STATEMENT = RETURN SEMI / EXPRESSION SEMI
+
+RETURN = "return" _ EXPRESSION
+
+EXPRESSION = ARITHMETIC / ASSIGNMENT/ LOGICAL / COMPARISON / ATOMIC
+
+ATOMIC = PARENTHESIS / NEW / METHODCALL / OBJECTACCESS / LITERAL / UNARY
 
 LITERAL = STRING / FLOAT / BOOLEAN / NULL / INT  {
     return "LITERAL", nil;
 }
 
+NEW = "'" IDENTIFIER "'" _ ARGUMENTS
+
 BOOLEAN  = "true"/"false" {
     return "BOOLEAN", nil;
 }
 
-NULL  = "null" {
+NULL = "null" {
    return "NULL", nil;
 }
 
@@ -34,7 +44,7 @@ FLOAT = [0-9]+ [.] [0-9]+ {
    return "FLOAT", nil;
 }
 
-IDENTIFIER = [a-zA-Z]+ [a-zA-Z0-9]* {
+IDENTIFIER = [a-zA-Z]+ [a-zA-Z0-9\\]* {
    return "IDENTIFIER", nil;
 }
 
@@ -64,25 +74,29 @@ POSITIVE = "+" OBJECTACCESS {
     return "POSITIVE", nil;
 }
 
-ARITHMETIC = OBJECTACCESS _ OPERATOR _ EXPRESSION {
-    return fmt.Println(string(c.text));
+ARITHMETIC = ATOMIC _ OPERATOR _ EXPRESSION {
+    return "ARITHMETIC", nil;
 }
 
 OPERATOR = "+" / "-" / "/" / "*" / "%"
 
 ASSIGNMENT = OBJECTACCESS _ "=" _ EXPRESSION
 
-LOGICAL = IDENTIFIER _ ("and" / "or") _ EXPRESSION
+LOGICAL = IDENTIFIER _ ("and" / "or") _ ATOMIC
 
 COMPARISON = IDENTIFIER _ ("===" / "!==" / "==" / "!=" / "<=" / ">=" / "<" / ">") _ EXPRESSION
 
-METHODCALL = IDENTIFIER "(" ARGUMENTS? ")"
+METHODCALL = IDENTIFIER ARGUMENTS
 
 OBJECTACCESS = ((METHODCALL / IDENTIFIER) "->")* (METHODCALL / IDENTIFIER)
 
-ARGUMENTS = (EXPRESSION _ "," _)* EXPRESSION
+ARGUMENTS = "(" ARGUMENTLIST? ")"
+
+ARGUMENTLIST = (EXPRESSION _ "," _)* EXPRESSION
 
 _ ← ( Whitespace / EOL )*
+
+SEMI = _ ";" _
 
 Whitespace ← [ \t\r]
 EOL ← '\n'
