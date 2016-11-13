@@ -142,6 +142,14 @@ func TestCompound(t *testing.T) {
 	assertCanParse(compound, t);
 }
 
+var returns = []string{
+	"return true;",
+}
+
+func TestReturns(t *testing.T) {
+	assertCanParse(returns, t);
+}
+
 var blocks = []string {
 	"a = 22;\nb = 5 + 1;\n c= b - a;",
 }
