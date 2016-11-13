@@ -144,6 +144,7 @@ func TestCompound(t *testing.T) {
 
 var returns = []string{
 	"return true;",
+	"return a + b",
 }
 
 func TestReturns(t *testing.T) {
