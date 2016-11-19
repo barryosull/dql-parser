@@ -1,6 +1,9 @@
 # ../../bin/pigeon peg/parser.peg | ../../bin/goimports > peg/parser.go
 # echo "Created parser";
 
-../../bin/pigeon  expression/parser.peg | ../../bin/goimports > expression/parser.go
+../../bin/pigeon expression/parser.peg | ../../bin/goimports > expression/parser.go
 echo "Created expression parser";
+
+../../bin/pigeon class/parser.peg | ../../bin/goimports > class/parser.go
+echo "Created class parser";
 

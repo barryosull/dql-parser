@@ -1,0 +1,30 @@
+{
+    package class
+}
+
+CLASS = "<|" _ CLASSKIND _ NAME _ PROPERTIES _ CHECK? _ FUNCTIONS* "|>" EOF
+
+CLASSKIND = "value" / "entity" / "command" / "event"
+
+NAME = "'" IDENTIFIER "'"
+
+PROPERTIES = "properties" _ "{" PROPERTYLIST "}"
+
+PROPERTYLIST = (_ IDENTIFIER _ IDENTIFIER _ ";" _)*
+
+CHECK = "check" _ "(" _ ")"
+
+FUNCTIONS = _ "function" _ IDENTIFIER _ PARAMETERS  _ "{" _ "}" _
+
+PARAMETERS = "(" PARAMETERLIST ")"
+
+PARAMETERLIST = (PARAMETER "," _ )* PARAMETER?
+
+PARAMETER = _ IDENTIFIER _ IDENTIFIER _
+
+IDENTIFIER = [a-zA-Z]+ [a-zA-Z0-9\\_-]*
+
+_ = ( Whitespace / EOL )*
+Whitespace = [ \t\r]
+EOL = '\n'
+EOF = !.

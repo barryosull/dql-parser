@@ -1,12 +1,8 @@
 {
     package expression
-
-    //import "fmt"
 }
 
-DOC = stats:STATEMENTBLOCK EOF {
-    return stats, nil;
-}
+DOC = STATEMENTBLOCK EOF
 
 STATEMENTBLOCK = STATEMENT*
 
@@ -18,65 +14,37 @@ EXPRESSION = ARITHMETIC / ASSIGNMENT/ LOGICAL / COMPARISON / ATOMIC
 
 ATOMIC = PARENTHESIS / NEW / METHODCALL / OBJECTACCESS / LITERAL / UNARY
 
-LITERAL = STRING / FLOAT / BOOLEAN / NULL / INT  {
-    return "LITERAL", nil;
-}
+LITERAL = STRING / FLOAT / BOOLEAN / NULL / INT
 
 NEW = "'" IDENTIFIER "'" _ ARGUMENTS
 
-BOOLEAN  = "true"/"false" {
-    return "BOOLEAN", nil;
-}
+BOOLEAN  = "true"/"false"
 
-NULL = "null" {
-   return "NULL", nil;
-}
+NULL = "null"
 
-STRING = "\"" [a-zA-Z0-9]* "\"" {
-   return "STRING", nil;
-}
+STRING = "\"" [a-zA-Z0-9]* "\""
 
-INT = [0-9]+ {
-   return "INT", nil;
-}
+INT = [0-9]+
 
-FLOAT = [0-9]+ [.] [0-9]+ {
-   return "FLOAT", nil;
-}
+FLOAT = [0-9]+ [.] [0-9]+
 
-IDENTIFIER = [a-zA-Z]+ [a-zA-Z0-9\\]* {
-   return "IDENTIFIER", nil;
-}
+IDENTIFIER = [a-zA-Z]+ [a-zA-Z0-9\\]*
 
-PARENTHESIS = "(" _ EXPRESSION _ ")" {
-   return "PARENTHESIS", nil;
-}
+PARENTHESIS = "(" _ EXPRESSION _ ")"
 
 UNARY = INCREMENT / DECREMENT / NEGATE / NOT / POSITIVE
 
-INCREMENT = OBJECTACCESS "++" {
-    return "INCREMENT", nil;
-}
+INCREMENT = OBJECTACCESS "++"
 
-DECREMENT = OBJECTACCESS "--" {
-    return "DECREMENT", nil;
-}
+DECREMENT = OBJECTACCESS "--"
 
-NEGATE = "-" OBJECTACCESS {
-    return "NEGATE", nil;
-}
+NEGATE = "-" OBJECTACCESS
 
-NOT = "!" OBJECTACCESS {
-    return "NOT", nil;
-}
+NOT = "!" OBJECTACCESS
 
-POSITIVE = "+" OBJECTACCESS {
-    return "POSITIVE", nil;
-}
+POSITIVE = "+" OBJECTACCESS
 
-ARITHMETIC = ATOMIC _ OPERATOR _ EXPRESSION {
-    return "ARITHMETIC", nil;
-}
+ARITHMETIC = ATOMIC _ OPERATOR _ EXPRESSION
 
 OPERATOR = "+" / "-" / "/" / "*" / "%"
 
@@ -98,6 +66,6 @@ _ ← ( Whitespace / EOL )*
 
 SEMI = _ ";" _
 
-Whitespace ← [ \t\r]
-EOL ← '\n'
-EOF ← !.
+Whitespace = [ \t\r]
+EOL = '\n'
+EOF = !.
