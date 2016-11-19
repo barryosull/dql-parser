@@ -2,7 +2,9 @@
     package class
 }
 
-CLASS = "<|" _ CLASSKIND _ NAME _ PROPERTIES _ CHECK? _ FUNCTIONS* "|>" EOF
+CLASS = "<|" _ CLASSKIND _ NAME _ CLASSBODY _ "|>" EOF
+
+CLASSBODY = ( _ (PROPERTIES / CHECK / FUNCTIONS) _ )*
 
 CLASSKIND = "value" / "entity" / "command" / "event"
 

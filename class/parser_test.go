@@ -81,3 +81,24 @@ func assertCanParseStatement(statement string, t *testing.T) {
 		}
 	}
 }
+
+var differentDeclarationOrder = `<| {KIND} 'value'
+	function doThing()
+	{
+
+	}
+
+	check
+	(
+
+	)
+
+	properties
+	{
+		string value;
+	}
+|>`;
+
+func TestDifferentDeclarationOrder(t *testing.T) {
+	assertCanParseStatement(differentDeclarationOrder, t);
+}
