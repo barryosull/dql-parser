@@ -1,4 +1,4 @@
-../../bin/pigeon class/parser.peg | ../../bin/goimports > class/parser.go
-echo "Created class parser";
+../../bin/pigeon $1/parser.peg | ../../bin/goimports > $1/parser.go
+echo "Created $1 parser";
 
-go test class/parser_test.go class/parser.go
+go test $1/parser_test.go $1/parser.go
