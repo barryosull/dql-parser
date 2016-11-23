@@ -1,10 +1,10 @@
 {
-    package projection
+    package invariant
 }
 
-PROJECTION = "<|" _ ("aggregate" / "domain") _ "projection" _ NAME _ PROJECTIONBODY _ "|>" EOF
+QUERY = "<|" _ "query" _ NAME _ "on" _ NAME _ QUERYBODY _ "|>" EOF
 
-PROJECTIONBODY = ( _ (PROPERTIES / WHEN ) _ )*
+QUERYBODY =  PROPERTIES? _ HANDLER
 
 NAME = "'" IDENTIFIER "'"
 
@@ -15,7 +15,7 @@ PROPERTYLIST = (_ IDENTIFIER _ IDENTIFIER _ ( "=" _ EXPRESSION )? _ ";" _)*
 //Needs to include full expression list
 EXPRESSION = ("false" / "true" / "[" _ "]")
 
-WHEN = "when" _ "event" _  NAME _ "{" _ "}"
+HANDLER = "handler" _ "{" _ "}"
 
 IDENTIFIER = [a-zA-Z]+ [a-zA-Z0-9\\_-]*
 
