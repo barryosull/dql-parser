@@ -1,6 +1,3 @@
-{
-    package expression
-}
 
 DOC = STATEMENTBLOCK EOF
 
@@ -16,7 +13,7 @@ ATOMIC = PARENTHESIS / NEW / METHODCALL / OBJECTACCESS / LITERAL / UNARY
 
 LITERAL = STRING / FLOAT / BOOLEAN / NULL / INT
 
-NEW = "'" IDENTIFIER "'" _ ARGUMENTS
+NEW = CLASS_REF _ ARGUMENTS
 
 BOOLEAN  = "true"/"false"
 
@@ -27,8 +24,6 @@ STRING = "\"" [a-zA-Z0-9]* "\""
 INT = [0-9]+
 
 FLOAT = [0-9]+ [.] [0-9]+
-
-IDENTIFIER = [a-zA-Z]+ [a-zA-Z0-9\\]*
 
 PARENTHESIS = "(" _ EXPRESSION _ ")"
 
@@ -54,18 +49,10 @@ LOGICAL = IDENTIFIER _ ("and" / "or") _ ATOMIC
 
 COMPARISON = IDENTIFIER _ ("===" / "!==" / "==" / "!=" / "<=" / ">=" / "<" / ">") _ EXPRESSION
 
-METHODCALL = IDENTIFIER ARGUMENTS
-
 OBJECTACCESS = ((METHODCALL / IDENTIFIER) "->")* (METHODCALL / IDENTIFIER)
+
+METHODCALL = IDENTIFIER ARGUMENTS
 
 ARGUMENTS = "(" ARGUMENTLIST? ")"
 
 ARGUMENTLIST = (EXPRESSION _ "," _)* EXPRESSION
-
-_ ← ( Whitespace / EOL )*
-
-SEMI = _ ";" _
-
-Whitespace = [ \t\r]
-EOL = '\n'
-EOF = !.
