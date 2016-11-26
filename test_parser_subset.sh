@@ -1,37 +1,54 @@
 
 # Create buildable parser for testing
-paths=(${1//\// })
 
-folder=${paths[${#paths[@]} - 1]}
+addPackageHeader() {
+    paths=(${1//\// })
 
-echo "
-{
-    package $folder
+    folder=${paths[${#paths[@]} - 1]}
+
+    # Give it the correct header
+    echo "
+    {
+        package $folder
+    }
+    "|cat - $1/parser.peg > $1/parser_subset.peg
 }
-"|cat - $1/parser.peg > $1/parser_subset.peg
 
-# Add the dependencies
-if [ -f $1/dependencies.csv ]; then
-    dependenciesline=$(head -n 1 $1/dependencies.csv)
-    dependencies=$(echo $dependenciesline | tr ";" "\n")
+addDependencies() {
+    if [ -f $2/dependencies.csv ]; then
+        dependenciesline=$(head -n 1 $2/dependencies.csv)
+        dependencies=$(echo $dependenciesline | tr ";" "\n")
 
-    for dep in $dependencies; do
-        cat "$1/$dep/parser.peg" >> $1/parser_subset.peg;
-    done
+        for dep in $dependencies; do
+            cat "$2/$dep/parser.peg" >> $1/parser_subset.peg;
+            echo "Adding deps for $2/$dep"
+            addDependencies "$1" "$2/$dep"
+        done
+    fi
+}
 
-else
-    echo "No dependencies found"
-fi
+buildParser() {
+    ../../bin/pigeon $1/parser_subset.peg | ../../bin/goimports > $1/parser_subset.go
+    rm $1/parser_subset.peg
+    echo "Created $1 test parser";
+}
 
-# Build the parser
-../../bin/pigeon $1/parser_subset.peg | ../../bin/goimports > $1/parser_subset.go
-rm $1/parser_subset.peg
+test() {
+    go test $1/parser_test.go $1/parser_subset.go
+}
 
-echo "Created $1 test parser";
+tearDown() {
+    rm $1/parser_subset.go
+}
 
-# Test the parser
-go test $1/parser_test.go $1/parser_subset.go
+addPackageHeader $1
+addDependencies $1 $1
+buildParser $1
+test $1
+tearDown $1
 
-# Destroy the test file, its not needed
-rm $1/parser_subset.go
+
+
+
+
 
