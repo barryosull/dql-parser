@@ -6,6 +6,8 @@ import (
 
 var classRef = []string{
 	"'value\\cup'",
+	"'value\\tea-cup'",
+	"'value\\tea_cup'",
 	"'entity\\cat'",
 	"'command\\kill'",
 	"'event\\killed'",

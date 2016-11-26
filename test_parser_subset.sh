@@ -25,7 +25,7 @@ fi
 
 # Build the parser
 ../../bin/pigeon $1/parser_subset.peg | ../../bin/goimports > $1/parser_subset.go
-//rm $1/parser_subset.peg
+rm $1/parser_subset.peg
 
 echo "Created $1 test parser";
 
