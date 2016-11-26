@@ -13,6 +13,40 @@ func TestReturns(t *testing.T) {
 	assertCanParse(returns, t);
 }
 
+var ifs = []string{
+	`if (a) {
+		return b;
+	}`,
+	`if (a) {
+		b;
+		return c;
+	} else {
+		d;
+		return e;
+	}`,
+	`if(a){return b;}`,
+};
+
+func TestIfs(t *testing.T) {
+	assertCanParse(ifs, t);
+}
+
+var forEachs = []string {
+	`foreach (a as b) {
+		a;
+	}`,
+	`foreach (a as b=>c) {
+		a;
+	}`,
+	`foreach (a->b() as b=>c) {
+		a;
+	}`,
+}
+
+func TestForeachs(t *testing.T) {
+	assertCanParse(forEachs, t);
+}
+
 var blocks = []string {
 	"a = 22;\nb = 5 + 1;\n c= b - a;",
 }
