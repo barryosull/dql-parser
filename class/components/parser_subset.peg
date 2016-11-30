@@ -8,19 +8,33 @@
 //  Class components
 // -------------------------------------------------------------------------
 
-CLASS_BODY = (CLASS_COMPONENTS)* EOF
+COMMAND_BODY = (COMMAND_COMPONENTS)* EOF
 
-CLASS_COMPONENTS = PROPERTIES / CHECK / FUNCTION
+COMMAND_COMPONENTS = COMMAND_HANDLER / PROPERTIES / CHECK / FUNCTION
 
-PROPERTIES = _ "properties" _ "{" PROPERTY_LIST "}" _
+COMMAND_HANDLER = _ "handler"i _ "{" _ COMMAND_STATEMENT_BLOCK? _ "}" _
+
+COMMAND_STATEMENT_BLOCK = _ (COMMAND_STATEMENT)+ _
+
+COMMAND_STATEMENT = STATEMENT / ASSERT / APPLY
+
+ASSERT = _ "assert"i _ "invariant"i _ ("not"i)? _ QUOTED_NAME _ ARGUMENTS? SEMI
+
+APPLY = _ "apply"i _ "event"i _ QUOTED_NAME _ ARGUMENTS? SEMI
+
+VALUE_BODY = (VALUE_COMPONENTS)*
+
+VALUE_COMPONENTS = PROPERTIES / CHECK / FUNCTION
+
+PROPERTIES = _ "properties"i _ "{" PROPERTY_LIST "}" _
 
 PROPERTY_LIST = (PROPERTY)*
 
 PROPERTY = _ TYPE _ IDENTIFIER _ ";" _
 
-CHECK = _ "check" _ "(" STATEMENT_BLOCK? ")" _
+CHECK = _ "check"i _ "(" STATEMENT_BLOCK? ")" _
 
-FUNCTION = _ "function" _ IDENTIFIER _ PARAMETERS  _ "{" _ STATEMENT_BLOCK? _ "}" _
+FUNCTION = _ "function"i _ IDENTIFIER _ PARAMETERS  _ "{" _ STATEMENT_BLOCK? _ "}" _
 
 PARAMETERS = "(" PARAMETER_LIST ")"
 
@@ -51,7 +65,7 @@ ATOMIC = PARENTHESIS / NEW / METHODCALL / OBJECTACCESS / LITERAL / UNARY
 
 LITERAL = STRING / FLOAT / BOOLEAN / NULL / INT
 
-NEW = CLASS_REF_QUOTES _ ARGUMENTS
+NEW = CLASS_REF_QUOTES _ ARGUMENTS?
 
 BOOLEAN  = "true"/"false"
 
@@ -106,6 +120,8 @@ CLASS_REF = _ CLASS_TYPE "\\" CLASS_NAME
 CLASS_TYPE = _ ("value" / "entity" / "command" / "event" / "projection" / "invariant" / "query")
 
 CLASS_NAME = [a-zA-Z]+ [a-zA-Z0-9_-]*
+
+QUOTED_NAME = "'" CLASS_NAME "'"
 
 TYPE = CLASS_REF / VALUE_TYPE
 

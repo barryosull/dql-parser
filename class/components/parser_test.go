@@ -20,7 +20,6 @@ var components = []string{
 	function doThing()
 	{
 		a = 2;
-		return (a * 3);
 	}`,
 	`
 	function doThing2(value\service-charge service_charge, value\category category)
@@ -30,6 +29,34 @@ var components = []string{
 	`
 	function doThing(){
 
+	}`,
+	`
+	handler
+	{
+		a = b + c;
+	}`,
+	`
+	handler
+	{
+		assert invariant 'is-started';
+	}`,
+	`
+	handler
+	{
+		assert invariant 'is-started';
+		assert invariant not 'is-started';
+	}`,
+	`
+	handler
+	{
+		apply event 'started' (agent_id, agency_id, brand_id, quote_number, revision);
+	}`,
+	`
+	handler
+	{
+		assert invariant not 'is-started';
+		revision = run query 'next-revision-number' (agency_id, quote_number);
+		apply event 'started' (agent_id, agency_id, brand_id, quote_number, revision);
 	}`,
 };
 

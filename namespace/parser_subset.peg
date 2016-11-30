@@ -26,16 +26,32 @@ IN_CONTEXT = _ "in"i _ "context"i _ QUOTED_NAME
 
 WITHIN_AGGREGATE = _ "within"i _ "aggregate"i _ QUOTED_NAME
 
-CREATE_CLASS = _ "<|" _ "value"i _ QUOTED_NAME _ NAMESPACE _ CLASS_BODY _ "|>"
+CREATE_CLASS = _ CREATE_VALUE / CREATE_COMMAND
+
+CREATE_VALUE = _ "<|" _ ("value"i / "entity"i / "event"i)  _ QUOTED_NAME _ NAMESPACE _ VALUE_BODY _ "|>"
+
+CREATE_COMMAND = _ "<|" _ "command"i  _ QUOTED_NAME _ NAMESPACE _ COMMAND_BODY _ "|>"
+
+COMMAND_BODY = PROPERTIES / CHECK / FUNCTION / COMMAND_HANDLER
+
+COMMAND_HANDLER = _ "handle" _ "{" _ COMMAND_STATEMENT_BLOCK? _ "}" _
+
+COMMAND_STATEMENT_BLOCK = _ (COMMAND_STATEMENT)+ _
+
+COMMAND_STATEMENT = STATEMENT / ASSERT / APPLY
+
+ASSERT = _ "assert"i _ "invariant"i _ ("not")? _ EXPRESSION SEMI
+
+APPLY = _ "apply"i _ "event"i _ EXPRESSION SEMI
 
 QUOTED_NAME = "'" CLASS_NAME "'"
 // -------------------------------------------------------------------------
 //  Class components
 // -------------------------------------------------------------------------
 
-CLASS_BODY = (CLASS_COMPONENTS)*
+VALUE_BODY = (VALUE_COMPONENTS)*
 
-CLASS_COMPONENTS = PROPERTIES / CHECK / FUNCTION
+VALUE_COMPONENTS = PROPERTIES / CHECK / FUNCTION
 
 PROPERTIES = _ "properties" _ "{" PROPERTY_LIST "}" _
 

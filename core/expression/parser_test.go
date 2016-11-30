@@ -45,6 +45,7 @@ var identifiers = []string{
 
 var badIdentifiers = []string{
 	"",
+	"adds dffsdf",
 }
 
 func TestIdentifiers(t *testing.T) {
@@ -59,6 +60,15 @@ var parenthesisi = []string{
 
 func TestParenthesis(t *testing.T) {
 	assertCanParse(parenthesisi, t);
+}
+
+var newInstances = []string {
+	"'value\\integer'(1)",
+	"'value\\integer'",
+}
+
+func TestNewInstances(t *testing.T) {
+	assertCanParse(newInstances, t);
 }
 
 var unary = []string {
@@ -130,6 +140,7 @@ func TestObjectAccess(t *testing.T) {
 }
 
 var methodCalls = []string{
+	"a()",
 	"a->b()",
 	"a->b->z()",
 	"a->b(1)",
@@ -139,6 +150,21 @@ var methodCalls = []string{
 
 func TestMethodCalls(t *testing.T) {
 	assertCanParse(methodCalls, t);
+}
+
+var queries = []string {
+	`run query 'next-revision-number'`,
+	`run query 'next-revision-number'() `,
+	`run query 'next-revision-number'(agency_id, quote_number)`,
+};
+
+var badQueries = []string{
+	`ran querty 'next-revision-number'`,
+};
+
+func TestQueries(t *testing.T) {
+	assertCanParse(queries, t);
+	assertCannotParse(badQueries, t);
 }
 
 var compound = []string{
@@ -152,3 +178,5 @@ var compound = []string{
 func TestCompound(t *testing.T) {
 	assertCanParse(compound, t);
 }
+
+

@@ -211,3 +211,94 @@ func TestCreateEntities(t *testing.T) {
 	createEntities.assertParse(t);
 }
 
+var createEvents = statements{
+	[]string{
+		`<| event 'started'
+			properties
+			{
+				value\uuid agent_id;
+				value\uuid agency_id;
+				value\uuid brand_id;
+				value\integer quote_number;
+				value\integer revision;
+			}
+		|>`,
+		`
+		<| event 'revision-started'
+			properties
+			{
+				value\uuid old_quote_id;
+			}
+
+			check (
+				return a + b;
+			)
+		|>`,
+	},
+	[]string{
+		`
+		<| event 'revision-started'
+			properties
+			{
+				value\uuid old_quote_id;
+			}
+
+			handle ( )
+		|>`,
+	},
+};
+
+func TestEvents(t *testing.T) {
+	createEvents.assertParse(t);
+}
+
+var createCommands = statements{
+	[]string{
+		`<| command 'start'
+
+			properties
+			{
+				identifier agent_id;
+				identifier agency_id;
+				identifier brand_id;
+			}
+
+			handler
+			{
+				assert invariant not 'is-started';
+				quote_number = run query 'next-quote-number' (agency_id);
+				apply event 'started' (agent_id, agency_id, brand_id, quote_number, value\integer(1));
+			}
+		|>`,
+		`
+		<| command 'start-from-existing'
+
+			properties
+			{
+				identifier agent_id;
+				identifier agency_id;
+				identifier brand_id;
+				value\integer quote_number;
+			}
+
+			handler
+			{
+				assert invariant not 'is-started';
+
+				revision = run query 'next-revision-number' (agency_id, quote_number);
+
+				apply event 'started' (agent_id, agency_id, brand_id, quote_number, revision);
+			}
+		|>`,
+	},
+	[]string{
+		`
+		<| command 'start' properties
+			{ |>`,
+	},
+};
+
+func TestCommands(t *testing.T) {
+	createCommands.assertParse(t);
+}
+
