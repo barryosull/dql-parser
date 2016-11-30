@@ -178,10 +178,17 @@ var compound = []string{
 	"a->b = 'value\\integer'(1) - ('value\\integer'(1) + b) + (a - b) - a->b->c + a->b() - !b + a and b",
 	"a = b + c = c + 24",
 	"quote->items->has(item) == true",
+	"quote->items->has(item) - 5 == true",
 }
+
+var badCompound = []string{
+	"quote->items->has(item) == true  + a a",
+	"quote->items->has(item) == ",
+};
 
 func TestCompound(t *testing.T) {
 	assertCanParse(compound, t);
+	assertCannotParse(badCompound, t);
 }
 
 
