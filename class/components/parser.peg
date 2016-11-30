@@ -3,7 +3,9 @@
 //  Class components
 // -------------------------------------------------------------------------
 
-COMMAND_BODY = (COMMAND_COMPONENTS)
+COMMAND_BODY_TEST = COMMAND_BODY EOF
+
+COMMAND_BODY = (COMMAND_COMPONENTS)*
 
 COMMAND_COMPONENTS = COMMAND_HANDLER / PROPERTIES / CHECK / FUNCTION
 

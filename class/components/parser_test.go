@@ -113,6 +113,11 @@ var listOfcomponents = []string{
 	function doThing2(value\service-charge service_charge, value\category category)
 	{
 
+	}
+
+	handler
+	{
+		a = b + c;
 	}`,
 };
 

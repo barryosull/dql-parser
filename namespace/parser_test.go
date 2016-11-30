@@ -258,16 +258,14 @@ var createCommands = statements{
 
 			properties
 			{
-				identifier agent_id;
-				identifier agency_id;
-				identifier brand_id;
+				string value;
 			}
 
 			handler
 			{
 				assert invariant not 'is-started';
 				quote_number = run query 'next-quote-number' (agency_id);
-				apply event 'started' (agent_id, agency_id, brand_id, quote_number, value\integer(1));
+				apply event 'started' (agent_id, agency_id, brand_id);
 			}
 		|>`,
 		`
@@ -275,10 +273,7 @@ var createCommands = statements{
 
 			properties
 			{
-				identifier agent_id;
-				identifier agency_id;
-				identifier brand_id;
-				value\integer quote_number;
+				string value;
 			}
 
 			handler

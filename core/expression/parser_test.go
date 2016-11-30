@@ -41,6 +41,8 @@ var identifiers = []string{
 	"b",
 	"sdadsasd",
 	"dsfsd12213",
+	"a_b",
+	"quote_number",
 }
 
 var badIdentifiers = []string{
@@ -56,6 +58,7 @@ func TestIdentifiers(t *testing.T) {
 
 var parenthesisi = []string{
 	"(5)",
+	"(1 + 2)",
 }
 
 func TestParenthesis(t *testing.T) {
@@ -63,8 +66,8 @@ func TestParenthesis(t *testing.T) {
 }
 
 var newInstances = []string {
-	"'value\\integer'(1)",
 	"'value\\integer'",
+	"'value\\integer'(1)",
 }
 
 func TestNewInstances(t *testing.T) {
@@ -154,7 +157,7 @@ func TestMethodCalls(t *testing.T) {
 
 var queries = []string {
 	`run query 'next-revision-number'`,
-	`run query 'next-revision-number'() `,
+	`run query 'next-revision-number'()`,
 	`run query 'next-revision-number'(agency_id, quote_number)`,
 };
 
@@ -168,6 +171,7 @@ func TestQueries(t *testing.T) {
 }
 
 var compound = []string{
+	"a + b - c",
 	"a + (a - b)",
 	"(a + b) + (a - b)",
 	"(a + b) + (a - b) - a->b->c + a->b() - !b + a and b",
