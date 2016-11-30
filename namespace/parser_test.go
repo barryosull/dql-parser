@@ -159,10 +159,51 @@ func TestCreateValues(t *testing.T) {
 
 var createEntities = statements{
 	[]string{
+		`<| entity 'address'
+			properties { string value; }
+		|>`,
+		`<| entity 'address'
+			properties { string value; }
 
+			check (
+				return a + b;
+			)
+		|>`,
+
+		`<| entity 'address'
+			properties { string value; }
+			check ( return a + b; )
+
+			function doThing(value\a a, value\b b) {
+				return 22;
+			}
+		|>`,
+		`<| entity 'address'
+			properties
+			{
+				string value;
+			}
+
+			function doThing()
+			{
+				a = 2;
+				return (a * 3);
+			}
+
+			function doThing2(value\service-charge service_charge, value\category category)
+			{
+
+			}
+		|>`,
 	},
 	[]string{
+		`<| entity 'address'
+			properties { string value; }
 
+			handle (
+				return 22;
+			)
+		|>`,
 	},
 };
 
