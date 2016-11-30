@@ -77,7 +77,11 @@ var createClassesWithAnWithoutFullyQualfied = statements{
 			properties { string value; }
 		|>`,
 	},
-	[]string{},
+	[]string{
+		`<| value 'address' for aggregate 'quote'
+			properties { string value; }
+		|>`,
+	},
 }
 
 
@@ -97,8 +101,20 @@ var blockStatements = statements{
 			properties { string value; }
 		|>
 		}`,
+		`using database 'database' for domain 'domain' in context 'context':
+		{
+			using database 'database' for domain 'domain' in context 'context':
+			{
+				create aggregate 'aggregate';
+			}
+		}`,
 	},
-	[]string{},
+	[]string{
+		`using database 'database' in domain 'domain' for context 'context':
+		{
+			create aggregate 'aggregate';
+		}`,
+	},
 };
 
 func TestBlockStatements(t *testing.T) {
@@ -148,9 +164,9 @@ var createValues = statements{
 		`<| value 'address'
 			properties { string value; }
 
-			handle (
+			handler {
 				return 22;
-			)
+			}
 		|>`,
 	},
 };
@@ -202,9 +218,9 @@ var createEntities = statements{
 		`<| entity 'address'
 			properties { string value; }
 
-			handle (
+			handler {
 				return 22;
-			)
+			}
 		|>`,
 	},
 };
@@ -245,7 +261,7 @@ var createEvents = statements{
 				value\uuid old_quote_id;
 			}
 
-			handle ( )
+			handler { }
 		|>`,
 	},
 };
