@@ -38,6 +38,7 @@ CREATE_INVARIANT = _ "<|" _ "invariant"i  _ QUOTED_NAME _ "on"i _ CLASS_REF_QUOT
 
 CREAT_QUERY = _ "<|" _ "query"i  _ QUOTED_NAME _ "on"i _ CLASS_REF_QUOTES _ NAMESPACE _ QUERY_BODY _ "|>"
 
+
 // -------------------------------------------------------------------------
 //  Class components
 // -------------------------------------------------------------------------
@@ -85,6 +86,8 @@ PARAMETERS = "(" PARAMETER_LIST ")"
 PARAMETER_LIST = _ (PARAMETER "," _ )* PARAMETER? _
 
 PARAMETER = _ CLASS_REF _ IDENTIFIER _
+
+
 // -------------------------------------------------------------------------
 //  Statements
 // -------------------------------------------------------------------------

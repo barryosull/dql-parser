@@ -145,7 +145,7 @@ func TestObjectAccess(t *testing.T) {
 var methodCalls = []string{
 	"a()",
 	"a->b()",
-	"a->b->z()",
+	"a->b->z(1,2)",
 	"a->b(1)",
 	"a->b(1,2,3,4)",
 	"a->b(1)->c()",
