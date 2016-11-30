@@ -1,37 +1,43 @@
 
 {
-    package class
+    package components
 }
     
 
-CLASSBODY = (PROPERTIES / CHECK / FUNCTIONS)?
+// -------------------------------------------------------------------------
+//  Class components
+// -------------------------------------------------------------------------
 
-PROPERTIES = _ "properties" _ "{" PROPERTYLIST "}" _
+CLASS_BODY = (CLASS_COMPONENTS)* EOF
 
-PROPERTYLIST = (PROPERTY)*
+CLASS_COMPONENTS = PROPERTIES / CHECK / FUNCTION
+
+PROPERTIES = _ "properties" _ "{" PROPERTY_LIST "}" _
+
+PROPERTY_LIST = (PROPERTY)*
 
 PROPERTY = _ TYPE _ IDENTIFIER _ ";" _
 
 CHECK = _ "check" _ "(" STATEMENT_BLOCK? ")" _
 
-FUNCTIONS = _ "function" _ IDENTIFIER _ PARAMETERS  _ "{" STATEMENT_BLOCK? "}" _
+FUNCTION = _ "function" _ IDENTIFIER _ PARAMETERS  _ "{" _ STATEMENT_BLOCK? _ "}" _
 
-PARAMETERS = "(" PARAMETERLIST ")"
+PARAMETERS = "(" PARAMETER_LIST ")"
 
-PARAMETERLIST = (PARAMETER "," _ )* PARAMETER?
+PARAMETER_LIST = _ (PARAMETER "," _ )* PARAMETER? _
 
 PARAMETER = _ CLASS_REF _ IDENTIFIER _
 // -------------------------------------------------------------------------
 //  Statements
 // -------------------------------------------------------------------------
 
-STATEMENTBLOCK = (STATEMENT)+
+STATEMENT_BLOCK = _ (STATEMENT)+ _
 
 STATEMENT = RETURN SEMI / IF / FOREACH / EXPRESSION SEMI
 
-IF = "if" _ EXPRESSION _ "{" _ STATEMENTBLOCK? "}" _ ("else" _ "{" _ STATEMENTBLOCK? "}" _)?
+IF = "if" _ EXPRESSION _ "{" _ STATEMENT_BLOCK? "}" _ ("else" _ "{" _ STATEMENT_BLOCK? "}" _)?
 
-FOREACH = "foreach" _ "(" _ EXPRESSION _ "as" (_ IDENTIFIER _ "=>")? _ IDENTIFIER _ ")" _ "{" _ STATEMENTBLOCK? "}"
+FOREACH = "foreach" _ "(" _ EXPRESSION _ "as" (_ IDENTIFIER _ "=>")? _ IDENTIFIER _ ")" _ "{" _ STATEMENT_BLOCK? "}"
 
 RETURN = "return" _ EXPRESSION
 

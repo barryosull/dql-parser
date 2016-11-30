@@ -1,0 +1,24 @@
+
+// -------------------------------------------------------------------------
+//  Class components
+// -------------------------------------------------------------------------
+
+CLASS_BODY = (CLASS_COMPONENTS)*
+
+CLASS_COMPONENTS = PROPERTIES / CHECK / FUNCTION
+
+PROPERTIES = _ "properties" _ "{" PROPERTY_LIST "}" _
+
+PROPERTY_LIST = (PROPERTY)*
+
+PROPERTY = _ TYPE _ IDENTIFIER _ ";" _
+
+CHECK = _ "check" _ "(" STATEMENT_BLOCK? ")" _
+
+FUNCTION = _ "function" _ IDENTIFIER _ PARAMETERS  _ "{" _ STATEMENT_BLOCK? _ "}" _
+
+PARAMETERS = "(" PARAMETER_LIST ")"
+
+PARAMETER_LIST = _ (PARAMETER "," _ )* PARAMETER? _
+
+PARAMETER = _ CLASS_REF _ IDENTIFIER _

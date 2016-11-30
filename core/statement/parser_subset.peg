@@ -8,13 +8,13 @@
 //  Statements
 // -------------------------------------------------------------------------
 
-STATEMENTBLOCK = (STATEMENT)+
+STATEMENT_BLOCK = _ (STATEMENT)+ _
 
 STATEMENT = RETURN SEMI / IF / FOREACH / EXPRESSION SEMI
 
-IF = "if" _ EXPRESSION _ "{" _ STATEMENTBLOCK? "}" _ ("else" _ "{" _ STATEMENTBLOCK? "}" _)?
+IF = "if" _ EXPRESSION _ "{" _ STATEMENT_BLOCK? "}" _ ("else" _ "{" _ STATEMENT_BLOCK? "}" _)?
 
-FOREACH = "foreach" _ "(" _ EXPRESSION _ "as" (_ IDENTIFIER _ "=>")? _ IDENTIFIER _ ")" _ "{" _ STATEMENTBLOCK? "}"
+FOREACH = "foreach" _ "(" _ EXPRESSION _ "as" (_ IDENTIFIER _ "=>")? _ IDENTIFIER _ ")" _ "{" _ STATEMENT_BLOCK? "}"
 
 RETURN = "return" _ EXPRESSION
 

@@ -9,8 +9,6 @@ CREATE_OBJECT = _ CREATE_NAMESPACE_OBJECT? _ NAMESPACE? _ ";"
 
 BLOCK_STATEMENT = _ NAMESPACE _ ":" _ "{" NAMESPACE_STATEMENT _ "}"
 
-CREATE_CLASS = _ "<|" _ "value"i _ QUOTED_NAME _ NAMESPACE _ CLASSBODY _ "|>"
-
 CREATE_NAMESPACE_OBJECT = "create"i _ ("database" / "domain" / "context" / "aggregate") _ QUOTED_NAME
 
 NAMESPACE = (USING_DATABASE / FOR_DOMAIN / IN_CONTEXT / WITHIN_AGGREGATE)*
@@ -22,5 +20,7 @@ FOR_DOMAIN = _ "for"i _ "domain"i _ QUOTED_NAME
 IN_CONTEXT = _ "in"i _ "context"i _ QUOTED_NAME
 
 WITHIN_AGGREGATE = _ "within"i _ "aggregate"i _ QUOTED_NAME
+
+CREATE_CLASS = _ "<|" _ "value"i _ QUOTED_NAME _ NAMESPACE _ CLASS_BODY _ "|>"
 
 QUOTED_NAME = "'" CLASS_NAME "'"

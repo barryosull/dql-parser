@@ -9,6 +9,22 @@ type statements struct{
 	invalid []string
 }
 
+func (s *statements) assertParse(t *testing.T) {
+	for _, statement := range s.valid {
+		parsed, _ := Parse("", []byte(statement));
+		if (parsed == nil) {
+			t.Error("Could not parse " + statement);
+			//t.Error(err);
+		}
+	}
+	for _, statement := range s.invalid {
+		parsed, _ := Parse("", []byte(statement));
+		if (parsed != nil) {
+			t.Error("Could parse " + statement);
+		}
+	}
+}
+
 var inlineStatements = statements{
 	[]string{
 		`using database 'business';`,
@@ -30,7 +46,7 @@ var inlineStatements = statements{
 };
 
 func TestInlineStatements(t *testing.T) {
-	assertCorrectParsing(inlineStatements, t);
+	inlineStatements.assertParse(t);
 }
 
 var createNamespaceTypesWithFullyQualfied = statements{
@@ -44,7 +60,7 @@ var createNamespaceTypesWithFullyQualfied = statements{
 }
 
 func TestCreateNamespaceTypesWithFullyQualfied(t *testing.T) {
-	assertCorrectParsing(createNamespaceTypesWithFullyQualfied, t);
+	createNamespaceTypesWithFullyQualfied.assertParse(t);
 }
 
 var createClassesWithAnWithoutFullyQualfied = statements{
@@ -58,16 +74,13 @@ var createClassesWithAnWithoutFullyQualfied = statements{
 		`<| value 'address' within aggregate 'quote'
 			properties { string value; }
 		|>`,
-		`<| value 'address'
-			properties { string value; }
-		|>`,
 	},
 	[]string{},
 }
 
 
 func TestCreateClassesWithAnWithoutFullyQualfied(t *testing.T) {
-	assertCorrectParsing(createClassesWithAnWithoutFullyQualfied, t);
+	createClassesWithAnWithoutFullyQualfied.assertParse(t);
 }
 
 var blockStatements = statements{
@@ -87,20 +100,73 @@ var blockStatements = statements{
 };
 
 func TestBlockStatements(t *testing.T) {
-	assertCorrectParsing(blockStatements, t);
+	blockStatements.assertParse(t);
 }
 
-func assertCorrectParsing(statements statements, t *testing.T) {
-	for _, statement := range statements.valid {
-		parsed, _ := Parse("", []byte(statement));
-		if (parsed == nil) {
-			t.Error("Could not parse " + statement);
-		}
-	}
-	for _, statement := range statements.invalid {
-		parsed, _ := Parse("", []byte(statement));
-		if (parsed != nil) {
-			t.Error("Could parse " + statement);
-		}
-	}
+var createValues = statements{
+	[]string{
+		`<| value 'address'
+			properties { string value; }
+		|>`,
+		`<| value 'address'
+			properties { string value; }
+
+			check (
+				return a + b;
+			)
+		|>`,
+
+		`<| value 'address'
+			properties { string value; }
+			check ( return a + b; )
+
+			function doThing(value\a a, value\b b) {
+				return 22;
+			}
+		|>`,
+		`<| value 'address'
+			properties
+			{
+				string value;
+			}
+
+			function doThing()
+			{
+				a = 2;
+				return (a * 3);
+			}
+
+			function doThing2(value\service-charge service_charge, value\category category)
+			{
+
+			}
+		|>`,
+	},
+	[]string{
+		`<| value 'address'
+			properties { string value; }
+
+			handle (
+				return 22;
+			)
+		|>`,
+	},
+};
+
+func TestCreateValues(t *testing.T) {
+	createValues.assertParse(t);
 }
+
+var createEntities = statements{
+	[]string{
+
+	},
+	[]string{
+
+	},
+};
+
+func TestCreateEntities(t *testing.T) {
+	createEntities.assertParse(t);
+}
+

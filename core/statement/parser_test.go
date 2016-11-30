@@ -57,6 +57,11 @@ func TestForeachs(t *testing.T) {
 
 var blocks = []string {
 	"a = 22;\nb = 5 + 1;\n c= b - a;",
+	`
+
+	a = 22;\nb = 5 + 1;\n c= b - a;
+
+	`,
 }
 
 func TestBlocks(t *testing.T) {
