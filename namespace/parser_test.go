@@ -14,7 +14,6 @@ func (s *statements) assertParse(t *testing.T) {
 		parsed, _ := Parse("", []byte(statement));
 		if (parsed == nil) {
 			t.Error("Could not parse " + statement);
-			//t.Error(err);
 		}
 	}
 	for _, statement := range s.invalid {
@@ -55,6 +54,9 @@ var createNamespaceTypesWithFullyQualfied = statements{
 		`create domain 'domain' using database 'database';`,
 		`create context 'context' using database 'database' for domain 'domain';`,
 		`create aggregate 'aggregate' using database 'database' for domain 'domain' in context 'context';`,
+		`create domain 'domain';`,
+		`create context 'context';`,
+		`create aggregate 'aggregate';`,
 	},
 	[]string{},
 }
