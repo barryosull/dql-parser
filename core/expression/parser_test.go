@@ -20,12 +20,19 @@ func TestLiterals(t *testing.T) {
 
 func assertCanParse(statements []string, t *testing.T) {
 	for _, statement := range statements {
-		Debug(true);
 		parsed, _ := Parse("", []byte(statement));
 		if (parsed == nil) {
 			t.Error("Could not parse "+statement);
 		}
+	}
+}
 
+func assertCannotParse(statements []string, t *testing.T) {
+	for _, statement := range statements {
+		parsed, _ := Parse("", []byte(statement));
+		if (parsed != nil) {
+			t.Error("Could parse invalid statement "+statement);
+		}
 	}
 }
 
@@ -36,8 +43,13 @@ var identifiers = []string{
 	"dsfsd12213",
 }
 
+var badIdentifiers = []string{
+	"",
+}
+
 func TestIdentifiers(t *testing.T) {
 	assertCanParse(identifiers, t);
+	assertCannotParse(badIdentifiers, t);
 }
 
 

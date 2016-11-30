@@ -15,7 +15,7 @@ func TestReturns(t *testing.T) {
 
 var ifs = []string{
 	`if (a) {
-		return b;
+		a;
 	}`,
 	`if (a) {
 		b;
@@ -25,6 +25,7 @@ var ifs = []string{
 		return e;
 	}`,
 	`if(a){return b;}`,
+	`if(a){}`,
 };
 
 func TestIfs(t *testing.T) {
@@ -43,8 +44,15 @@ var forEachs = []string {
 	}`,
 }
 
+var badForeachs = []string {
+	`foreach (a as b,c) {
+		a;
+	}`,
+}
+
 func TestForeachs(t *testing.T) {
 	assertCanParse(forEachs, t);
+	assertCannotParse(badForeachs, t);
 }
 
 var blocks = []string {
@@ -54,14 +62,20 @@ var blocks = []string {
 func TestBlocks(t *testing.T) {
 	assertCanParse(blocks, t);
 }
-
 func assertCanParse(statements []string, t *testing.T) {
 	for _, statement := range statements {
-		Debug(true);
 		parsed, _ := Parse("", []byte(statement));
 		if (parsed == nil) {
 			t.Error("Could not parse "+statement);
 		}
+	}
+}
 
+func assertCannotParse(statements []string, t *testing.T) {
+	for _, statement := range statements {
+		parsed, _ := Parse("", []byte(statement));
+		if (parsed != nil) {
+			t.Error("Could parse invalid statement "+statement);
+		}
 	}
 }

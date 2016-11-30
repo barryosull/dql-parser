@@ -21,11 +21,9 @@ func TestClassReferences(t *testing.T) {
 
 func assertCanParse(statements []string, t *testing.T) {
 	for _, statement := range statements {
-		Debug(true);
 		parsed, _ := Parse("", []byte(statement));
 		if (parsed == nil) {
 			t.Error("Could not parse "+statement);
 		}
-
 	}
 }

@@ -1,32 +1,18 @@
-{
-    package class
-}
 
-CLASS = "<|" _ CLASSKIND _ NAME _ CLASSBODY _ "|>" EOF
+CLASSBODY = (PROPERTIES / CHECK / FUNCTIONS)?
 
-CLASSBODY = ( _ (PROPERTIES / CHECK / FUNCTIONS) _ )*
+PROPERTIES = _ "properties" _ "{" PROPERTYLIST "}" _
 
-CLASSKIND = "value" / "entity" / "command" / "event"
+PROPERTYLIST = (PROPERTY)*
 
-NAME = "'" IDENTIFIER "'"
+PROPERTY = _ TYPE _ IDENTIFIER _ ";" _
 
-PROPERTIES = "properties" _ "{" PROPERTYLIST "}"
+CHECK = _ "check" _ "(" STATEMENT_BLOCK? ")" _
 
-PROPERTYLIST = (_ IDENTIFIER _ IDENTIFIER _ ";" _)*
-
-CHECK = "check" _ "(" _ ")"
-
-FUNCTIONS = _ "function" _ IDENTIFIER _ PARAMETERS  _ "{" _ "}" _
+FUNCTIONS = _ "function" _ IDENTIFIER _ PARAMETERS  _ "{" STATEMENT_BLOCK? "}" _
 
 PARAMETERS = "(" PARAMETERLIST ")"
 
 PARAMETERLIST = (PARAMETER "," _ )* PARAMETER?
 
-PARAMETER = _ IDENTIFIER _ IDENTIFIER _
-
-IDENTIFIER = [a-zA-Z]+ [a-zA-Z0-9\\_-]*
-
-_ = ( Whitespace / EOL )*
-Whitespace = [ \t\r]
-EOL = '\n'
-EOF = !.
+PARAMETER = _ CLASS_REF _ IDENTIFIER _

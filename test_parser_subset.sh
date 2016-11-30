@@ -8,9 +8,9 @@ addPackageHeader() {
 
     # Give it the correct header
     echo "
-    {
-        package $folder
-    }
+{
+    package $folder
+}
     "|cat - $1/parser.peg > $1/parser_subset.peg
 }
 
@@ -29,7 +29,7 @@ addDependencies() {
 
 buildParser() {
     ../../bin/pigeon $1/parser_subset.peg | ../../bin/goimports > $1/parser_subset.go
-    rm $1/parser_subset.peg
+    # rm $1/parser_subset.peg
     echo "Created $1 test parser";
 }
 

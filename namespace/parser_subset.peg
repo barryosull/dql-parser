@@ -1,0 +1,145 @@
+
+{
+    package namespace
+}
+    
+
+// -------------------------------------------------------------------------
+//  Namespace
+// -------------------------------------------------------------------------
+
+NAMESPACE_STATEMENT = BLOCK_STATEMENT/ CREATE_OBJECT / CREATE_CLASS
+
+CREATE_OBJECT = _ CREATE_NAMESPACE_OBJECT? _ NAMESPACE? _ ";"
+
+BLOCK_STATEMENT = _ NAMESPACE _ ":" _ "{" NAMESPACE_STATEMENT _ "}"
+
+CREATE_CLASS = _ "<|" _ "value"i _ QUOTED_NAME _ NAMESPACE _ CLASSBODY _ "|>"
+
+CREATE_NAMESPACE_OBJECT = "create"i _ ("database" / "domain" / "context" / "aggregate") _ QUOTED_NAME
+
+NAMESPACE = (USING_DATABASE / FOR_DOMAIN / IN_CONTEXT / WITHIN_AGGREGATE)*
+
+USING_DATABASE = _ "using"i _ "database"i _ QUOTED_NAME
+
+FOR_DOMAIN = _ "for"i _ "domain"i _ QUOTED_NAME
+
+IN_CONTEXT = _ "in"i _ "context"i _ QUOTED_NAME
+
+WITHIN_AGGREGATE = _ "within"i _ "aggregate"i _ QUOTED_NAME
+
+QUOTED_NAME = "'" CLASS_NAME "'"
+CLASSBODY = (PROPERTIES / CHECK / FUNCTIONS)?
+
+PROPERTIES = _ "properties" _ "{" PROPERTYLIST "}" _
+
+PROPERTYLIST = (PROPERTY)*
+
+PROPERTY = _ TYPE _ IDENTIFIER _ ";" _
+
+CHECK = _ "check" _ "(" STATEMENT_BLOCK? ")" _
+
+FUNCTIONS = _ "function" _ IDENTIFIER _ PARAMETERS  _ "{" STATEMENT_BLOCK? "}" _
+
+PARAMETERS = "(" PARAMETERLIST ")"
+
+PARAMETERLIST = (PARAMETER "," _ )* PARAMETER?
+
+PARAMETER = _ CLASS_REF _ IDENTIFIER _
+// -------------------------------------------------------------------------
+//  Statements
+// -------------------------------------------------------------------------
+
+STATEMENTBLOCK = (STATEMENT)+
+
+STATEMENT = RETURN SEMI / IF / FOREACH / EXPRESSION SEMI
+
+IF = "if" _ EXPRESSION _ "{" _ STATEMENTBLOCK? "}" _ ("else" _ "{" _ STATEMENTBLOCK? "}" _)?
+
+FOREACH = "foreach" _ "(" _ EXPRESSION _ "as" (_ IDENTIFIER _ "=>")? _ IDENTIFIER _ ")" _ "{" _ STATEMENTBLOCK? "}"
+
+RETURN = "return" _ EXPRESSION
+
+// -------------------------------------------------------------------------
+//  Expressions
+// -------------------------------------------------------------------------
+
+EXPRESSION = ARITHMETIC / ASSIGNMENT/ LOGICAL / COMPARISON / ATOMIC
+
+ATOMIC = PARENTHESIS / NEW / METHODCALL / OBJECTACCESS / LITERAL / UNARY
+
+LITERAL = STRING / FLOAT / BOOLEAN / NULL / INT
+
+NEW = CLASS_REF_QUOTES _ ARGUMENTS
+
+BOOLEAN  = "true"/"false"
+
+NULL = "null"
+
+STRING = "\"" [a-zA-Z0-9]* "\""
+
+INT = [0-9]+
+
+FLOAT = [0-9]+ [.] [0-9]+
+
+PARENTHESIS = "(" _ EXPRESSION _ ")"
+
+UNARY = INCREMENT / DECREMENT / NEGATE / NOT / POSITIVE
+
+INCREMENT = OBJECTACCESS "++"
+
+DECREMENT = OBJECTACCESS "--"
+
+NEGATE = "-" OBJECTACCESS
+
+NOT = "!" OBJECTACCESS
+
+POSITIVE = "+" OBJECTACCESS
+
+ARITHMETIC = ATOMIC _ OPERATOR _ EXPRESSION
+
+OPERATOR = "+" / "-" / "/" / "*" / "%"
+
+ASSIGNMENT = OBJECTACCESS _ "=" _ EXPRESSION
+
+LOGICAL = IDENTIFIER _ ("and" / "or") _ ATOMIC
+
+COMPARISON = IDENTIFIER _ ("===" / "!==" / "==" / "!=" / "<=" / ">=" / "<" / ">") _ EXPRESSION
+
+OBJECTACCESS = ((METHODCALL / IDENTIFIER) "->")* (METHODCALL / IDENTIFIER)
+
+METHODCALL = IDENTIFIER ARGUMENTS
+
+ARGUMENTS = "(" ARGUMENTLIST? ")"
+
+ARGUMENTLIST = (EXPRESSION _ "," _)* EXPRESSION
+
+// -------------------------------------------------------------------------
+//  Core
+// -------------------------------------------------------------------------
+
+CLASS_REF_QUOTES = _ "'" CLASS_REF "'"
+
+CLASS_REF = _ CLASS_TYPE "\\" CLASS_NAME
+
+CLASS_TYPE = _ ("value" / "entity" / "command" / "event" / "projection" / "invariant" / "query")
+
+CLASS_NAME = [a-zA-Z]+ [a-zA-Z0-9_-]*
+
+TYPE = CLASS_REF / VALUE_TYPE
+
+VALUE_TYPE = _ ("string" / "boolean" / "float" / "map")
+
+CLASS_IMPLIED_REF = _ "'" CLASS_NAME "'"
+
+IDENTIFIER = [a-zA-Z]+ [a-zA-Z0-9_]*
+
+_ = ( WHITESPACE / EOL )*
+
+SEMI = _ ";" _
+
+WHITESPACE = [ \t\r]
+
+EOL = '\n'
+
+EOF = !.

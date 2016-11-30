@@ -1,12 +1,14 @@
 
-DOC = STATEMENTBLOCK EOF
+// -------------------------------------------------------------------------
+//  Statements
+// -------------------------------------------------------------------------
 
-STATEMENTBLOCK = STATEMENT*
+STATEMENTBLOCK = (STATEMENT)+
 
 STATEMENT = RETURN SEMI / IF / FOREACH / EXPRESSION SEMI
 
-IF = "if" _ EXPRESSION _ "{" _ STATEMENTBLOCK "}" _ ("else" _ "{" _ STATEMENTBLOCK "}" _)?
+IF = "if" _ EXPRESSION _ "{" _ STATEMENTBLOCK? "}" _ ("else" _ "{" _ STATEMENTBLOCK? "}" _)?
 
-FOREACH = "foreach" _ "(" _ EXPRESSION _ "as" (_ IDENTIFIER _ "=>")? _ IDENTIFIER _ ")" _ "{" _ STATEMENTBLOCK "}"
+FOREACH = "foreach" _ "(" _ EXPRESSION _ "as" (_ IDENTIFIER _ "=>")? _ IDENTIFIER _ ")" _ "{" _ STATEMENTBLOCK? "}"
 
 RETURN = "return" _ EXPRESSION
