@@ -297,3 +297,34 @@ func TestCommands(t *testing.T) {
 	createCommands.assertParse(t);
 }
 
+var createProjections = statements{
+	[]string{
+		`<| aggregate projection 'quote
+			properties
+			{
+				value\uuid agency_id;
+				value\uuid brand_id;
+			}
+
+			when event 'started'
+			{
+				agency_id = event.agency_id;
+				brand_id = event.brand_id;
+				is_started = true;
+			}
+
+			when event 'item-added'
+			{
+				items.add(event.item);
+			}
+		}`,
+	},
+	[]string{},
+};
+
+func TestProjections(t *testing.T) {
+	createProjections.assertParse(t);
+}
+
+
+
