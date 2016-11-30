@@ -58,6 +58,13 @@ var components = []string{
 		revision = run query 'next-revision-number' (agency_id, quote_number);
 		apply event 'started' (agent_id, agency_id, brand_id, quote_number, revision);
 	}`,
+	`
+	when event 'started'
+	{
+		agency_id = event->agency_id;
+		brand_id = event->brand_id;
+		is_started = true;
+	}`,
 };
 
 var invalidComponents = []string {

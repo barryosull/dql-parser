@@ -299,7 +299,7 @@ func TestCommands(t *testing.T) {
 
 var createProjections = statements{
 	[]string{
-		`<| aggregate projection 'quote
+		`<| aggregate projection 'quote'
 			properties
 			{
 				value\uuid agency_id;
@@ -308,22 +308,150 @@ var createProjections = statements{
 
 			when event 'started'
 			{
-				agency_id = event.agency_id;
-				brand_id = event.brand_id;
+				agency_id = event->agency_id;
+				brand_id = event->brand_id;
 				is_started = true;
 			}
 
 			when event 'item-added'
 			{
-				items.add(event.item);
+				items->add(event->item);
 			}
-		}`,
+		|>`,
+		`<| domain projection 'quote'
+			properties
+			{
+				value\uuid agency_id;
+				value\uuid brand_id;
+			}
+
+			when event 'item-added'
+			{
+				items->add(event->item);
+			}
+		|>`,
+
 	},
-	[]string{},
+	[]string{
+		`<| domain projection 'quote'
+			properties
+			{
+				value\uuid agency_id;
+				value\uuid brand_id;
+			}
+
+			handle
+			{
+				items->add(event->item);
+			}
+		|>`,
+	},
 };
 
 func TestProjections(t *testing.T) {
 	createProjections.assertParse(t);
+}
+
+var createInvariants = statements{
+	[]string{
+		`<| invariant 'item-exists' on 'projection\quote'
+
+			properties
+			{
+				entity\item item;
+			}
+
+			check
+			(
+				return true;
+			)
+		|>`,
+		`<| invariant 'item-exists' on 'projection\quote'
+			check
+			(
+				return true;
+			)
+		|>`,
+
+	},
+	[]string{
+		`<| invariant 'item-exists' on 'projection\quote'
+			check
+			(
+				return true;
+			)
+
+			function doThing() {
+
+			}
+		|>`,
+		`<| invariant 'item-exists' on 'projection\quote'
+			check
+			(
+				return true;
+			)
+
+			handler {
+
+			}
+		|>`,
+	},
+};
+
+func TestCreateInvariants(t *testing.T) {
+	createInvariants.assertParse(t);
+}
+
+var createQueries = statements{
+	[]string{
+		`<| query 'next-quote-number' on 'projection\quote-numbers'
+
+			properties
+			{
+				value\uuid agency_id;
+			}
+
+			handler
+			{
+				return true;
+			}
+		|>`,
+		`<| query 'item-exists' on 'projection\quote'
+			handler
+			{
+				return true;
+			}
+		|>`,
+
+	},
+	[]string{
+		`<| query 'item-exists' on 'projection\quote'
+			properties
+			{
+				value\uuid agency_id;
+			}
+
+
+			function doThing() {
+
+			}
+		|>`,
+		`<| query 'item-exists' on 'projection\quote'
+			properties
+			{
+				value\uuid agency_id;
+			}
+
+			check
+			(
+				return true;
+			)
+		|>`,
+	},
+};
+
+func TestCreateQueries(t *testing.T) {
+	createQueries.assertParse(t);
 }
 
 

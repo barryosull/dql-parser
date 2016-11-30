@@ -7,6 +7,7 @@ import (
 var returns = []string{
 	"return true;",
 	"return a + b;",
+	"return quote->items->has(item) == true;",
 }
 
 func TestReturns(t *testing.T) {
@@ -61,6 +62,13 @@ var blocks = []string {
 
 	a = 22;\nb = 5 + 1;\n c= b - a;
 
+	`,
+	`
+	quote_number = quote-numbers->get(agency_id);
+	if (quote_number == null) {
+		return 'value\integer'(1);
+	}
+	return quote_number->increment();
 	`,
 }
 

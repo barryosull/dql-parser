@@ -22,13 +22,15 @@ RETURN = "return" _ EXPRESSION
 //  Expressions
 // -------------------------------------------------------------------------
 
-EXPRESSION = ARITHMETIC / ASSIGNMENT/ LOGICAL / COMPARISON / ATOMIC
+EXRESSION_TEST = EXPRESSION EOF
+
+EXPRESSION = QUERY / ARITHMETIC / ASSIGNMENT/ LOGICAL / COMPARISON / ATOMIC
 
 ATOMIC = PARENTHESIS / NEW / METHODCALL / OBJECTACCESS / LITERAL / UNARY
 
 LITERAL = STRING / FLOAT / BOOLEAN / NULL / INT
 
-NEW = CLASS_REF_QUOTES _ ARGUMENTS
+NEW = CLASS_REF_QUOTES _ ARGUMENTS?
 
 BOOLEAN  = "true"/"false"
 
@@ -64,13 +66,16 @@ LOGICAL = IDENTIFIER _ ("and" / "or") _ ATOMIC
 
 COMPARISON = IDENTIFIER _ ("===" / "!==" / "==" / "!=" / "<=" / ">=" / "<" / ">") _ EXPRESSION
 
+QUERY = "run"i _ "query"i _ QUOTED_NAME _ ARGUMENTS?
+
 OBJECTACCESS = ((METHODCALL / IDENTIFIER) "->")* (METHODCALL / IDENTIFIER)
 
 METHODCALL = IDENTIFIER ARGUMENTS
 
 ARGUMENTS = "(" ARGUMENTLIST? ")"
 
-ARGUMENTLIST = (EXPRESSION _ "," _)* EXPRESSION
+ARGUMENTLIST =  _ (_ EXPRESSION _ "," _)* EXPRESSION _
+
 
 // -------------------------------------------------------------------------
 //  Core
@@ -83,6 +88,8 @@ CLASS_REF = _ CLASS_TYPE "\\" CLASS_NAME
 CLASS_TYPE = _ ("value" / "entity" / "command" / "event" / "projection" / "invariant" / "query")
 
 CLASS_NAME = [a-zA-Z]+ [a-zA-Z0-9_-]*
+
+QUOTED_NAME = "'" CLASS_NAME "'"
 
 TYPE = CLASS_REF / VALUE_TYPE
 

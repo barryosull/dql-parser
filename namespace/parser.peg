@@ -29,6 +29,6 @@ CREATE_COMMAND = _ "<|" _ "command"i  _ QUOTED_NAME _ NAMESPACE _ COMMAND_BODY _
 
 CREATE_PROJECTION = _ "<|" _ ("aggregate" / "domain") _ "projection"i  _ QUOTED_NAME _ NAMESPACE _ PROJECTION_BODY _ "|>"
 
-CREATE_INVARIANT = _ "<|" _ "invariant"i  _ QUOTED_NAME _ NAMESPACE _ INVARIANT_BODY _ "|>"
+CREATE_INVARIANT = _ "<|" _ "invariant"i  _ QUOTED_NAME _ "on"i _ CLASS_REF_QUOTES _ NAMESPACE _ INVARIANT_BODY _ "|>"
 
-CREAT_QUERY = _ "<|" _ "query"i  _ QUOTED_NAME _ NAMESPACE _ COMMAND_BODY _ "|>"
+CREAT_QUERY = _ "<|" _ "query"i  _ QUOTED_NAME _ "on"i _ CLASS_REF_QUOTES _ NAMESPACE _ QUERY_BODY _ "|>"

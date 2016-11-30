@@ -177,6 +177,7 @@ var compound = []string{
 	"(a + b) + (a - b) - a->b->c + a->b() - !b + a and b",
 	"a->b = 'value\\integer'(1) - ('value\\integer'(1) + b) + (a - b) - a->b->c + a->b() - !b + a and b",
 	"a = b + c = c + 24",
+	"quote->items->has(item) == true",
 }
 
 func TestCompound(t *testing.T) {
