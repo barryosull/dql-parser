@@ -3,13 +3,15 @@
 //  Namespace
 // -------------------------------------------------------------------------
 
-STATEMENTS = (NAMESPACE_STATEMENT)?
+FILE = STATEMENTS _ EOF
+
+STATEMENTS = (NAMESPACE_STATEMENT)*
 
 NAMESPACE_STATEMENT = BLOCK_STATEMENT/ CREATE_OBJECT / CREATE_CLASS
 
 CREATE_OBJECT = _ CREATE_NAMESPACE_OBJECT? _ NAMESPACE? _ ";"
 
-BLOCK_STATEMENT = _ NAMESPACE _ ":" _ "{" NAMESPACE_STATEMENT _ "}"
+BLOCK_STATEMENT = _ NAMESPACE _ ":" _ "{" STATEMENTS _ "}"
 
 CREATE_NAMESPACE_OBJECT = "create"i _ ("database" / "domain" / "context" / "aggregate") _ QUOTED_NAME
 

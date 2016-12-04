@@ -1,4 +1,3 @@
-../../bin/pigeon $1/parser.peg | ../../bin/goimports > $1/parser.go
-echo "Created $1 parser";
+sh build_and_test_parser_subset.sh namespace
 
-go test $1/parser_test.go $1/parser.go
+go test namespace/full_parser_test.go namespace/parser.go

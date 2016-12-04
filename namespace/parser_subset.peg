@@ -8,13 +8,15 @@
 //  Namespace
 // -------------------------------------------------------------------------
 
-STATEMENTS = (NAMESPACE_STATEMENT)?
+FILE = STATEMENTS _ EOF
+
+STATEMENTS = (NAMESPACE_STATEMENT)*
 
 NAMESPACE_STATEMENT = BLOCK_STATEMENT/ CREATE_OBJECT / CREATE_CLASS
 
 CREATE_OBJECT = _ CREATE_NAMESPACE_OBJECT? _ NAMESPACE? _ ";"
 
-BLOCK_STATEMENT = _ NAMESPACE _ ":" _ "{" NAMESPACE_STATEMENT _ "}"
+BLOCK_STATEMENT = _ NAMESPACE _ ":" _ "{" STATEMENTS _ "}"
 
 CREATE_NAMESPACE_OBJECT = "create"i _ ("database" / "domain" / "context" / "aggregate") _ QUOTED_NAME
 
@@ -76,7 +78,7 @@ PROPERTIES = _ "properties"i _ "{" PROPERTY_LIST "}" _
 
 PROPERTY_LIST = (PROPERTY)*
 
-PROPERTY = _ TYPE _ IDENTIFIER _ ";" _
+PROPERTY = _ TYPE _ IDENTIFIER _  ("=" _ EXPRESSION _)? ";" _
 
 CHECK = _ "check"i _ "(" STATEMENT_BLOCK? ")" _
 
@@ -109,7 +111,7 @@ EXRESSION_TEST = EXPRESSION EOF
 
 EXPRESSION = QUERY / ARITHMETIC / COMPARISON / ASSIGNMENT/ LOGICAL / ATOMIC
 
-ATOMIC = PARENTHESIS / NEW / METHODCALL / OBJECTACCESS / LITERAL / UNARY
+ATOMIC = PARENTHESIS / NEW / METHODCALL / OBJECTACCESS / ARRAY / LITERAL / UNARY
 
 LITERAL = STRING / FLOAT / BOOLEAN / NULL / INT
 
@@ -118,6 +120,8 @@ NEW = CLASS_REF_QUOTES _ ARGUMENTS?
 BOOLEAN  = "true"/"false"
 
 NULL = "null"
+
+ARRAY = _ "[" ARGUMENTLIST? "]" _
 
 STRING = "\"" [a-zA-Z0-9]* "\""
 
@@ -176,7 +180,7 @@ QUOTED_NAME = "'" CLASS_NAME "'"
 
 TYPE = CLASS_REF / VALUE_TYPE
 
-VALUE_TYPE = _ ("string" / "boolean" / "float" / "map")
+VALUE_TYPE = _ ("string" / "boolean" / "float" / "map" / "index")
 
 CLASS_IMPLIED_REF = _ "'" CLASS_NAME "'"
 

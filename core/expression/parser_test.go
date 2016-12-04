@@ -179,6 +179,8 @@ var compound = []string{
 	"a = b + c = c + 24",
 	"quote->items->has(item) == true",
 	"quote->items->has(item) - 5 == true",
+	"quote->is_started == true and quote->is_completed == false",
+	"quote->is_started == true",
 }
 
 var badCompound = []string{

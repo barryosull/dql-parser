@@ -35,7 +35,7 @@ PROPERTIES = _ "properties"i _ "{" PROPERTY_LIST "}" _
 
 PROPERTY_LIST = (PROPERTY)*
 
-PROPERTY = _ TYPE _ IDENTIFIER _ ";" _
+PROPERTY = _ TYPE _ IDENTIFIER _  ("=" _ EXPRESSION _)? ";" _
 
 CHECK = _ "check"i _ "(" STATEMENT_BLOCK? ")" _
 

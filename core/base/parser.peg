@@ -15,7 +15,7 @@ QUOTED_NAME = "'" CLASS_NAME "'"
 
 TYPE = CLASS_REF / VALUE_TYPE
 
-VALUE_TYPE = _ ("string" / "boolean" / "float" / "map")
+VALUE_TYPE = _ ("string" / "boolean" / "float" / "map" / "index")
 
 CLASS_IMPLIED_REF = _ "'" CLASS_NAME "'"
 

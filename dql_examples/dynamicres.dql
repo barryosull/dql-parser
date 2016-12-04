@@ -1,0 +1,498 @@
+create database 'dynamic-res';
+
+using database 'dynamic-res':
+{
+	create domain 'sales';
+}
+
+using database 'dynamic-res' for domain 'sales':
+{
+	create context 'quoting';
+}
+
+
+using database 'dynamic-res' for domain 'sales' in context 'quoting':
+{
+	<| value 'address'
+
+		properties
+		{
+			string value;
+		}
+	|>
+
+	<| value 'balanceDue'
+
+		properties
+		{
+			string value;
+		}
+
+		check
+		(
+			value == "";
+		)
+	|>
+
+	<| value 'car'
+
+		properties
+		{
+			value\service-charge service_charge;
+      value\category category;
+      value\car_type car_type;
+      value\checkpoint pick_up;
+      value\checkpoint drop_off;
+      value\seats seats;
+      value\doors doors;
+      value\gears gears;
+      value\aircon air_con;
+      value\note note;
+      value\price net_cost;
+      value\price markup;
+      value\quantity qty;
+		}
+
+		function total()
+		{
+			return 'value\price'(
+				service_charge +((net_cost + markup) * qty)
+			);
+		}
+
+		function totalMarkup()
+		{
+			return 'value\price'(markup * qty);
+		}
+
+		function totalNetCost()
+		{
+			return 'value\price'(net_cost * qty);
+		}
+	|>
+
+  <| entity 'item'
+
+		properties
+		{
+			value\type type;
+			value\supplier supplier;
+			value\is-manual is_manual;
+			value\item item;
+		}
+
+		function createCopyWithNewId()
+		{
+			uuid = Uuid->generate();
+			return 'value\item'(
+				uuid,
+				type,
+				supplier,
+				is_manual,
+				item
+			);
+		}
+	|>
+
+  <| entity 'note'
+
+		properties
+		{
+			value\content content;
+		}
+
+		function createCopyWithNewId()
+		{
+			uuid = Uuid->generate();
+			return 'value\item'(
+				uuid,
+				content
+			);
+		}
+	|>
+
+	<| entity 'passenger'
+
+		properties
+		{
+			value\title title;
+			value\name first_name;
+			value\name last_name;
+			value\type type;
+		}
+
+		function createCopyWithNewId()
+		{
+			uuid = Uuid->generate();
+			return 'value\item'(
+				uuid,
+				title,
+				first_name,
+				last_name,
+				type
+			);
+		}
+	|>
+
+	<| entity 'room'
+
+		properties
+		{
+			value\name name;
+			value\note note;
+			value\net_cost net_cost;
+			value\service_charge service_charge;
+			value\quantity quantity;
+			value\price total;
+		}
+	|>
+
+  <| entity 'segment'
+
+		properties
+		{
+			value\flight-number flight_number;
+			value\date date;
+			value\airport from;
+			value\time depart_time;
+			value\airport to;
+			value\time arrive_time;
+			value\seat-class seat_class;
+			value\connected-flight connected_flight;
+			value\note note;
+		}
+	|>
+
+	create aggregate 'quote';
+
+	within aggregate 'quote':
+	{
+		<| event 'started'
+			properties
+			{
+				value\uuid agent_id;
+				value\uuid agency_id;
+				value\uuid brand_id;
+				value\integer quote_number;
+				value\integer revision;
+			}
+		|>
+
+		<| event 'revision-started'
+			properties
+			{
+				value\uuid old_quote_id;
+			}
+		|>
+
+		<| event 'passenger-added'
+			properties
+			{
+				entity\passenger passenger;
+			}
+		|>
+
+		<| event 'passenger-removed'
+			properties
+			{
+				value\uuid passenger_id;
+			}
+		|>
+
+		<| event 'item-added'
+			properties
+			{
+				entity\item item;
+				value\price total;
+				value\price markup;
+				value\price net_cost;
+				value\service-charge service_charge;
+			}
+		|>
+
+		<| event 'item-edited'
+			properties
+			{
+				entity\item item;
+				value\price total;
+				value\price markup;
+				value\price net_cost;
+				value\service-charge service_charge;
+			}
+		|>
+
+		<| event 'item-removed'
+			properties
+			{
+				value\uuid item_id;
+			}
+		|>
+
+		<| event 'owner-assigned'
+			properties
+			{
+				value\uuid owner_id;
+			}
+		|>
+
+		<| event 'owner-removed'
+			properties
+			{
+				value\uuid owner_id;
+			}
+		|>
+
+		<| event 'note-added'
+			properties
+			{
+				value\uuid agent_id;
+				entity\note note;
+			}
+		|>
+
+		<| event 'note-removed'
+			properties
+			{
+				value\uuid note_id;
+			}
+		|>
+
+		<| event 'fees-set'
+			properties
+			{
+				value\price total;
+				value\service-charge additional_charge;
+				value\deposit deposit;
+				value\balance-due balance_due;
+				value\service-charge service_charge;
+			}
+		|>
+
+		<| event 'completed' |>
+
+		<| aggregate projection 'quote'
+
+			properties
+			{
+				value\uuid agency_id;
+				value\uuid brand_id;
+				value\boolean is_started = false;
+				value\boolean is_completed = false;
+				value\integer quote_number;
+
+				value\price total;
+				value\service-charge additional_charge;
+				value\deposit deposit;
+				value\balance-due balance_due;
+				value\service-charge service_charge;
+
+				index items = [];
+				index passengers = [];
+				value\uuid quote_owner;
+			}
+
+			when event 'started'
+			{
+				agency_id = event->agency_id;
+				brand_id = event->brand_id;
+				is_started = true;
+			}
+
+			when event 'item-added'
+			{
+				items->add(event->item);
+			}
+
+			when event 'item-edited'
+			{
+				items->replace(event->item);
+			}
+
+			when event 'item-removed'
+			{
+				items->remove(event->item_id);
+			}
+
+			when event 'passenger-added'
+			{
+				passengers->add(event->passenger);
+			}
+
+			when event 'passenger-removed'
+			{
+				passengers->remove(event->passenger_id);
+			}
+
+			when event 'owner-assigned'
+			{
+				owner = event->owner;
+			}
+
+			when event 'owner-removed'
+			{
+				owner = null;
+			}
+
+			when event 'fees-set'
+			{
+				total = event->total;
+				additional_charge = event->additional_charge;
+				deposit = event->deposit;
+				balance_due = event->balance_due;
+				service_charge = event->service_charge;
+			}
+
+			when event 'completed'
+			{
+				is_completed = true;
+			}
+		|>
+
+		<| invariant 'is-started' on 'projection\quote'
+			check
+			(
+				return quote->is_started == true;
+			)
+		|>
+
+		<| invariant 'is-editable' on 'projection\quote'
+
+			check
+			(
+				return quote->is_started == true;
+			)
+		|>
+
+		<| invariant 'item-exists' on 'projection\quote'
+
+			properties
+			{
+				entity\item item;
+			}
+
+			check
+			(
+				return quote->items->has(item) == true;
+			)
+		|>
+
+		<| invariant 'note-exists' on 'projection\quote'
+
+			check
+			(
+				return notes->has(note) == true;
+			)
+		|>
+
+		<| invariant 'owner-exists' on 'projection\quote'
+
+			check
+			(
+				return owner != null;
+			)
+		|>
+
+		<| invariant 'passenger-exists' on 'projection\quote'
+
+			check
+			(
+				return passengers->has(passenger) == true;
+			)
+		|>
+
+		<| invariant 'is-completed' on 'projection\quote'
+
+			check
+			(
+				return quote->is_completed == true;
+			)
+		|>
+
+		<| domain projection 'quote-numbers'
+
+			properties
+			{
+				map quotenumbers = [];
+				map revisions = [];
+			}
+
+			when event 'started'
+			{
+				quotenumbers->replace(event->agency_id, event->quote_number);
+				revisions->replace(event->agency_id + event->quote_number, event->revision);
+			}
+		|>
+
+    <| query 'next-quote-number' on 'projection\quote-numbers'
+
+			properties
+			{
+				value\uuid agency_id;
+			}
+
+			handler
+			{
+				quote_number = quote-numbers->quote_numbers->get(agency_id);
+
+				if (quote_number == null) {
+					return 'value\integer'(1);
+				}
+				return quote_number->increment();
+			}
+		|>
+
+		<| query 'next-revision-number' on 'projection\quote-numbers'
+
+			properties
+			{
+				value\uuid agency_id;
+				value\integer quote_number;
+			}
+
+			handler
+			{
+				return quote-numbers->revisions->get(agency_id + quote_number)->increment();
+			}
+		|>
+
+		<| command 'start'
+
+			properties
+			{
+				value\id agent_id;
+				value\id agency_id;
+				value\id brand_id;
+			}
+
+			handler
+			{
+				assert invariant not 'is-started';
+
+				quote_number = run query 'next-quote-number' (agency_id);
+
+				apply event 'started' (agent_id, agency_id, brand_id, quote_number, 'value\integer'(1));
+			}
+		|>
+
+		<| command 'start-from-existing'
+
+			properties
+			{
+				value\id agent_id;
+				value\id agency_id;
+				value\id brand_id;
+				value\integer quote_number;
+			}
+
+			handler
+			{
+				assert invariant not 'is-started';
+
+				revision = run query 'next-revision-number' (agency_id, quote_number);
+
+				apply event 'started' (agent_id, agency_id, brand_id, quote_number, revision);
+			}
+		|>
+	}
+
+}

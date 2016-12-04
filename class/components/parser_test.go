@@ -8,8 +8,8 @@ var components = []string{
 	`
 	properties
 	{
-		value\service-charge service_charge;
-		value\category category;
+		value\service-charge service_charge = 'value\service-charge'(1);
+		value\category category = [];
 	}`,
 	`
 	check

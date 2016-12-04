@@ -57,6 +57,7 @@ var createNamespaceTypesWithFullyQualfied = statements{
 		`create domain 'domain';`,
 		`create context 'context';`,
 		`create aggregate 'aggregate';`,
+		`create database 'db'; using database 'db';`,
 	},
 	[]string{},
 }
