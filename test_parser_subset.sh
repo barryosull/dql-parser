@@ -28,24 +28,19 @@ addDependencies() {
 }
 
 buildParser() {
-    ../../bin/pigeon $1/parser_subset.peg | ../../bin/goimports > $1/parser_subset.go
+    ../../bin/pigeon $1/parser_subset.peg | ../../bin/goimports > $1/parser.go
     # rm $1/parser_subset.peg
     echo "Created $1 test parser";
 }
 
 test() {
-    go test $1/parser_test.go $1/parser_subset.go
-}
-
-tearDown() {
-    rm $1/parser_subset.go
+    go test $1/parser_test.go $1/parser.go
 }
 
 addPackageHeader $1
 addDependencies $1 $1
 buildParser $1
 test $1
-tearDown $1
 
 
 

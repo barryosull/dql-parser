@@ -3,6 +3,8 @@
 //  Namespace
 // -------------------------------------------------------------------------
 
+STATEMENTS = (NAMESPACE_STATEMENT)?
+
 NAMESPACE_STATEMENT = BLOCK_STATEMENT/ CREATE_OBJECT / CREATE_CLASS
 
 CREATE_OBJECT = _ CREATE_NAMESPACE_OBJECT? _ NAMESPACE? _ ";"
@@ -21,14 +23,14 @@ IN_CONTEXT = _ "in"i _ "context"i _ QUOTED_NAME
 
 WITHIN_AGGREGATE = _ "within"i _ "aggregate"i _ QUOTED_NAME
 
-CREATE_CLASS = _ CREATE_VALUE / CREATE_COMMAND/ CREATE_PROJECTION / CREATE_INVARIANT / CREAT_QUERY
+CREATE_CLASS = _  CREATE_VALUE / CREATE_COMMAND / CREATE_PROJECTION / CREATE_INVARIANT / CREATE_QUERY
 
 CREATE_VALUE = _ "<|" _ ("value"i / "entity"i / "event"i)  _ QUOTED_NAME _ NAMESPACE _ VALUE_BODY _ "|>"
 
 CREATE_COMMAND = _ "<|" _ "command"i  _ QUOTED_NAME _ NAMESPACE _ COMMAND_BODY _ "|>"
 
-CREATE_PROJECTION = _ "<|" _ ("aggregate" / "domain") _ "projection"i  _ QUOTED_NAME _ NAMESPACE _ PROJECTION_BODY _ "|>"
+CREATE_PROJECTION = _ "<|" _ ("aggregate"i / "domain"i) _ "projection"i  _ QUOTED_NAME _ NAMESPACE _ PROJECTION_BODY _ "|>"
 
 CREATE_INVARIANT = _ "<|" _ "invariant"i  _ QUOTED_NAME _ "on"i _ CLASS_REF_QUOTES _ NAMESPACE _ INVARIANT_BODY _ "|>"
 
-CREAT_QUERY = _ "<|" _ "query"i  _ QUOTED_NAME _ "on"i _ CLASS_REF_QUOTES _ NAMESPACE _ QUERY_BODY _ "|>"
+CREATE_QUERY = _ "<|" _ "query"i  _ QUOTED_NAME _ "on"i _ CLASS_REF_QUOTES _ NAMESPACE _ QUERY_BODY _ "|>"

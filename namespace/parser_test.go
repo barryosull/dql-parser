@@ -13,13 +13,13 @@ func (s *statements) assertParse(t *testing.T) {
 	for _, statement := range s.valid {
 		parsed, _ := Parse("", []byte(statement));
 		if (parsed == nil) {
-			t.Error("Could not parse " + statement);
+			t.Error("Could not parse '" + statement + "'");
 		}
 	}
 	for _, statement := range s.invalid {
 		parsed, _ := Parse("", []byte(statement));
 		if (parsed != nil) {
-			t.Error("Could parse " + statement);
+			t.Error("Could parse '" + statement + "'");
 		}
 	}
 }
