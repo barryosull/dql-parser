@@ -4,10 +4,13 @@ package parser
   Namespaces
 ******************/
 
-type Namespace  {
-	Check() bool
-	Merge(o Namespace) Namespace
-	ToArray() []string
+type Namespace struct {
+	Paths []string
+}
+
+func (n *Namespace) Merge(o *Namespace) Namespace {
+	paths := merge(n.Paths, o.Paths);
+	return Namespace(paths);
 }
 
 func merge(origin []string, other []string) []string {
@@ -19,99 +22,50 @@ func merge(origin []string, other []string) []string {
 	return origin;
 }
 
-type DatabaseNamespace struct {
-	Database string;
+func checkLength(paths []string, length int) bool {
+	return len(paths) == length;
 }
 
-func NewDatabaseNamespace(paths []string) *DatabaseNamespace {
-	return &DatabaseNamespace{paths[0]};
+func fillNils(paths []string, fill string) []string{
+	for i,path := range paths {
+		if (path == nil) {
+			paths[i] = fill;
+		}
+	}
+	return paths;
 }
 
-func (n *DatabaseNamespace) Check () bool {
-	return n.Database != "";
+func preparePaths(paths []string, length int) []string{
+	if (!checkLength(paths, length)) {
+		panic("Paths is the wrong length");
+	}
+	return fillNils(paths, "");
 }
 
-func (n *DatabaseNamespace) Merge(o Namespace) Namespace {
-	paths := merge(n.ToArray(), o.ToArray());
-	return NewDatabaseNamespace(paths);
+func (n *Namespace) Check() bool {
+	for _, path := range n.Paths {
+		if (path == "") {
+			panic("Missing namespace parameter");
+		}
+	}
+	return true;
 }
 
-func (n *DatabaseNamespace) ToArray () []string {
-	return []string{n.Database};
+func NewDatabaseNamespace(paths []string) Namespace {
+	return Namespace{preparePaths(paths, 1)};
 }
 
-
-type DomainNamespace struct {
-	Database string;
-	Domain string;
+func NewDomainNamespace(paths []string) Namespace {
+	return Namespace{preparePaths(paths, 2)};
 }
 
-func NewDomainNamespace(paths []string) DomainNamespace {
-	return DomainNamespace{paths[0], paths[1]};
+func NewContextNamespace(paths []string) Namespace {
+	return Namespace{preparePaths(paths, 3)};
 }
 
-func (n *DomainNamespace) Check () bool {
-	return n.Database != "" && n.Domain != "";
+func NewAggregateNamespace(paths []string) Namespace {
+	return Namespace{preparePaths(paths, 4)};
 }
-
-func (n *DomainNamespace) Merge(o Namespace) Namespace {
-	paths := merge(n.ToArray(), o.ToArray());
-	return NewDomainNamespace(paths);
-}
-
-func (n *DomainNamespace) ToArray () []string {
-	return []string{n.Database, n.Domain};
-}
-
-
-type ContextNamespace struct {
-	Database string;
-	Domain string;
-	Context string;
-}
-
-func NewContextNamespace(paths []string) *ContextNamespace {
-	return &ContextNamespace{paths[0], paths[1], paths[2]};
-}
-
-func (n *ContextNamespace) Check () bool {
-	return n.Database != "" && n.Domain != "" && n.Context != "";
-}
-
-func (n *ContextNamespace) Merge(o Namespace) Namespace {
-	paths := merge(n.ToArray(), o.ToArray());
-	return NewContextNamespace(paths);
-}
-
-func (n *ContextNamespace) ToArray () []string {
-	return []string{n.Database, n.Domain, n.Context};
-}
-
-
-type AggregateNamespace struct {
-	Database string;
-	Domain string;
-	Context string;
-	Aggregate string;
-}
-
-func NewAggregateNamespace(paths []string) *AggregateNamespace {
-	return &AggregateNamespace{paths[0], paths[1], paths[2], paths[3]};
-}
-
-func (n *AggregateNamespace) Check () bool {
-	return n.Database != "" && n.Domain != "" && n.Context != "" && n.Aggregate != "";
-}
-
-func (n *AggregateNamespace) Merge(o Namespace) Namespace {
-	paths := merge(n.ToArray(), o.ToArray());
-	return NewAggregateNamespace(paths);
-}
-
-func (n *AggregateNamespace) ToArray () []string {
-	return []string{n.Database, n.Domain, n.Context, n.Aggregate};
-}
-
 
 
 /******************
@@ -131,11 +85,11 @@ func (c *CreateDatabase) Check () bool {
 type CreateDomain struct {
 	ID string;
 	Name string;
-	Namespace DatabaseNamespace;
+	Namespace Namespace;
 }
 
 func (c *CreateDomain) MergeNamespace (o Namespace) {
-	c.Namespace = c.Namespace.Merge(o).(DomainNamespace);
+	c.Namespace = c.Namespace.Merge(o);
 }
 
 func (c *CreateDomain) Check () bool {
@@ -146,7 +100,7 @@ func (c *CreateDomain) Check () bool {
 type CreateContext struct {
 	ID string;
 	Name string;
-	Namespace DomainNamespace;
+	Namespace Namespace;
 }
 
 func (c *CreateContext) MergeNamespace (o Namespace) {
@@ -161,7 +115,7 @@ func (c *CreateContext) Check () bool {
 type CreateValue struct {
 	ID string;
 	Name string;
-	Namespace ContextNamespace;
+	Namespace Namespace;
 }
 
 func (c *CreateValue) MergeNamespace (o Namespace) {
@@ -176,7 +130,7 @@ func (c *CreateValue) Check () bool {
 type CreateEntity struct {
 	ID string;
 	Name string;
-	Namespace ContextNamespace;
+	Namespace Namespace;
 }
 
 func (c *CreateEntity) MergeNamespace (o Namespace) {
@@ -191,7 +145,7 @@ func (c *CreateEntity) Check () bool {
 type CreateAggregate struct {
 	ID string;
 	Name string;
-	Namespace ContextNamespace;
+	Namespace Namespace;
 }
 
 func (c *CreateAggregate) MergeNamespace (o Namespace) {
@@ -206,7 +160,7 @@ func (c *CreateAggregate) Check () bool {
 type CreateEvent struct {
 	ID string;
 	Name string;
-	Namespace AggregateNamespace;
+	Namespace Namespace;
 }
 
 func (c *CreateEvent) MergeNamespace (o Namespace) {
@@ -221,7 +175,7 @@ func (c *CreateEvent) Check () bool {
 type CreateCommand struct {
 	ID string;
 	Name string;
-	Namespace AggregateNamespace;
+	Namespace Namespace;
 }
 
 func (c *CreateCommand) MergeNamespace (o Namespace) {
@@ -236,7 +190,7 @@ func (c *CreateCommand) Check () bool {
 type CreateProjection struct {
 	ID string;
 	Name string;
-	Namespace AggregateNamespace;
+	Namespace Namespace;
 }
 
 func (c *CreateProjection) MergeNamespace (o Namespace) {
@@ -251,7 +205,7 @@ func (c *CreateProjection) Check () bool {
 type CreateInvariant struct {
 	ID string;
 	Name string;
-	Namespace AggregateNamespace;
+	Namespace Namespace;
 }
 
 func (c *CreateInvariant) MergeNamespace (o Namespace) {
@@ -266,7 +220,7 @@ func (c *CreateInvariant) Check () bool {
 type CreateQuery struct {
 	ID string;
 	Name string;
-	Namespace AggregateNamespace;
+	Namespace Namespace;
 }
 
 func (c *CreateQuery) MergeNamespace (o Namespace) {
