@@ -51,7 +51,7 @@ func NewNamespace(paths []string, length int) (Namespace, error){
 func (n *Namespace) Check() bool {
 	for _, path := range n.Paths {
 		if (path == "") {
-			panic("Missing namespace parameter");
+			return false;
 		}
 	}
 	return true;

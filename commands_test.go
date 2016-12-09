@@ -22,29 +22,53 @@ func TestMergingNamespaces(t *testing.T) {
 	}
 }
 
+var namespaces = struct {
+	valid []Namespace
+	invalid []Namespace
+}{
+	[]Namespace{
+		{[]string{"a"}},
+		{[]string{"a", "b"}},
+		{[]string{"a", "b", "c"}},
+	},
+	[]Namespace{
+		{[]string{""}},
+		{[]string{"a", ""}},
+		{[]string{"", "b", "c"}},
+	},
+}
+
+func TestCheckingNamespaces(t *testing.T) {
+	for _, namespace := range namespaces.valid {
+		if (!namespace.Check()) {
+			t.Error("Namespace is invalid")
+		}
+	}
+
+	for _, namespace := range namespaces.invalid {
+		if (namespace.Check()) {
+			t.Error("Namespace is valid")
+		}
+	}
+}
+
 func TestPathConstraintsAreMetForTypes(t *testing.T) {
 
 	_, err := NewDatabaseNamespace([]string{""});
 	testValidNamespace(err , t);
-
 	_, err = NewDomainNamespace([]string{"", ""});
 	testValidNamespace(err , t);
-
 	_, err = NewContextNamespace([]string{"", "", ""});
 	testValidNamespace(err , t);
-
 	_, err = NewAggregateNamespace([]string{"", "", "", ""});
 	testValidNamespace(err , t);
 
 	_, err = NewDatabaseNamespace([]string{"", ""});
 	testInvalidNamespace(err , t);
-
 	_, err = NewDomainNamespace([]string{""});
 	testInvalidNamespace(err , t);
-
 	_, err = NewContextNamespace([]string{"", ""});
 	testInvalidNamespace(err , t);
-
 	_, err = NewAggregateNamespace([]string{"", "", ""});
 	testInvalidNamespace(err , t);
 }
