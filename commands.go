@@ -1,5 +1,7 @@
 package parser
 
+import "errors"
+
 /******************
   Namespaces
 ******************/
@@ -8,9 +10,21 @@ type Namespace struct {
 	Paths []string
 }
 
-func (n *Namespace) Merge(o *Namespace) Namespace {
+func (n *Namespace) Merge(o Namespace) Namespace {
 	paths := merge(n.Paths, o.Paths);
-	return Namespace(paths);
+	return Namespace{paths};
+}
+
+func (n *Namespace) Equal (o Namespace) bool {
+	if (len(n.Paths) != len(o.Paths)) {
+		return false;
+	}
+	for i, path := range n.Paths {
+		if (path != o.Paths[i]) {
+			return false;
+		}
+	}
+	return true;
 }
 
 func merge(origin []string, other []string) []string {
@@ -26,20 +40,12 @@ func checkLength(paths []string, length int) bool {
 	return len(paths) == length;
 }
 
-func fillNils(paths []string, fill string) []string{
-	for i,path := range paths {
-		if (path == nil) {
-			paths[i] = fill;
-		}
-	}
-	return paths;
-}
 
-func preparePaths(paths []string, length int) []string{
+func NewNamespace(paths []string, length int) (Namespace, error){
 	if (!checkLength(paths, length)) {
-		panic("Paths is the wrong length");
+		return Namespace{[]string{}}, errors.New("Paths is the wrong length")
 	}
-	return fillNils(paths, "");
+	return Namespace{paths}, nil;
 }
 
 func (n *Namespace) Check() bool {
@@ -51,20 +57,20 @@ func (n *Namespace) Check() bool {
 	return true;
 }
 
-func NewDatabaseNamespace(paths []string) Namespace {
-	return Namespace{preparePaths(paths, 1)};
+func NewDatabaseNamespace(paths []string) (Namespace, error) {
+	return NewNamespace(paths, 1);
 }
 
-func NewDomainNamespace(paths []string) Namespace {
-	return Namespace{preparePaths(paths, 2)};
+func NewDomainNamespace(paths []string) (Namespace, error) {
+	return NewNamespace(paths, 2);
 }
 
-func NewContextNamespace(paths []string) Namespace {
-	return Namespace{preparePaths(paths, 3)};
+func NewContextNamespace(paths []string) (Namespace, error) {
+	return NewNamespace(paths, 3);
 }
 
-func NewAggregateNamespace(paths []string) Namespace {
-	return Namespace{preparePaths(paths, 4)};
+func NewAggregateNamespace(paths []string) (Namespace, error) {
+	return NewNamespace(paths, 4);
 }
 
 
