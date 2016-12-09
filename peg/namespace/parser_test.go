@@ -68,9 +68,8 @@ func TestCreateNamespaceTypesWithFullyQualfied(t *testing.T) {
 
 var createClassesWithAnWithoutFullyQualfied = statements{
 	[]string {
-		`<| value 'address' using database 'business' for domain 'sales' in context 'quoting'
-
-		|>`,
+		`<| value 'address' |>`,
+		`<| value 'address' using database 'business' for domain 'sales' in context 'quoting' |>`,
 		`<| value 'address' for domain 'sales' in context 'quoting'
 			properties { string value; }
 		|>`,
