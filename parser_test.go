@@ -1,51 +1,46 @@
 package parser
 
 import (
-	"parser/peg"
 	"testing"
+	"parser/peg"
 )
-
-
-
-func NewParser() Parser {
-	return peg.Peg{};
-}
 
 var statements = []struct {
 	dql string;
-	ast *Command
+	ast Command
 }{
 	{
 		"create database 'db';",
-		&CreateDatabase{"uuid", "db"},
+		CreateDatabase{"uuid", "db"},
 	},{
 		"create domain 'dmn' using database 'db';",
-		&CreateDomain{"uuid", "dmn", &DatabaseNamespace{"db"}},
+		CreateDomain{"uuid", "dmn", NewDatabaseNamespace([]string{"db"})},
 	},{
 		"create context 'ctx' using database 'db' for domain 'dmn';",
-		&CreateContext{"uuid", "dmn", &DomainNamespace{"db", "dmn"}},
+		CreateContext{"uuid", "dmn", NewDomainNamespace([]string{"db", "dmn"})},
 	},{
 		"<| value 'address' using database 'db' for domain 'dmn' in context 'ctx' |>",
-		&CreateValue{"uuid", "address", &ContextNamespace{"db", "dmn", "ctx"}},
+		CreateValue{"uuid", "address", NewContextNamespace([]string{"db", "dmn", "ctx"})},
 	},{
 		"create aggregate 'ag' using database 'db' for domain 'dmn' in context 'ctx';",
-		&CreateValue{"uuid", "address", &ContextNamespace{"db", "dmn", "ctx"}},
+		CreateAggregate{"uuid", "ag", NewContextNamespace([]string{"db", "dmn", "ctx"})},
 	},{
-		"<| event 'start' using database 'db' for domain 'dmn' in context 'ctx' within aggregate 'agg' |>",
-		&CreateEvent{"uuid", "start", &AggregateNamespace{"db", "dmn", "ctx", "agg"}},
+		"<| event 'start' using database 'db' for domain 'dmn' in context 'ctx' within aggregate 'ag' |>",
+		CreateEvent{"uuid", "start", NewAggregateNamespace([]string{"db", "dmn", "ctx", "ag"})},
 	},
 };
 
 func TestReturnsAst(t *testing.T) {
-	parser := NewParser();
+	parser := peg.NewParser();
 	for _, statement := range statements {
 		ast, _ := parser.Parse(statement.dql);
 		if (ast != statement.ast) {
-			t.Error("AST produced from'"+statement.dql+"' is not valid");
+			t.Error("AST produced from '"+statement.dql+"' is not valid");
 		}
 	}
 }
 
+/*
 var statementsMissingNamespaceVars = []struct {
 	dql string;
 	error string;
@@ -131,3 +126,4 @@ func TestTakesNamespaceVarsFromCurrentNamespace(t *testing.T) {
 		}
 	}
 }
+*/

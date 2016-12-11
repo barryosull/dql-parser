@@ -44,10 +44,10 @@ var invalidNamespaces =[]struct {
 	namespace Namespace
 	errorMessage string
 }{
-	{Namespace{[]string{""}}, "database not set"},
-	{Namespace{[]string{"a", ""}}, "domain not set"},
-	{Namespace{[]string{"a", "b", ""}}, "context not set"},
-	{Namespace{[]string{"a", "b", "c", ""}}, "aggregate not set"},
+	{Namespace{[]string{""}}, "database not selected"},
+	{Namespace{[]string{"a", ""}}, "domain not selected"},
+	{Namespace{[]string{"a", "b", ""}}, "context not selected"},
+	{Namespace{[]string{"a", "b", "c", ""}}, "aggregate not selected"},
 }
 
 func TestInvalidNamespaces(t *testing.T){

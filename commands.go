@@ -59,7 +59,7 @@ func (n *Namespace) AssertValid() error {
 
 	for i, path := range n.Paths {
 		if (path == "") {
-			return errors.New(pathNames[i]+" not set");
+			return errors.New(pathNames[i]+" not selected");
 		}
 	}
 	return nil;

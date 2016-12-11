@@ -26,7 +26,10 @@ func (p *Peg) Parse (dql string) ([]parser.Command, string) {
 	}
 
 	for _, command := range commands {
-		command.Check();
+		err := command.AssertValid();
+		if (err != nil) {
+
+		}
 	}
 
 	return commands;
@@ -34,4 +37,8 @@ func (p *Peg) Parse (dql string) ([]parser.Command, string) {
 
 func (p *Peg) ReferenceError(commandID string, reference string) string {
 	return "";
+}
+
+func NewParser() parser.Parser {
+	return Peg{};
 }

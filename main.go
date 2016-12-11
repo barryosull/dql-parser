@@ -1,5 +1,7 @@
 package parser
 
+
+/*
 import (
 	//"parser/ast"
 	"fmt"
@@ -22,3 +24,4 @@ func main() {
 
 	fmt.Println("\n")
 }
+*/

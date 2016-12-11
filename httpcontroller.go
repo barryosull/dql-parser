@@ -1,5 +1,6 @@
 package parser
 
+/*
 import (
 	"net/http"
 	"io"
@@ -64,3 +65,4 @@ func HttpListen() {
 func main() {
 	HttpListen();
 }
+*/
