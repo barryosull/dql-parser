@@ -9,6 +9,10 @@ type Peg struct {
 
 }
 
+type IdGenerator interface {
+	Generate() string
+}
+
 func (p *Peg) Parse (dql string) ([]parser.Command, string) {
 
 	commandInterfaces, err := namespace.Parse("", []byte(dql));

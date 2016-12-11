@@ -1,6 +1,8 @@
 package parser
 
-import "testing";
+import (
+	"testing"
+);
 
 var mergedNamespaces = []struct{
 	origin Namespace
@@ -22,32 +24,39 @@ func TestMergingNamespaces(t *testing.T) {
 	}
 }
 
-var namespaces = struct {
-	valid []Namespace
-	invalid []Namespace
-}{
+var validNamespaces =
 	[]Namespace{
 		{[]string{"a"}},
 		{[]string{"a", "b"}},
 		{[]string{"a", "b", "c"}},
-	},
-	[]Namespace{
-		{[]string{""}},
-		{[]string{"a", ""}},
-		{[]string{"", "b", "c"}},
-	},
-}
+	};
 
 func TestCheckingNamespaces(t *testing.T) {
-	for _, namespace := range namespaces.valid {
-		if (!namespace.Check()) {
+
+	for _, namespace := range validNamespaces {
+		if (namespace.AssertValid() != nil) {
 			t.Error("Namespace is invalid")
 		}
 	}
+}
 
-	for _, namespace := range namespaces.invalid {
-		if (namespace.Check()) {
-			t.Error("Namespace is valid")
+var invalidNamespaces =[]struct {
+	namespace Namespace
+	errorMessage string
+}{
+	{Namespace{[]string{""}}, "database not set"},
+	{Namespace{[]string{"a", ""}}, "domain not set"},
+	{Namespace{[]string{"a", "b", ""}}, "context not set"},
+	{Namespace{[]string{"a", "b", "c", ""}}, "aggregate not set"},
+}
+
+func TestInvalidNamespaces(t *testing.T){
+	for _, row := range invalidNamespaces {
+		err := row.namespace.AssertValid();
+		if (err.Error() != row.errorMessage) {
+			t.Error("Error message does not match.")
+			t.Error("Expected: "+row.errorMessage);
+			t.Error("Actual: "+err.Error());
 		}
 	}
 }

@@ -48,13 +48,21 @@ func NewNamespace(paths []string, length int) (Namespace, error){
 	return Namespace{paths}, nil;
 }
 
-func (n *Namespace) Check() bool {
-	for _, path := range n.Paths {
+var pathNames = []string {
+	"database",
+	"domain",
+	"context",
+	"aggregate",
+};
+
+func (n *Namespace) AssertValid() error {
+
+	for i, path := range n.Paths {
 		if (path == "") {
-			return false;
+			return errors.New(pathNames[i]+" not set");
 		}
 	}
-	return true;
+	return nil;
 }
 
 func NewDatabaseNamespace(paths []string) (Namespace, error) {
@@ -83,8 +91,8 @@ type CreateDatabase struct {
 	Name string;
 }
 
-func (c *CreateDatabase) Check () bool {
-	return true;
+func (c *CreateDatabase) AssertValid() error {
+	return nil;
 }
 
 
@@ -98,8 +106,8 @@ func (c *CreateDomain) MergeNamespace (o Namespace) {
 	c.Namespace = c.Namespace.Merge(o);
 }
 
-func (c *CreateDomain) Check () bool {
-	return c.Namespace.Check();
+func (c *CreateDomain) AssertValid() error {
+	return c.Namespace.AssertValid();
 }
 
 
@@ -113,8 +121,8 @@ func (c *CreateContext) MergeNamespace (o Namespace) {
 	c.Namespace = c.Namespace.Merge(o);
 }
 
-func (c *CreateContext) Check () bool {
-	return c.Namespace.Check();
+func (c *CreateContext) AssertValid() error {
+	return c.Namespace.AssertValid();
 }
 
 
@@ -128,8 +136,8 @@ func (c *CreateValue) MergeNamespace (o Namespace) {
 	c.Namespace = c.Namespace.Merge(o);
 }
 
-func (c *CreateValue) Check () bool {
-	return c.Namespace.Check();
+func (c *CreateValue) AssertValid() error {
+	return c.Namespace.AssertValid();
 }
 
 
@@ -143,8 +151,8 @@ func (c *CreateEntity) MergeNamespace (o Namespace) {
 	c.Namespace = c.Namespace.Merge(o);
 }
 
-func (c *CreateEntity) Check () bool {
-	return c.Namespace.Check();
+func (c *CreateEntity) AssertValid() error {
+	return c.Namespace.AssertValid();
 }
 
 
@@ -158,8 +166,8 @@ func (c *CreateAggregate) MergeNamespace (o Namespace) {
 	c.Namespace = c.Namespace.Merge(o);
 }
 
-func (c *CreateAggregate) Check () bool {
-	return c.Namespace.Check();
+func (c *CreateAggregate) AssertValid() error {
+	return c.Namespace.AssertValid();
 }
 
 
@@ -173,8 +181,8 @@ func (c *CreateEvent) MergeNamespace (o Namespace) {
 	c.Namespace = c.Namespace.Merge(o);
 }
 
-func (c *CreateEvent) Check () bool {
-	return c.Namespace.Check();
+func (c *CreateEvent) AssertValid() error {
+	return c.Namespace.AssertValid();
 }
 
 
@@ -188,8 +196,8 @@ func (c *CreateCommand) MergeNamespace (o Namespace) {
 	c.Namespace = c.Namespace.Merge(o);
 }
 
-func (c *CreateCommand) Check () bool {
-	return c.Namespace.Check();
+func (c *CreateCommand) AssertValid() error {
+	return c.Namespace.AssertValid();
 }
 
 
@@ -203,8 +211,8 @@ func (c *CreateProjection) MergeNamespace (o Namespace) {
 	c.Namespace = c.Namespace.Merge(o);
 }
 
-func (c *CreateProjection) Check () bool {
-	return c.Namespace.Check();
+func (c *CreateProjection) AssertValid() error {
+	return c.Namespace.AssertValid();
 }
 
 
@@ -218,8 +226,8 @@ func (c *CreateInvariant) MergeNamespace (o Namespace) {
 	c.Namespace = c.Namespace.Merge(o);
 }
 
-func (c *CreateInvariant) Check () bool {
-	return c.Namespace.Check();
+func (c *CreateInvariant) AssertValid() error {
+	return c.Namespace.AssertValid();
 }
 
 
@@ -233,8 +241,8 @@ func (c *CreateQuery) MergeNamespace (o Namespace) {
 	c.Namespace = c.Namespace.Merge(o);
 }
 
-func (c *CreateQuery) Check () bool {
-	return c.Namespace.Check();
+func (c *CreateQuery) AssertValid() error {
+	return c.Namespace.AssertValid();
 }
 
 
