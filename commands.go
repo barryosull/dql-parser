@@ -91,6 +91,10 @@ type CreateDatabase struct {
 	Name string;
 }
 
+func NewCreateDatabase(ID string, Name string) CreateDatabase {
+	return CreateDatabase{ID, Name};
+}
+
 func (c *CreateDatabase) AssertValid() error {
 	return nil;
 }

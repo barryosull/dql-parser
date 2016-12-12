@@ -1,7 +1,7 @@
 package parser
 
-type Parser interface {Parse(dql string) ([]Command, string)
-	ReferenceError(commandID string, reference string) string
+type Parser interface {
+	Parse(dql string) ([]Command, error)
 }
 
 type Command interface {

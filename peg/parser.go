@@ -13,7 +13,7 @@ type IdGenerator interface {
 	Generate() string
 }
 
-func (p *Peg) Parse (dql string) ([]parser.Command, string) {
+func (p *Peg) Parse (dql string) ([]parser.Command, error) {
 
 	commandInterfaces, err := namespace.Parse("", []byte(dql));
 	if (commandInterfaces == nil) {
@@ -32,7 +32,7 @@ func (p *Peg) Parse (dql string) ([]parser.Command, string) {
 		}
 	}
 
-	return commands;
+	return commands, nil;
 }
 
 func (p *Peg) ReferenceError(commandID string, reference string) string {
@@ -40,5 +40,5 @@ func (p *Peg) ReferenceError(commandID string, reference string) string {
 }
 
 func NewParser() parser.Parser {
-	return Peg{};
+	return &Peg{};
 }
