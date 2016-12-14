@@ -2,42 +2,109 @@ package parser
 
 import (
 	"testing"
-	"parser/peg"
 )
 
-var statements = []struct {
+type testStatement struct {
 	dql string;
-	ast Command
+	expected []*Token
+}
+
+type testStatements []testStatement
+
+func (statements testStatements) test(t *testing.T) {
+	parser := NewTokenizer();
+	for _, statement := range statements {
+		actual := parser.Tokenize(statement.dql);
+		if (!compareTokens(statement.expected, actual)) {
+			t.Error("AST produced from '"+statement.dql+"' is not valid");
+			t.Error(statement.expected);
+			t.Error(actual);
+		}
+	}
+}
+
+var dbStatements = testStatements {
+	{
+		"create database 'db1';",
+		[]*Token{NewToken(Create, "create"), NewToken(NamespaceObject, "database"), NewToken(QuotedName, "db1"), Apos()},
+	}, {
+		"create database 'db2';",
+		[]*Token{NewToken(Create, "create"), NewToken(NamespaceObject, "database"), NewToken(QuotedName, "db2"), Apos()},
+	},
+};
+
+func TestCreateDatabase(t *testing.T) {
+	dbStatements.test(t);
+}
+
+
+func compareTokens(a []*Token, b []*Token) bool {
+	if (len(a) != len(b)) {
+		return false;
+	}
+	for i, t := range a {
+		if (!t.Compare(b[i])) {
+			return false;
+		}
+	}
+	return true;
+}
+
+var domainStatements = testStatements{
+	{
+		"create domain 'dmn' using database 'db';",
+		[]*Token{NewToken(Create, "create"), NewToken(NamespaceObject, "domain"), NewToken(QuotedName, "dmn"), NewToken(UsingDatabase, "db"), Apos()},
+	},
+};
+
+func TestCreateDomain(t *testing.T) {
+	domainStatements.test(t);
+}
+
+var contextStatements = testStatements {
+	{
+		"create context 'ctx' using database 'db' for domain 'dmn';",
+		[]*Token{NewToken(Create, "create"), NewToken(NamespaceObject, "context"), NewToken(QuotedName, "ctx"), NewToken(UsingDatabase, "db"), NewToken(ForDomain, "dmn"), Apos()},
+	},
+};
+
+func TestCreateContext(t *testing.T) {
+	contextStatements.test(t);
+}
+
+var valueStatements = testStatements {
+	{
+		"<| value 'address' using database 'db' for domain 'dmn' in context 'ctx' |>",
+		[]*Token{ClsOpen(), NewToken(Class, "value"), NewToken(QuotedName, "address"), NewToken(UsingDatabase, "db"), NewToken(ForDomain, "dmn"), NewToken(InContext, "ctx"), ClsClose()},
+	},
+}
+
+func TestCreateValue(t *testing.T) {
+	valueStatements.test(t);
+}
+
+/*
+var aggregateStatements = []struct {
+	dql string;
+	ast CreateAggregate
 }{
 	{
-		"create database 'db';",
-		CreateDatabase{"uuid", "db"},
-	},{
-		"create domain 'dmn' using database 'db';",
-		CreateDomain{"uuid", "dmn", NewDatabaseNamespace([]string{"db"})},
-	},{
-		"create context 'ctx' using database 'db' for domain 'dmn';",
-		CreateContext{"uuid", "dmn", NewDomainNamespace([]string{"db", "dmn"})},
-	},{
-		"<| value 'address' using database 'db' for domain 'dmn' in context 'ctx' |>",
-		CreateValue{"uuid", "address", NewContextNamespace([]string{"db", "dmn", "ctx"})},
-	},{
 		"create aggregate 'ag' using database 'db' for domain 'dmn' in context 'ctx';",
 		CreateAggregate{"uuid", "ag", NewContextNamespace([]string{"db", "dmn", "ctx"})},
 	},{
 		"<| event 'start' using database 'db' for domain 'dmn' in context 'ctx' within aggregate 'ag' |>",
 		CreateEvent{"uuid", "start", NewAggregateNamespace([]string{"db", "dmn", "ctx", "ag"})},
 	},
-};
+}
 
-func TestReturnsAst(t *testing.T) {
-	parser := peg.NewParser();
-	for _, statement := range statements {
-		ast, _ := parser.Parse(statement.dql);
-		if (ast != statement.ast) {
-			t.Error("AST produced from '"+statement.dql+"' is not valid");
-		}
-	}
+var eventStatements = []struct {
+	dql string;
+	ast CreateAggregate
+}{
+	{
+		"<| event 'start' using database 'db' for domain 'dmn' in context 'ctx' within aggregate 'ag' |>",
+		CreateEvent{"uuid", "start", NewAggregateNamespace([]string{"db", "dmn", "ctx", "ag"})},
+	},
 }
 
 /*

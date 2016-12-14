@@ -9,7 +9,7 @@ type statements struct{
 	invalid []string
 }
 
-func (s *statements) assertParse(t *testing.T) {
+func (s *statements) assertCanTokenize(t *testing.T) {
 	for _, statement := range s.valid {
 		parsed, _ := Parse("", []byte(statement));
 		if (parsed == nil) {
@@ -45,7 +45,7 @@ var inlineStatements = statements{
 };
 
 func TestInlineStatements(t *testing.T) {
-	inlineStatements.assertParse(t);
+	inlineStatements.assertCanTokenize(t);
 }
 
 var createNamespaceTypesWithFullyQualfied = statements{
@@ -63,7 +63,7 @@ var createNamespaceTypesWithFullyQualfied = statements{
 }
 
 func TestCreateNamespaceTypesWithFullyQualfied(t *testing.T) {
-	createNamespaceTypesWithFullyQualfied.assertParse(t);
+	createNamespaceTypesWithFullyQualfied.assertCanTokenize(t);
 }
 
 var createClassesWithAnWithoutFullyQualfied = statements{
@@ -86,7 +86,7 @@ var createClassesWithAnWithoutFullyQualfied = statements{
 
 
 func TestCreateClassesWithAnWithoutFullyQualfied(t *testing.T) {
-	createClassesWithAnWithoutFullyQualfied.assertParse(t);
+	createClassesWithAnWithoutFullyQualfied.assertCanTokenize(t);
 }
 
 var blockStatements = statements{
@@ -118,7 +118,7 @@ var blockStatements = statements{
 };
 
 func TestBlockStatements(t *testing.T) {
-	blockStatements.assertParse(t);
+	blockStatements.assertCanTokenize(t);
 }
 
 var createValues = statements{
@@ -172,7 +172,7 @@ var createValues = statements{
 };
 
 func TestCreateValues(t *testing.T) {
-	createValues.assertParse(t);
+	createValues.assertCanTokenize(t);
 }
 
 var createEntities = statements{
@@ -226,7 +226,7 @@ var createEntities = statements{
 };
 
 func TestCreateEntities(t *testing.T) {
-	createEntities.assertParse(t);
+	createEntities.assertCanTokenize(t);
 }
 
 var createEvents = statements{
@@ -267,7 +267,7 @@ var createEvents = statements{
 };
 
 func TestEvents(t *testing.T) {
-	createEvents.assertParse(t);
+	createEvents.assertCanTokenize(t);
 }
 
 var createCommands = statements{
@@ -312,7 +312,7 @@ var createCommands = statements{
 };
 
 func TestCommands(t *testing.T) {
-	createCommands.assertParse(t);
+	createCommands.assertCanTokenize(t);
 }
 
 var createProjections = statements{
@@ -367,7 +367,7 @@ var createProjections = statements{
 };
 
 func TestProjections(t *testing.T) {
-	createProjections.assertParse(t);
+	createProjections.assertCanTokenize(t);
 }
 
 var createInvariants = statements{
@@ -417,7 +417,7 @@ var createInvariants = statements{
 };
 
 func TestCreateInvariants(t *testing.T) {
-	createInvariants.assertParse(t);
+	createInvariants.assertCanTokenize(t);
 }
 
 var createQueries = statements{
@@ -469,7 +469,7 @@ var createQueries = statements{
 };
 
 func TestCreateQueries(t *testing.T) {
-	createQueries.assertParse(t);
+	createQueries.assertCanTokenize(t);
 }
 
 

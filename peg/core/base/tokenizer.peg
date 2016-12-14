@@ -1,9 +1,4 @@
 
-{
-    package base
-}
-    
-
 // -------------------------------------------------------------------------
 //  Core
 // -------------------------------------------------------------------------
@@ -14,11 +9,17 @@ CLASS_REF = _ CLASS_TYPE "\\" CLASS_NAME
 
 CLASS_TYPE = _ ("value" / "entity" / "command" / "event" / "projection" / "invariant" / "query")
 
-CLASS_NAME = [a-zA-Z]+ [a-zA-Z0-9_-]*
+CLASS_NAME = [a-zA-Z]+ [a-zA-Z0-9_-]* {
+    return string(c.text), nil;
+}
+
+QUOTED_NAME = "'" name:CLASS_NAME "'" {
+    return name, nil;
+}
 
 TYPE = CLASS_REF / VALUE_TYPE
 
-VALUE_TYPE = _ ("string" / "boolean" / "float" / "map")
+VALUE_TYPE = _ ("string" / "boolean" / "float" / "map" / "index")
 
 CLASS_IMPLIED_REF = _ "'" CLASS_NAME "'"
 
