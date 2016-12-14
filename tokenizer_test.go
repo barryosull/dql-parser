@@ -37,7 +37,6 @@ func TestCreateDatabase(t *testing.T) {
 	dbStatements.test(t);
 }
 
-
 func compareTokens(a []*Token, b []*Token) bool {
 	if (len(a) != len(b)) {
 		return false;
@@ -50,6 +49,7 @@ func compareTokens(a []*Token, b []*Token) bool {
 	return true;
 }
 
+/*
 var domainStatements = testStatements{
 	{
 		"create domain 'dmn' using database 'db';",

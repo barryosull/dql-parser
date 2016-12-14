@@ -2,6 +2,7 @@ package parser
 
 import (
 	"sync"
+	"fmt"
 )
 
 type Token struct {
@@ -17,14 +18,24 @@ func (t *Token) Compare(o *Token) bool{
 	return t.typ == o.typ && t.val == o.val;
 }
 
-func (t *Token) String() string {
-	return t.val;
+func (i *Token) String() string {
+	switch i.typ {
+	case EOF:
+		return "EOF"
+	case Error:
+		return i.val
+	}
+	if len(i.val) > 10 {
+		return fmt.Sprintf("%.10q...", i.val)
+	}
+	return fmt.Sprintf("%q", i.val)
 }
 
 type TokenType int
 
 const (
-	Create TokenType = iota
+	Error TokenType = iota
+	Create
 	NamespaceObject
 	QuotedName
 	UsingDatabase
@@ -36,6 +47,7 @@ const (
 	ClassOpen
 	ClassClose
 	Apostrophe
+	EOF
 )
 
 func Apos() *Token {
