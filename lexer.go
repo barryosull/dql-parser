@@ -44,30 +44,49 @@ func (l *lexer) hasNextPrefix (prefix string) bool {
 
 const EOF = -1
 
-func lexCreate(l *lexer) stateFn {
+func lexToken(l *lexer) stateFn {
 	ignoreWS(l);
+	if (l.hasNextPrefix("create")) {
+		return lexCreate
+	}
+	if (l.hasNextPrefix("database")) {
+		return lexNSObjectType
+	}
+	if (l.hasNextPrefix("domain")) {
+		return lexNSObjectType
+	}
+	if (l.hasNextPrefix("'")) {
+		return lexNSObjectName
+	}
+	if (l.hasNextPrefix("using")) {
+		return lexUsingDatabase
+	}
+	if (l.hasNextPrefix(";")) {
+		return lexApostrophe
+	}
+
+	return nil
+}
+
+func lexCreate(l *lexer) stateFn {
 	l.pos += len(create)
 	l.emit(create)
 	return lexNSObjectType
 }
 
 func lexNSObjectType(l *lexer) stateFn {
-	ignoreWS(l);
 	if (l.hasNextPrefix("database")) {
 		l.pos += len("database")
 		l.emit(namespaceObject)
-		return lexNSObjectName
 	}
 	if (l.hasNextPrefix("domain")) {
 		l.pos += len("domain")
 		l.emit(namespaceObject)
-		return lexNSObjectName
 	}
-	return nil
+	return lexToken
 }
 
 func lexNSObjectName(l *lexer) stateFn {
-	ignoreWS(l);
 	if (l.next() == '\'') {
 		l.ignore();
 		for {
@@ -77,29 +96,20 @@ func lexNSObjectName(l *lexer) stateFn {
 				l.emit(quotedName)
 				l.next()
 				l.ignore()
-				return lexCreateEnd
+				return lexToken
 			}
 		}
 	}
-	return nil
+	return lexToken
 }
 
-func lexCreateEnd(l *lexer) stateFn {
+func lexUsingDatabase(l *lexer) stateFn {
+	l.pos += len("using")
 	ignoreWS(l);
-	if (l.hasNextPrefix("using")) {
-		l.pos += len("using")
-		ignoreWS(l);
-		if (l.hasNextPrefix("database")) {
-			l.pos += len("database")
-			l.ignore()
-			return lexUsingNSObjectName
-		}
-	}
-	return lexApostrophe;
-}
 
-func lexUsingNSObjectName(l *lexer) stateFn {
+	l.pos += len("database")
 	ignoreWS(l);
+
 	if (l.next() == '\'') {
 		l.ignore();
 		for {
@@ -109,7 +119,7 @@ func lexUsingNSObjectName(l *lexer) stateFn {
 				l.emit(usingDatabase)
 				l.next()
 				l.ignore()
-				return lexApostrophe
+				return lexToken
 			}
 		}
 	}
@@ -117,7 +127,6 @@ func lexUsingNSObjectName(l *lexer) stateFn {
 }
 
 func lexApostrophe(l *lexer) stateFn {
-	ignoreWS(l);
 	l.next();
 	l.emit(apostrophe);
 	return nil;
