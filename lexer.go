@@ -56,12 +56,17 @@ func lexNSObjectType(l *lexer) stateFn {
 	if (l.hasNextPrefix("database")) {
 		l.pos += len("database")
 		l.emit(namespaceObject)
-		return lexQuotedName
+		return lexNSObjectName
+	}
+	if (l.hasNextPrefix("domain")) {
+		l.pos += len("domain")
+		l.emit(namespaceObject)
+		return lexNSObjectName
 	}
 	return nil
 }
 
-func lexQuotedName(l *lexer) stateFn {
+func lexNSObjectName(l *lexer) stateFn {
 	ignoreWS(l);
 	if (l.next() == '\'') {
 		l.ignore();
@@ -72,13 +77,44 @@ func lexQuotedName(l *lexer) stateFn {
 				l.emit(quotedName)
 				l.next()
 				l.ignore()
-				return lexApostrophe
+				return lexCreateEnd
 			}
 		}
 	}
 	return nil
 }
 
+func lexCreateEnd(l *lexer) stateFn {
+	ignoreWS(l);
+	if (l.hasNextPrefix("using")) {
+		l.pos += len("using")
+		ignoreWS(l);
+		if (l.hasNextPrefix("database")) {
+			l.pos += len("database")
+			l.ignore()
+			return lexUsingNSObjectName
+		}
+	}
+	return lexApostrophe;
+}
+
+func lexUsingNSObjectName(l *lexer) stateFn {
+	ignoreWS(l);
+	if (l.next() == '\'') {
+		l.ignore();
+		for {
+			r := l.next();
+			if (r == '\'') {
+				l.backup()
+				l.emit(usingDatabase)
+				l.next()
+				l.ignore()
+				return lexApostrophe
+			}
+		}
+	}
+	return nil
+}
 
 func lexApostrophe(l *lexer) stateFn {
 	ignoreWS(l);

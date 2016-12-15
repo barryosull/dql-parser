@@ -49,11 +49,10 @@ func compareTokens(a []Token, b []Token) bool {
 	return true;
 }
 
-/*
 var domainStatements = testStatements{
 	{
 		"create domain 'dmn' using database 'db';",
-		[]*Token{NewToken(Create, "create"), NewToken(NamespaceObject, "domain"), NewToken(QuotedName, "dmn"), NewToken(UsingDatabase, "db"), Apos()},
+		[]Token{NewToken(create, "create"), NewToken(namespaceObject, "domain"), NewToken(quotedName, "dmn"), NewToken(usingDatabase, "db"), Apos()},
 	},
 };
 
@@ -61,6 +60,7 @@ func TestCreateDomain(t *testing.T) {
 	domainStatements.test(t);
 }
 
+/*
 var contextStatements = testStatements {
 	{
 		"create context 'ctx' using database 'db' for domain 'dmn';",
