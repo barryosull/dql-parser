@@ -21,7 +21,7 @@ func (i *Token) String() string {
 	switch i.typ {
 	case eof:
 		return "EOF"
-	case error:
+	case err:
 		return i.val
 	}
 	if len(i.val) > 10 {
@@ -33,7 +33,7 @@ func (i *Token) String() string {
 type TokenType string
 
 const (
-	error TokenType = "error"
+	err TokenType = "err"
 	create = "create"
 	namespaceObject = "namespaceObject"
 	quotedName = "quotedName"
@@ -50,6 +50,11 @@ const (
 
 func Apos() Token {
 	return NewToken(apostrophe, ";");
+}
+
+func Err(e string) *Token {
+	t := NewToken(err, e);
+	return &t
 }
 
 func ClsOpen() Token {

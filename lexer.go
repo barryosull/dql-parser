@@ -3,6 +3,7 @@ package parser
 import (
 	"strings"
 	"unicode/utf8"
+	"fmt"
 )
 
 // lexer holds the state of the scanner.
@@ -13,6 +14,7 @@ type lexer struct {
 	pos   int       // current position in the input.
 	width int       // width of last rune read from input.
 	tokens []Token
+	error *Token
 }
 
 type stateFn func(*lexer) stateFn
@@ -42,6 +44,14 @@ func (l *lexer) hasNextPrefix (prefix string) bool {
 	return strings.HasPrefix(unlexed, prefix);
 }
 
+func (l *lexer) parsed () string {
+	start := 0;
+	if (l.pos - 40 > 0) {
+		start = l.pos - 40
+	}
+	return l.input[start:l.pos];
+}
+
 const EOF = -1
 
 func lexToken(l *lexer) stateFn {
@@ -64,6 +74,8 @@ func lexToken(l *lexer) stateFn {
 	if (l.hasNextPrefix(";")) {
 		return lexApostrophe
 	}
+
+	return l.errorf("There was a problem near: %q", l.parsed());
 
 	return nil
 }
@@ -186,16 +198,8 @@ func (l *lexer) acceptRun(valid string) {
 	l.backup()
 }
 
-/*
-// error returns an error token and terminates the scan
-// by passing back a nil pointer that will be the next
-// state, terminating l.run.
-func (l *lexer) errorf(format string, args ...interface{})
-	stateFn {
-		l.items <- item{
-		itemError,
-		fmt.Sprintf(format, args...),
-	}
+func (l *lexer) errorf(format string, args ...interface{}) stateFn {
+	errToken := Token{err, fmt.Sprintf(format, args...)}
+	l.error = &errToken
 	return nil
 }
-*/

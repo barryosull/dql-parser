@@ -6,7 +6,8 @@ import (
 
 type testStatement struct {
 	dql string;
-	expected []Token
+	expected []Token;
+	error *Token;
 }
 
 type testStatements []testStatement
@@ -14,11 +15,28 @@ type testStatements []testStatement
 func (statements testStatements) test(t *testing.T) {
 	parser := NewTokenizer();
 	for _, statement := range statements {
-		actual := parser.Tokenize(statement.dql);
+		actual, err := parser.Tokenize(statement.dql);
 		if (!compareTokens(statement.expected, actual)) {
 			t.Error("AST produced from '"+statement.dql+"' is not valid");
 			t.Error(statement.expected);
 			t.Error(actual);
+		}
+
+		if (err == nil && statement.error != nil) {
+			t.Error("Got error, expected nothing.")
+			t.Error(statement.dql);
+			t.Error(err);
+		} else if (err != nil && statement.error == nil) {
+			t.Error("Expected error, got nothing.")
+			t.Error(statement.error);
+		}
+
+		if (err != nil && statement.error != nil) {
+			if (err.String() != statement.error.String()) {
+				t.Error("Errors do not match.")
+				t.Error(statement.error);
+				t.Error(err);
+			}
 		}
 	}
 }
@@ -26,10 +44,13 @@ func (statements testStatements) test(t *testing.T) {
 var dbStatements = testStatements {
 	{
 		"create database 'db1';",
-		[]Token{NewToken(create, "create"), NewToken(namespaceObject, "database"), NewToken(quotedName, "db1"), Apos()},
+		[]Token{NewToken(create, "create"), NewToken(namespaceObject, "database"), NewToken(quotedName, "db1"), Apos()}, nil,
 	}, {
 		"create database 'db2' ;",
-		[]Token{NewToken(create, "create"), NewToken(namespaceObject, "database"), NewToken(quotedName, "db2"), Apos()},
+		[]Token{NewToken(create, "create"), NewToken(namespaceObject, "database"), NewToken(quotedName, "db2"), Apos()}, nil,
+	}, {
+		"create database 'db2' ",
+		[]Token{NewToken(create, "create"), NewToken(namespaceObject, "database"), NewToken(quotedName, "db2")}, Err("There was a problem near: \"create database 'db2' \""),
 	},
 };
 
@@ -52,7 +73,13 @@ func compareTokens(a []Token, b []Token) bool {
 var domainStatements = testStatements{
 	{
 		"create domain 'dmn' using database 'db';",
-		[]Token{NewToken(create, "create"), NewToken(namespaceObject, "domain"), NewToken(quotedName, "dmn"), NewToken(usingDatabase, "db"), Apos()},
+		[]Token{NewToken(create, "create"), NewToken(namespaceObject, "domain"), NewToken(quotedName, "dmn"), NewToken(usingDatabase, "db"), Apos()}, nil,
+
+	},
+	{
+		"create domain 'dmn' using database 'db'",
+		[]Token{NewToken(create, "create"), NewToken(namespaceObject, "domain"), NewToken(quotedName, "dmn"), NewToken(usingDatabase, "db")}, Err("There was a problem near: \"create domain 'dmn' using database 'db'\""),
+
 	},
 };
 
