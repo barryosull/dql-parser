@@ -5,7 +5,6 @@ import (
 	"unicode/utf8"
 )
 
-
 // lexer holds the state of the scanner.
 type lexer struct {
 	name  string    // used only for error reports.
@@ -34,50 +33,83 @@ func (l *lexer) run() {
 }
 
 func (l *lexer) emit(t TokenType) {
-	append(l.tokens, Token{t, l.input[l.start:l.pos]});
+	l.tokens = append(l.tokens, Token{t, l.input[l.start:l.pos]});
 	l.start = l.pos
 }
 
-const eof = -1
+func (l *lexer) hasNextPrefix (prefix string) bool {
+	var unlexed = l.input[l.pos:];
+	return strings.HasPrefix(unlexed, prefix);
+}
+
+const EOF = -1
 
 func lexCreate(l *lexer) stateFn {
 	ignoreWS(l);
 	l.pos += len(create)
-	l.emit(Create)
+	l.emit(create)
 	return lexNSObjectType
 }
 
 func lexNSObjectType(l *lexer) stateFn {
 	ignoreWS(l);
+	if (l.hasNextPrefix("database")) {
+		l.pos += len("database")
+		l.emit(namespaceObject)
+		return lexQuotedName
+	}
+	return nil
+}
 
-	//Check for type
+func lexQuotedName(l *lexer) stateFn {
+	ignoreWS(l);
+	if (l.next() == '\'') {
+		l.ignore();
+		for {
+			r := l.next();
+			if (r == '\'') {
+				l.backup()
+				l.emit(quotedName)
+				l.next()
+				l.ignore()
+				return lexApostrophe
+			}
+		}
+	}
+	return nil
+}
 
-	l.pos += len(create)
-	l.emit(Create)
-	return lexNSObjectType
+
+func lexApostrophe(l *lexer) stateFn {
+	ignoreWS(l);
+	l.next();
+	l.emit(apostrophe);
+	return nil;
 }
 
 func ignoreWS(l *lexer) {
 	for {
 		switch r := l.next(); {
-		case r == " " || r == '\n' || r == "\r" || r == "\t":
+		case r == ' ' || r == '\n' || r == '\r' || r == '\t':
 			l.ignore()
 		default :
-			break
+			l.backup()
+			return
 		}
 	}
 }
 
 
 // next returns the next rune in the input.
-func (l *lexer) next() (rune int) {
+func (l *lexer) next() (rn int) {
 	if l.pos >= len(l.input) {
 		l.width = 0
-		return eof
+		return EOF
 	}
-	rune, l.width = utf8.DecodeRuneInString(l.input[l.pos:])
+	var r rune;
+	r, l.width = utf8.DecodeRuneInString(l.input[l.pos:])
 	l.pos += l.width
-	return rune
+	return int(r);
 }
 
 func (l *lexer) ignore() {
@@ -89,14 +121,14 @@ func (l *lexer) backup() {
 }
 
 func (l *lexer) peek() int {
-	rune := l.next()
+	r := l.next()
 	l.backup()
-	return rune
+	return r
 }
 
 // accept consumes the next rune if it's from the valid set.
 func (l *lexer) accept(valid string) bool {
-	if strings.IndexRune(valid, l.next()) >= 0 {
+	if strings.IndexRune(valid, rune(l.next())) >= 0 {
 		return true
 	}
 	l.backup()
@@ -104,11 +136,12 @@ func (l *lexer) accept(valid string) bool {
 }
 // acceptRun consumes a run of runes from the valid set.
 func (l *lexer) acceptRun(valid string) {
-	for strings.IndexRune(valid, l.next()) >= 0 {
+	for strings.IndexRune(valid, rune(l.next())) >= 0 {
 	}
 	l.backup()
 }
 
+/*
 // error returns an error token and terminates the scan
 // by passing back a nil pointer that will be the next
 // state, terminating l.run.
@@ -120,8 +153,4 @@ func (l *lexer) errorf(format string, args ...interface{})
 	}
 	return nil
 }
-
-const (
-	create = "create"
-
-)
+*/

@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"sync"
 	"fmt"
 )
 
@@ -10,78 +9,53 @@ type Token struct {
 	val string
 }
 
-func NewToken(typ TokenType, val string) *Token {
-	return &Token{typ, val};
+func NewToken(typ TokenType, val string) Token {
+	return Token{typ, val};
 }
 
-func (t *Token) Compare(o *Token) bool{
+func (t *Token) Compare(o Token) bool{
 	return t.typ == o.typ && t.val == o.val;
 }
 
 func (i *Token) String() string {
 	switch i.typ {
-	case EOF:
+	case eof:
 		return "EOF"
-	case Error:
+	case error:
 		return i.val
 	}
 	if len(i.val) > 10 {
-		return fmt.Sprintf("%.10q...", i.val)
+		return fmt.Sprintf("%q, %.10q...", i.typ, i.val)
 	}
-	return fmt.Sprintf("%q", i.val)
+	return fmt.Sprintf("%q, %q", i.typ, i.val)
 }
 
-type TokenType int
+type TokenType string
 
 const (
-	Error TokenType = iota
-	Create
-	NamespaceObject
-	QuotedName
-	UsingDatabase
-	ForDomain
-	InContext
-	WithinAggregate
-
-	Class
-	ClassOpen
-	ClassClose
-	Apostrophe
-	EOF
+	error TokenType = "error"
+	create = "create"
+	namespaceObject = "namespaceObject"
+	quotedName = "quotedName"
+	usingDatabase = "usingDatabase"
+	forDomain = "forDomain"
+	inContext = "inContext"
+	withinAggregate = "withinAggregate"
+	class = "class"
+	classOpen = "classOpen"
+	classClose = "classClose"
+	apostrophe = "apostrophe"
+	eof = "eof"
 )
 
-func Apos() *Token {
-	return NewToken(Apostrophe, ";");
+func Apos() Token {
+	return NewToken(apostrophe, ";");
 }
 
-func ClsOpen() *Token {
-	return NewToken(ClassOpen, "<|");
+func ClsOpen() Token {
+	return NewToken(classOpen, "<|");
 }
 
-func ClsClose() *Token {
-	return NewToken(ClassClose, "|>");
-}
-
-type TokenList struct {
-	tokens []*Token
-}
-
-func (t *TokenList) Append(token *Token) {
-	t.tokens = append(t.tokens, token);
-}
-
-func (t *TokenList) All() []*Token {
-	res := t.tokens;
-	t.tokens = make([]*Token, 0);
-	return res;
-}
-
-var instance *TokenList
-var once sync.Once
-
-func GetInstanceTokenList() *TokenList {
-	once.Do(func() {
-		instance = &TokenList{}
-	})
-	return instance
+func ClsClose() Token {
+	return NewToken(classClose, "|>");
 }

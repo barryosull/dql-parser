@@ -1,5 +1,6 @@
 package parser
 
+/*
 import "errors"
 
 type Command interface {
@@ -7,9 +8,9 @@ type Command interface {
 }
 
 
-/******************
+///////////////////
   Namespaces
-******************/
+///////////////////
 
 type Namespace struct {
 	Paths []string
@@ -87,9 +88,9 @@ func NewAggregateNamespace(paths []string) (Namespace, error) {
 }
 
 
-/******************
+///////////////////
   Commands
-******************/
+///////////////////
 
 type CreateDatabase struct {
 	ID string;
@@ -254,4 +255,4 @@ func (c *CreateQuery) AssertValid() error {
 	return c.Namespace.AssertValid();
 }
 
-
+*/

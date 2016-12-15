@@ -6,7 +6,7 @@ import (
 
 type testStatement struct {
 	dql string;
-	expected []*Token
+	expected []Token
 }
 
 type testStatements []testStatement
@@ -26,10 +26,10 @@ func (statements testStatements) test(t *testing.T) {
 var dbStatements = testStatements {
 	{
 		"create database 'db1';",
-		[]*Token{NewToken(Create, "create"), NewToken(NamespaceObject, "database"), NewToken(QuotedName, "db1"), Apos()},
+		[]Token{NewToken(create, "create"), NewToken(namespaceObject, "database"), NewToken(quotedName, "db1"), Apos()},
 	}, {
-		"create database 'db2';",
-		[]*Token{NewToken(Create, "create"), NewToken(NamespaceObject, "database"), NewToken(QuotedName, "db2"), Apos()},
+		"create database 'db2' ;",
+		[]Token{NewToken(create, "create"), NewToken(namespaceObject, "database"), NewToken(quotedName, "db2"), Apos()},
 	},
 };
 
@@ -37,7 +37,7 @@ func TestCreateDatabase(t *testing.T) {
 	dbStatements.test(t);
 }
 
-func compareTokens(a []*Token, b []*Token) bool {
+func compareTokens(a []Token, b []Token) bool {
 	if (len(a) != len(b)) {
 		return false;
 	}

@@ -4,17 +4,17 @@ type Tokenizer interface {
 	Tokenize(dql string) ([]Token)
 }
 
-type lexer struct {
+type tokeniser struct {
 
 }
 
-func (p *lexer) Tokenize (dql string) ([]Token) {
+func (t *tokeniser) Tokenize (dql string) ([]Token) {
 	l := lex("DQL", dql);
 	return l.tokens;
 }
 
 func NewTokenizer() Tokenizer {
-	return &lexer{};
+	return &tokeniser{};
 }
 
 
