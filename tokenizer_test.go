@@ -151,15 +151,16 @@ func TestAggregateStatements (t *testing.T) {
 	aggregateStatements.test(t)
 }
 
-/*
-var eventStatements = []struct {
-	dql string;
-	ast CreateAggregate
-}{
+
+var eventStatements = testStatements{
 	{
 		"<| event 'start' using database 'db' for domain 'dmn' in context 'ctx' within aggregate 'ag' |>",
-		CreateEvent{"uuid", "start", NewAggregateNamespace([]string{"db", "dmn", "ctx", "ag"})},
+		[]Token{clsOpen(), tok(class, "event"), tok(quotedName, "start"), tok(usingDatabase, "db"), tok(forDomain, "dmn"), tok(inContext, "ctx"), tok(withinAggregate, "ag"), clsClose()}, nil,
 	},
+}
+
+func TestEventStatements (t *testing.T) {
+	eventStatements.test(t)
 }
 
 /*

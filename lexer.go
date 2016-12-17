@@ -78,6 +78,9 @@ func lexToken(l *lexer) stateFn {
 	if (l.hasNextPrefix("value")) {
 		return lexClass
 	}
+	if (l.hasNextPrefix("event")) {
+		return lexClass
+	}
 	if (l.hasNextPrefix("'")) {
 		return lexNSObjectName
 	}
@@ -89,6 +92,9 @@ func lexToken(l *lexer) stateFn {
 	}
 	if (l.hasNextPrefix("in")) {
 		return lexInContext
+	}
+	if (l.hasNextPrefix("within")) {
+		return lexWithinAggregate
 	}
 	if (l.hasNextPrefix(";")) {
 		return lexApostrophe
@@ -218,6 +224,30 @@ func lexInContext (l *lexer) stateFn {
 	return nil
 }
 
+func lexWithinAggregate(l *lexer) stateFn {
+	l.pos += len("within")
+	ignoreWS(l);
+
+	l.pos += len("aggregate")
+	ignoreWS(l);
+
+	if (l.next() == '\'') {
+		l.ignore();
+		for {
+			r := l.next();
+			if (r == '\'') {
+				l.backup()
+				l.emit(withinAggregate)
+				l.next()
+				l.ignore()
+				return lexToken
+			}
+		}
+	}
+	return nil
+}
+
+
 func lexApostrophe(l *lexer) stateFn {
 	l.next();
 	l.emit(apostrophe);
@@ -237,7 +267,7 @@ func lexClassCloser(l *lexer) stateFn {
 }
 
 func lexClass(l *lexer) stateFn {
-	l.pos += len("value")
+	l.pos += 5
 	l.emit(class)
 	return lexToken
 }
