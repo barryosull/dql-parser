@@ -163,6 +163,29 @@ func TestEventStatements (t *testing.T) {
 	eventStatements.test(t)
 }
 
+var statementsWithGloballySetNamespaces = testStatements {
+	{
+		"using database 'db'; create domain 'dmn';",
+		[]Token{tok(usingDatabase, "db"), apos(), tok(create, "create"), tok(namespaceObject, "domain"), tok(quotedName, "dmn"), apos()}, nil,
+	},
+	{
+		"for domain 'dmn'; create context 'ctx';",
+		[]Token{tok(forDomain, "dmn"), apos(), tok(create, "create"), tok(namespaceObject, "context"), tok(quotedName, "ctx"), apos()}, nil,
+	},
+	{
+		"in context 'ctx'; <| value 'address' |>",
+		[]Token{tok(inContext, "ctx"), apos(), clsOpen(), tok(class, "value"), tok(quotedName, "address"), clsClose()}, nil,
+	},
+	{
+		"within aggregate 'agg'; <| event 'start' |>",
+		[]Token{tok(withinAggregate, "agg"), apos(), clsOpen(), tok(class, "event"), tok(quotedName, "start"), clsClose()}, nil,
+	},
+};
+
+func TestGloballySetNamespace (t *testing.T) {
+	statementsWithGloballySetNamespaces.test(t)
+}
+
 /*
 var statementsMissingNamespaceVars = []struct {
 	dql string;
