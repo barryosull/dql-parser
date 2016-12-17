@@ -3,58 +3,31 @@
 //  Namespace
 // -------------------------------------------------------------------------
 
-FILE = s:STATEMENTS_c _ EOF {
-    return s
-}
+FILE = STATEMENTS _ EOF
 
-STATEMENTS_cm = statements:(BLOCK_STATEMENT/ CREATE_OBJECT / CREATE_CLASS)* {
-    return flatten(statements)
-}
+STATEMENTS = statements:(BLOCK_STATEMENT/ CREATE_OBJECT / CREATE_CLASS)*
 
-CREATE_OBJECT_m = _ c:CREATE_NAMESPACE_OBJECT_m? _ n:NAMESPACE_m? _ a:APOS_s {
-    return append(merge(c, n), a)
-}
+CREATE_OBJECT = _ CREATE_NAMESPACE_OBJECT? _ NAMESPACE? _ ";"
 
-APOS_s = ";" {
-    return Apos(), nil
-}
+BLOCK_STATEMENT = _ NAMESPACE _ ":" _ "{" STATEMENTS _ "}"
 
-BLOCK_STATEMENT = _ NAMESPACE _ ":" _ "{" STATEMENTS _ "}
+CREATE_NAMESPACE_OBJECT = "create"i _ typ:NAMESPACE_OBJECT_TYPE _ name:QUOTED_NAME
 
-CREATE_NAMESPACE_OBJECT_c = c:"create"i _ typ:NAMESPACE_OBJECT_TYPE_c _ name:QUOTED_NAME {
-    return []interface{}{c, typ}
-}
+NAMESPACE_OBJECT_TYPE = typ:("database" / "domain" / "context" / "aggregate")
 
-NAMESPACE_OBJECT_TYPE_m = typ:("database" / "domain" / "context" / "aggregate") {
-    return
-}
+NAMESPACE = (USING_DATABASE / FOR_DOMAIN / IN_CONTEXT / WITHIN_AGGREGATE)*
 
-NAMESPACE_m = tokens:(USING_DATABASE / FOR_DOMAIN / IN_CONTEXT / WITHIN_AGGREGATE)* {
-    return tokens, nil;
-}
+USING_DATABASE = _ "using"i _ "database"i _ name:QUOTED_NAME
 
-USING_DATABASE = _ "using"i _ "database"i _ name:QUOTED_NAME {
-    return emit(UsingDatabase, name);
-}
+FOR_DOMAIN = _ "for"i _ "domain"i _ name:QUOTED_NAME
 
-FOR_DOMAIN = _ "for"i _ "domain"i _ name:QUOTED_NAME {
-    return emit(ForDomain, name);
-}
+IN_CONTEXT = _ "in"i _ "context"i _ name:QUOTED_NAME
 
-IN_CONTEXT = _ "in"i _ "context"i _ name:QUOTED_NAME {
-    return emit(InContext, name);
-}
-
-WITHIN_AGGREGATE = _ "within"i _ "aggregate"i _ name:QUOTED_NAME {
-    return emit(WithinAggregate, name);
-}
+WITHIN_AGGREGATE = _ "within"i _ "aggregate"i _ name:QUOTED_NAME
 
 CREATE_CLASS = _ CLASS_OPEN (CREATE_VALUE / CREATE_COMMAND / CREATE_PROJECTION / CREATE_INVARIANT / CREATE_QUERY) CLASS_CLOSE
 
-CREATE_VALUE = _ ("value"i / "entity"i)  _ name:QUOTED_NAME _ NAMESPACE _ VALUE_BODY _ {
-    emit(Class, "value");
-    return emit(QuotedName, name);
-}
+CREATE_VALUE = _ ("value"i / "entity"i / "event"i)  _ name:QUOTED_NAME _ NAMESPACE _ VALUE_BODY _
 
 CREATE_COMMAND = _ "command"i  _ QUOTED_NAME _ NAMESPACE _ COMMAND_BODY _
 
@@ -64,11 +37,6 @@ CREATE_INVARIANT = _  "invariant"i  _ QUOTED_NAME _ "on"i _ CLASS_REF_QUOTES _ N
 
 CREATE_QUERY = _  "query"i  _ QUOTED_NAME _ "on"i _ CLASS_REF_QUOTES _ NAMESPACE _ QUERY_BODY _
 
-CLASS_OPEN = "<|" {
-    return emit(ClassOpen, string(c.text));
-}
+CLASS_OPEN = "<|"
 
-CLASS_CLOSE = "|>" {
-   return emit(ClassOpen, string(c.text));
-}
-
+CLASS_CLOSE = "|>"

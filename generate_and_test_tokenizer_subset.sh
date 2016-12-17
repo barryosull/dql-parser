@@ -10,14 +10,6 @@ addPackageHeader() {
     echo "
 {
     package $folder
-
-    func emit(typ TokenType, val interface{}) {
-    	//if val == nil {
-    	//	val = "";
-    	//}
-    	//GetInstanceTokenList().Append(NewToken(typ, val.(string)));
-    }
-
 }
     "|cat - $1/tokenizer.peg > $1/tokenizer_subset.peg
 }
