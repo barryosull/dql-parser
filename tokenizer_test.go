@@ -52,13 +52,24 @@ var dbStatements = testStatements {
 		"create database 'db2' ;",
 		[]Token{NewToken(create, "create", 0), NewToken(namespaceObject, "database", 7), NewToken(quotedName, "db2", 17), Apos(22)}, nil,
 	}, {
-		"create database 'db2' ",
-		[]Token{NewToken(create, "create", 0), NewToken(namespaceObject, "database", 7), NewToken(quotedName, "db2", 17)}, Err("There was a problem near: \"create database 'db2' \"", 20),
+		"create dbase 'db2' ",
+		[]Token{NewToken(create, "create", 0)}, Err("There was a problem near: \"create \"", 20),
 	},
 };
 
 func TestCreateDatabase(t *testing.T) {
 	dbStatements.test(t);
+}
+
+var multipeStatements = testStatements{
+	{
+		"create database 'db1'; create database 'db1';",
+		[]Token{tok(create, "create"), tok(namespaceObject, "database"), tok(quotedName, "db1"), apos(), tok(create, "create"), tok(namespaceObject, "database"), tok(quotedName, "db1"), apos()}, nil,
+	},
+}
+
+func TestMultipeStatements(t *testing.T) {
+	multipeStatements.test(t);
 }
 
 func compareTokens(a []Token, b []Token) bool {
@@ -81,7 +92,7 @@ var domainStatements = testStatements{
 	},
 	{
 		"create domain 'dmn' using database 'db'",
-		[]Token{tok(create, "create"), tok(namespaceObject, "domain"), tok(quotedName, "dmn"), tok(usingDatabase, "db")}, Err("There was a problem near: \"create domain 'dmn' using database 'db'\"", 30),
+		[]Token{tok(create, "create"), tok(namespaceObject, "domain"), tok(quotedName, "dmn"), tok(usingDatabase, "db")}, nil,
 
 	},
 };
@@ -109,12 +120,20 @@ var contextStatements = testStatements {
 func TestCreateContext(t *testing.T) {
 	contextStatements.test(t);
 }
-/*
+
 var valueStatements = testStatements {
 	{
 		"<| value 'address' using database 'db' for domain 'dmn' in context 'ctx' |>",
-		[]*Token{ClsOpen(), NewToken(Class, "value"), NewToken(QuotedName, "address"), NewToken(UsingDatabase, "db"), NewToken(ForDomain, "dmn"), NewToken(InContext, "ctx"), ClsClose()},
+		[]Token{clsOpen(), tok(class, "value"), tok(quotedName, "address"), tok(usingDatabase, "db"), tok(forDomain, "dmn"), tok(inContext, "ctx"), clsClose()}, nil,
 	},
+}
+
+func clsOpen() Token {
+	return ClsOpen(ignoreTokenPos);
+}
+
+func clsClose() Token {
+	return ClsClose(ignoreTokenPos);
 }
 
 func TestCreateValue(t *testing.T) {

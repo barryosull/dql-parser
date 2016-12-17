@@ -29,7 +29,7 @@ func lex(name, input string) (*lexer) {
 }
 
 func (l *lexer) run() {
-	for state := lexCreate; state != nil; {
+	for state := lexToken; state != nil; {
 		state = state(l)
 	}
 	return
@@ -57,6 +57,9 @@ const EOF = -1
 
 func lexToken(l *lexer) stateFn {
 	ignoreWS(l);
+	if (l.peek() == EOF) {
+		return nil;
+	}
 	if (l.hasNextPrefix("create")) {
 		return lexCreate
 	}
@@ -69,6 +72,9 @@ func lexToken(l *lexer) stateFn {
 	if (l.hasNextPrefix("context")) {
 		return lexNSObjectType
 	}
+	if (l.hasNextPrefix("value")) {
+		return lexClass
+	}
 	if (l.hasNextPrefix("'")) {
 		return lexNSObjectName
 	}
@@ -78,8 +84,18 @@ func lexToken(l *lexer) stateFn {
 	if (l.hasNextPrefix("for")) {
 		return lexForDomain
 	}
+	if (l.hasNextPrefix("in")) {
+		return lexInContext
+	}
 	if (l.hasNextPrefix(";")) {
 		return lexApostrophe
+	}
+	if (l.hasNextPrefix("<|")) {
+		return lexClassOpener
+	}
+
+	if (l.hasNextPrefix("|>")) {
+		return lexClassCloser
 	}
 
 	return l.errorf("There was a problem near: %q", l.parsed());
@@ -172,10 +188,51 @@ func lexForDomain (l *lexer) stateFn {
 	return nil
 }
 
+func lexInContext (l *lexer) stateFn {
+	l.pos += len("in")
+	ignoreWS(l);
+
+	l.pos += len("context")
+	ignoreWS(l);
+
+	if (l.next() == '\'') {
+		l.ignore();
+		for {
+			r := l.next();
+			if (r == '\'') {
+				l.backup()
+				l.emit(inContext)
+				l.next()
+				l.ignore()
+				return lexToken
+			}
+		}
+	}
+	return nil
+}
+
 func lexApostrophe(l *lexer) stateFn {
 	l.next();
 	l.emit(apostrophe);
-	return nil;
+	return lexToken;
+}
+
+func lexClassOpener(l *lexer) stateFn {
+	l.pos += len("<|")
+	l.emit(classOpen)
+	return lexToken
+}
+
+func lexClassCloser(l *lexer) stateFn {
+	l.pos += len("|>")
+	l.emit(classClose)
+	return lexToken
+}
+
+func lexClass(l *lexer) stateFn {
+	l.pos += len("value")
+	l.emit(class)
+	return lexToken
 }
 
 func ignoreWS(l *lexer) {
