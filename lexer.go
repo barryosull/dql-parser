@@ -32,10 +32,11 @@ func (l *lexer) run() {
 	for state := lexCreate; state != nil; {
 		state = state(l)
 	}
+	return
 }
 
 func (l *lexer) emit(t TokenType) {
-	l.tokens = append(l.tokens, Token{t, l.input[l.start:l.pos]});
+	l.tokens = append(l.tokens, Token{t, l.input[l.start:l.pos], l.start});
 	l.start = l.pos
 }
 
@@ -199,7 +200,7 @@ func (l *lexer) acceptRun(valid string) {
 }
 
 func (l *lexer) errorf(format string, args ...interface{}) stateFn {
-	errToken := Token{err, fmt.Sprintf(format, args...)}
+	errToken := Token{err, fmt.Sprintf(format, args...), l.start}
 	l.error = &errToken
 	return nil
 }

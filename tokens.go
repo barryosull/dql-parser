@@ -7,14 +7,20 @@ import (
 type Token struct {
 	typ TokenType
 	val string
+	pos int
 }
 
-func NewToken(typ TokenType, val string) Token {
-	return Token{typ, val};
+func NewToken(typ TokenType, val string, pos int) Token {
+	return Token{typ, val, pos};
 }
+
+const ignoreTokenPos = 1
 
 func (t *Token) Compare(o Token) bool{
-	return t.typ == o.typ && t.val == o.val;
+	if (t.pos == ignoreTokenPos || o.pos == ignoreTokenPos) {
+		return t.typ == o.typ && t.val == o.val;
+	}
+	return t.typ == o.typ && t.val == o.val && t.pos == o.pos;
 }
 
 func (i *Token) String() string {
@@ -25,9 +31,9 @@ func (i *Token) String() string {
 		return i.val
 	}
 	if len(i.val) > 10 {
-		return fmt.Sprintf("%q, %.10q...", i.typ, i.val)
+		return fmt.Sprintf("char %q, %q, %.10q...", i.pos, i.typ, i.val)
 	}
-	return fmt.Sprintf("%q, %q", i.typ, i.val)
+	return fmt.Sprintf("char %q, %q, %q", i.pos, i.typ, i.val)
 }
 
 type TokenType string
@@ -48,19 +54,19 @@ const (
 	eof = "eof"
 )
 
-func Apos() Token {
-	return NewToken(apostrophe, ";");
+func Apos(pos int) Token {
+	return NewToken(apostrophe, ";", pos);
 }
 
-func Err(e string) *Token {
-	t := NewToken(err, e);
+func Err(e string, pos int) *Token {
+	t := NewToken(err, e, pos);
 	return &t
 }
 
-func ClsOpen() Token {
-	return NewToken(classOpen, "<|");
+func ClsOpen(pos int) Token {
+	return NewToken(classOpen, "<|", pos);
 }
 
-func ClsClose() Token {
-	return NewToken(classClose, "|>");
+func ClsClose(pos int) Token {
+	return NewToken(classClose, "|>", pos);
 }

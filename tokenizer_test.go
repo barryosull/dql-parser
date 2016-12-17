@@ -13,9 +13,12 @@ type testStatement struct {
 type testStatements []testStatement
 
 func (statements testStatements) test(t *testing.T) {
-	parser := NewTokenizer();
+
 	for _, statement := range statements {
-		actual, err := parser.Tokenize(statement.dql);
+		tokenizer := NewTokenizer(statement.dql);
+
+		actual, err := tokenizer.Tokens();
+
 		if (!compareTokens(statement.expected, actual)) {
 			t.Error("AST produced from '"+statement.dql+"' is not valid");
 			t.Error(statement.expected);
@@ -44,13 +47,13 @@ func (statements testStatements) test(t *testing.T) {
 var dbStatements = testStatements {
 	{
 		"create database 'db1';",
-		[]Token{NewToken(create, "create"), NewToken(namespaceObject, "database"), NewToken(quotedName, "db1"), Apos()}, nil,
+		[]Token{NewToken(create, "create", 0), NewToken(namespaceObject, "database", 7), NewToken(quotedName, "db1", 17), Apos(21)}, nil,
 	}, {
 		"create database 'db2' ;",
-		[]Token{NewToken(create, "create"), NewToken(namespaceObject, "database"), NewToken(quotedName, "db2"), Apos()}, nil,
+		[]Token{NewToken(create, "create", 0), NewToken(namespaceObject, "database", 7), NewToken(quotedName, "db2", 17), Apos(22)}, nil,
 	}, {
 		"create database 'db2' ",
-		[]Token{NewToken(create, "create"), NewToken(namespaceObject, "database"), NewToken(quotedName, "db2")}, Err("There was a problem near: \"create database 'db2' \""),
+		[]Token{NewToken(create, "create", 0), NewToken(namespaceObject, "database", 7), NewToken(quotedName, "db2", 17)}, Err("There was a problem near: \"create database 'db2' \"", 20),
 	},
 };
 
@@ -73,15 +76,19 @@ func compareTokens(a []Token, b []Token) bool {
 var domainStatements = testStatements{
 	{
 		"create domain 'dmn' using database 'db';",
-		[]Token{NewToken(create, "create"), NewToken(namespaceObject, "domain"), NewToken(quotedName, "dmn"), NewToken(usingDatabase, "db"), Apos()}, nil,
+		[]Token{tok(create, "create"), tok(namespaceObject, "domain"), tok(quotedName, "dmn"), tok(usingDatabase, "db"), Apos(ignoreTokenPos)}, nil,
 
 	},
 	{
 		"create domain 'dmn' using database 'db'",
-		[]Token{NewToken(create, "create"), NewToken(namespaceObject, "domain"), NewToken(quotedName, "dmn"), NewToken(usingDatabase, "db")}, Err("There was a problem near: \"create domain 'dmn' using database 'db'\""),
+		[]Token{tok(create, "create"), tok(namespaceObject, "domain"), tok(quotedName, "dmn"), tok(usingDatabase, "db")}, Err("There was a problem near: \"create domain 'dmn' using database 'db'\"", 30),
 
 	},
 };
+
+func tok(typ TokenType, val string) Token {
+	return Token{typ, val, ignoreTokenPos};
+}
 
 func TestCreateDomain(t *testing.T) {
 	domainStatements.test(t);
