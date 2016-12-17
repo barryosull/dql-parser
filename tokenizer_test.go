@@ -140,20 +140,18 @@ func TestCreateValue(t *testing.T) {
 	valueStatements.test(t);
 }
 
-/*
-var aggregateStatements = []struct {
-	dql string;
-	ast CreateAggregate
-}{
+var aggregateStatements = testStatements{
 	{
 		"create aggregate 'ag' using database 'db' for domain 'dmn' in context 'ctx';",
-		CreateAggregate{"uuid", "ag", NewContextNamespace([]string{"db", "dmn", "ctx"})},
-	},{
-		"<| event 'start' using database 'db' for domain 'dmn' in context 'ctx' within aggregate 'ag' |>",
-		CreateEvent{"uuid", "start", NewAggregateNamespace([]string{"db", "dmn", "ctx", "ag"})},
+		[]Token{tok(create, "create"), tok(namespaceObject, "aggregate"),tok(quotedName, "ag"), tok(usingDatabase, "db"), tok(forDomain, "dmn"), tok(inContext, "ctx"), apos()}, nil,
 	},
 }
 
+func TestAggregateStatements (t *testing.T) {
+	aggregateStatements.test(t)
+}
+
+/*
 var eventStatements = []struct {
 	dql string;
 	ast CreateAggregate

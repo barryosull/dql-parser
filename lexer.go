@@ -72,6 +72,9 @@ func lexToken(l *lexer) stateFn {
 	if (l.hasNextPrefix("context")) {
 		return lexNSObjectType
 	}
+	if (l.hasNextPrefix("aggregate")) {
+		return lexNSObjectType
+	}
 	if (l.hasNextPrefix("value")) {
 		return lexClass
 	}
@@ -120,6 +123,10 @@ func lexNSObjectType(l *lexer) stateFn {
 	}
 	if (l.hasNextPrefix("context")) {
 		l.pos += len("context")
+		l.emit(namespaceObject)
+	}
+	if (l.hasNextPrefix("aggregate")) {
+		l.pos += len("aggregate")
 		l.emit(namespaceObject)
 	}
 	return lexToken
