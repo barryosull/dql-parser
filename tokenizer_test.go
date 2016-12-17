@@ -26,12 +26,12 @@ func (statements testStatements) test(t *testing.T) {
 		}
 
 		if (err == nil && statement.error != nil) {
-			t.Error("Got error, expected nothing.")
+			t.Error("Expected error, got nothing.")
 			t.Error(statement.dql);
 			t.Error(err);
 		} else if (err != nil && statement.error == nil) {
-			t.Error("Expected error, got nothing.")
-			t.Error(statement.error);
+			t.Error("Got error, expected nothing.")
+			t.Error(err);
 		}
 
 		if (err != nil && statement.error != nil) {
@@ -76,7 +76,7 @@ func compareTokens(a []Token, b []Token) bool {
 var domainStatements = testStatements{
 	{
 		"create domain 'dmn' using database 'db';",
-		[]Token{tok(create, "create"), tok(namespaceObject, "domain"), tok(quotedName, "dmn"), tok(usingDatabase, "db"), Apos(ignoreTokenPos)}, nil,
+		[]Token{tok(create, "create"), tok(namespaceObject, "domain"), tok(quotedName, "dmn"), tok(usingDatabase, "db"), apos()}, nil,
 
 	},
 	{
@@ -90,22 +90,26 @@ func tok(typ TokenType, val string) Token {
 	return Token{typ, val, ignoreTokenPos};
 }
 
+func apos() Token {
+	return Apos(ignoreTokenPos);
+}
+
 func TestCreateDomain(t *testing.T) {
 	domainStatements.test(t);
 }
 
-/*
+
 var contextStatements = testStatements {
 	{
 		"create context 'ctx' using database 'db' for domain 'dmn';",
-		[]*Token{NewToken(Create, "create"), NewToken(NamespaceObject, "context"), NewToken(QuotedName, "ctx"), NewToken(UsingDatabase, "db"), NewToken(ForDomain, "dmn"), Apos()},
+		[]Token{tok(create, "create"), tok(namespaceObject, "context"), tok(quotedName, "ctx"), tok(usingDatabase, "db"), tok(forDomain, "dmn"), apos()}, nil,
 	},
 };
 
 func TestCreateContext(t *testing.T) {
 	contextStatements.test(t);
 }
-
+/*
 var valueStatements = testStatements {
 	{
 		"<| value 'address' using database 'db' for domain 'dmn' in context 'ctx' |>",

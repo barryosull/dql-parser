@@ -66,11 +66,17 @@ func lexToken(l *lexer) stateFn {
 	if (l.hasNextPrefix("domain")) {
 		return lexNSObjectType
 	}
+	if (l.hasNextPrefix("context")) {
+		return lexNSObjectType
+	}
 	if (l.hasNextPrefix("'")) {
 		return lexNSObjectName
 	}
 	if (l.hasNextPrefix("using")) {
 		return lexUsingDatabase
+	}
+	if (l.hasNextPrefix("for")) {
+		return lexForDomain
 	}
 	if (l.hasNextPrefix(";")) {
 		return lexApostrophe
@@ -94,6 +100,10 @@ func lexNSObjectType(l *lexer) stateFn {
 	}
 	if (l.hasNextPrefix("domain")) {
 		l.pos += len("domain")
+		l.emit(namespaceObject)
+	}
+	if (l.hasNextPrefix("context")) {
+		l.pos += len("context")
 		l.emit(namespaceObject)
 	}
 	return lexToken
@@ -130,6 +140,29 @@ func lexUsingDatabase(l *lexer) stateFn {
 			if (r == '\'') {
 				l.backup()
 				l.emit(usingDatabase)
+				l.next()
+				l.ignore()
+				return lexToken
+			}
+		}
+	}
+	return nil
+}
+
+func lexForDomain (l *lexer) stateFn {
+	l.pos += len("for")
+	ignoreWS(l);
+
+	l.pos += len("domain")
+	ignoreWS(l);
+
+	if (l.next() == '\'') {
+		l.ignore();
+		for {
+			r := l.next();
+			if (r == '\'') {
+				l.backup()
+				l.emit(forDomain)
 				l.next()
 				l.ignore()
 				return lexToken
