@@ -45,6 +45,15 @@ func (l *lexer) hasNextPrefix (prefix string) bool {
 	return strings.HasPrefix(unlexed, prefix);
 }
 
+func (l *lexer) hasNextPrefixes (prefixes []string) bool {
+	for _, prefix := range prefixes {
+		if (l.hasNextPrefix(prefix)) {
+			return true
+		}
+	}
+	return false
+}
+
 func (l *lexer) parsed () string {
 	start := 0;
 	if (l.pos - 40 > 0) {
@@ -56,7 +65,7 @@ func (l *lexer) parsed () string {
 const EOF = -1
 
 func lexToken(l *lexer) stateFn {
-	ignoreWS(l);
+	l.skipWS();
 	if (l.peek() == EOF) {
 		return nil;
 	}
@@ -108,8 +117,6 @@ func lexToken(l *lexer) stateFn {
 	}
 
 	return l.errorf("There was a problem near: %q", l.parsed());
-
-	return nil
 }
 
 func lexCreate(l *lexer) stateFn {
@@ -117,6 +124,7 @@ func lexCreate(l *lexer) stateFn {
 	l.emit(create)
 	return lexNSObjectType
 }
+
 
 func lexNSObjectType(l *lexer) stateFn {
 	if (l.hasNextPrefix("database")) {
@@ -139,110 +147,46 @@ func lexNSObjectType(l *lexer) stateFn {
 }
 
 func lexNSObjectName(l *lexer) stateFn {
-	if (l.next() == '\'') {
-		l.ignore();
-		for {
-			r := l.next();
-			if (r == '\'') {
-				l.backup()
-				l.emit(quotedName)
-				l.next()
-				l.ignore()
-				return lexToken
-			}
-		}
-	}
+	l.lexQuotedStringAsToken(quotedName)
 	return lexToken
 }
 
 func lexUsingDatabase(l *lexer) stateFn {
-	l.pos += len("using")
-	ignoreWS(l);
+	l.skipStr("using")
+	l.skipStr("database")
 
-	l.pos += len("database")
-	ignoreWS(l);
-
-	if (l.next() == '\'') {
-		l.ignore();
-		for {
-			r := l.next();
-			if (r == '\'') {
-				l.backup()
-				l.emit(usingDatabase)
-				l.next()
-				l.ignore()
-				return lexToken
-			}
-		}
+	if l.lexQuotedStringAsToken(usingDatabase) {
+		return lexToken
 	}
 	return nil
 }
 
 func lexForDomain (l *lexer) stateFn {
-	l.pos += len("for")
-	ignoreWS(l);
+	l.skipStr("for")
+	l.skipStr("domain")
 
-	l.pos += len("domain")
-	ignoreWS(l);
-
-	if (l.next() == '\'') {
-		l.ignore();
-		for {
-			r := l.next();
-			if (r == '\'') {
-				l.backup()
-				l.emit(forDomain)
-				l.next()
-				l.ignore()
-				return lexToken
-			}
-		}
+	if l.lexQuotedStringAsToken(forDomain) {
+		return lexToken
 	}
 	return nil
 }
 
 func lexInContext (l *lexer) stateFn {
-	l.pos += len("in")
-	ignoreWS(l);
+	l.skipStr("in")
+	l.skipStr("context")
 
-	l.pos += len("context")
-	ignoreWS(l);
-
-	if (l.next() == '\'') {
-		l.ignore();
-		for {
-			r := l.next();
-			if (r == '\'') {
-				l.backup()
-				l.emit(inContext)
-				l.next()
-				l.ignore()
-				return lexToken
-			}
-		}
+	if l.lexQuotedStringAsToken(inContext) {
+		return lexToken
 	}
 	return nil
 }
 
 func lexWithinAggregate(l *lexer) stateFn {
-	l.pos += len("within")
-	ignoreWS(l);
+	l.skipStr("within")
+	l.skipStr("aggregate")
 
-	l.pos += len("aggregate")
-	ignoreWS(l);
-
-	if (l.next() == '\'') {
-		l.ignore();
-		for {
-			r := l.next();
-			if (r == '\'') {
-				l.backup()
-				l.emit(withinAggregate)
-				l.next()
-				l.ignore()
-				return lexToken
-			}
-		}
+	if l.lexQuotedStringAsToken(withinAggregate) {
+		return lexToken
 	}
 	return nil
 }
@@ -272,7 +216,7 @@ func lexClass(l *lexer) stateFn {
 	return lexToken
 }
 
-func ignoreWS(l *lexer) {
+func (l *lexer) skipWS() {
 	for {
 		switch r := l.next(); {
 		case r == ' ' || r == '\n' || r == '\r' || r == '\t':
@@ -282,6 +226,22 @@ func ignoreWS(l *lexer) {
 			return
 		}
 	}
+}
+
+func (l *lexer) lexQuotedStringAsToken(tokenType TokenType) bool {
+	l.skipWS()
+	if (l.next() == '\'') {
+		l.ignore();
+		for {
+			if (l.peek() == '\'') {
+				l.emit(tokenType)
+				l.skip()
+				return true;
+			}
+			l.next();
+		}
+	}
+	return false;
 }
 
 
@@ -295,6 +255,16 @@ func (l *lexer) next() (rn int) {
 	r, l.width = utf8.DecodeRuneInString(l.input[l.pos:])
 	l.pos += l.width
 	return int(r);
+}
+
+func (l *lexer) skip() {
+	l.next()
+	l.ignore()
+}
+
+func (l *lexer) skipStr(string string) {
+	l.pos += len(string)
+	l.skipWS()
 }
 
 func (l *lexer) ignore() {

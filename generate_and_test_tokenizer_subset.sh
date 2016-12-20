@@ -29,7 +29,7 @@ addDependencies() {
 
 buildTokenizer() {
     ../../bin/pigeon $1/tokenizer_subset.peg | ../../bin/goimports > $1/tokenizer_generated.go
-    rm $1/tokenizer_subset.peg
+    // rm $1/tokenizer_subset.peg
     echo "Created $1 test tokenizer";
 }
 
