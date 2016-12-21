@@ -40,18 +40,37 @@ type TokenType string
 
 const (
 	err TokenType = "err"
-	create = "create"
 	namespaceObject = "namespaceObject"
 	quotedName = "quotedName"
-	usingDatabase = "usingDatabase"
+	usingDatabase = "using database"
 	forDomain = "forDomain"
 	inContext = "inContext"
-	withinAggregate = "withinAggregate"
+	withinAggregate = "within aggregate"
 	class = "class"
-	classOpen = "classOpen"
-	classClose = "classClose"
-	apostrophe = "apostrophe"
+	classOpen = "<|"
+	classClose = "|>"
+	apostrophe = ";"
 	eof = "eof"
+
+	//Keywords - actions
+	create = "create"
+	apply = "apply"
+	assert = "assert"
+	run = "run"
+
+	//Keywords - Objects
+	database = "database"
+	domain = "domain"
+	context = "context"
+	aggregate = "aggregate"
+	value = "value"
+	entity = "entity"
+	event = "event"
+	command = "command"
+	projection = "projection"
+	invariant = "invariant"
+	query = "query"
+
 )
 
 func Apos(pos int) Token {

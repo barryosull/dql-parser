@@ -45,13 +45,13 @@ func (l *lexer) hasNextPrefix (prefix string) bool {
 	return strings.HasPrefix(unlexed, prefix);
 }
 
-func (l *lexer) hasNextPrefixes (prefixes []string) bool {
+func (l *lexer) matchingPrefix (prefixes []string) (string, bool) {
 	for _, prefix := range prefixes {
 		if (l.hasNextPrefix(prefix)) {
-			return true
+			return prefix, true
 		}
 	}
-	return false
+	return "", false
 }
 
 func (l *lexer) parsed () string {
@@ -69,25 +69,13 @@ func lexToken(l *lexer) stateFn {
 	if (l.peek() == EOF) {
 		return nil;
 	}
-	if (l.hasNextPrefix("create")) {
+	if (l.hasNextPrefix(create)) {
 		return lexCreate
 	}
-	if (l.hasNextPrefix("database")) {
-		return lexNSObjectType
-	}
-	if (l.hasNextPrefix("domain")) {
-		return lexNSObjectType
-	}
-	if (l.hasNextPrefix("context")) {
-		return lexNSObjectType
-	}
-	if (l.hasNextPrefix("aggregate")) {
-		return lexNSObjectType
-	}
-	if (l.hasNextPrefix("value")) {
+	if (l.hasNextPrefix(value)) {
 		return lexClass
 	}
-	if (l.hasNextPrefix("event")) {
+	if (l.hasNextPrefix(event)) {
 		return lexClass
 	}
 	if (l.hasNextPrefix("'")) {
@@ -105,18 +93,17 @@ func lexToken(l *lexer) stateFn {
 	if (l.hasNextPrefix("within")) {
 		return lexWithinAggregate
 	}
-	if (l.hasNextPrefix(";")) {
+	if (l.hasNextPrefix(apostrophe)) {
 		return lexApostrophe
 	}
-	if (l.hasNextPrefix("<|")) {
+	if (l.hasNextPrefix(classOpen)) {
 		return lexClassOpener
 	}
-
-	if (l.hasNextPrefix("|>")) {
+	if (l.hasNextPrefix(classClose)) {
 		return lexClassCloser
 	}
 
-	return l.errorf("There was a problem near: %q", l.parsed());
+	return l.err();
 }
 
 func lexCreate(l *lexer) stateFn {
@@ -127,22 +114,13 @@ func lexCreate(l *lexer) stateFn {
 
 
 func lexNSObjectType(l *lexer) stateFn {
-	if (l.hasNextPrefix("database")) {
-		l.pos += len("database")
-		l.emit(namespaceObject)
+	l.skipWS()
+	typ, match := l.matchingPrefix([]string{database, domain, context, aggregate})
+	if (!match) {
+		return l.err()
 	}
-	if (l.hasNextPrefix("domain")) {
-		l.pos += len("domain")
-		l.emit(namespaceObject)
-	}
-	if (l.hasNextPrefix("context")) {
-		l.pos += len("context")
-		l.emit(namespaceObject)
-	}
-	if (l.hasNextPrefix("aggregate")) {
-		l.pos += len("aggregate")
-		l.emit(namespaceObject)
-	}
+	l.pos += len(typ)
+	l.emit(namespaceObject)
 	return lexToken
 }
 
@@ -153,7 +131,7 @@ func lexNSObjectName(l *lexer) stateFn {
 
 func lexUsingDatabase(l *lexer) stateFn {
 	l.skipStr("using")
-	l.skipStr("database")
+	l.skipStr(database)
 
 	if l.lexQuotedStringAsToken(usingDatabase) {
 		return lexToken
@@ -163,7 +141,7 @@ func lexUsingDatabase(l *lexer) stateFn {
 
 func lexForDomain (l *lexer) stateFn {
 	l.skipStr("for")
-	l.skipStr("domain")
+	l.skipStr(domain)
 
 	if l.lexQuotedStringAsToken(forDomain) {
 		return lexToken
@@ -173,7 +151,7 @@ func lexForDomain (l *lexer) stateFn {
 
 func lexInContext (l *lexer) stateFn {
 	l.skipStr("in")
-	l.skipStr("context")
+	l.skipStr(context)
 
 	if l.lexQuotedStringAsToken(inContext) {
 		return lexToken
@@ -183,7 +161,7 @@ func lexInContext (l *lexer) stateFn {
 
 func lexWithinAggregate(l *lexer) stateFn {
 	l.skipStr("within")
-	l.skipStr("aggregate")
+	l.skipStr(aggregate)
 
 	if l.lexQuotedStringAsToken(withinAggregate) {
 		return lexToken
@@ -296,8 +274,9 @@ func (l *lexer) acceptRun(valid string) {
 	l.backup()
 }
 
-func (l *lexer) errorf(format string, args ...interface{}) stateFn {
-	errToken := Token{err, fmt.Sprintf(format, args...), l.start}
+func (l *lexer) err() stateFn {
+	format := "There was a problem near: %q"
+	errToken := Token{err, fmt.Sprintf(format, l.parsed()), l.start}
 	l.error = &errToken
 	return nil
 }
