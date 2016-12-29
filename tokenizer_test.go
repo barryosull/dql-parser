@@ -2,6 +2,7 @@ package parser
 
 import (
 	"testing"
+	"strconv"
 )
 
 var dbStatements = testStatements {
@@ -216,22 +217,64 @@ var classComponents = testStatements{
 			tok(rbrace, "}"),
 		},
 	},
-	/*
-	`
-	check
-	(
-		return value != 0;
-	)`,
-	`
-	function doThing()
 	{
-		a = 2;
-	}`,
-	`
-	function doThing2(value\service-charge service_charge, value\category category)
-	{
+		`
+		check
+		(
+			return value != 0;
+		)`,
+		[]Token{
+			tok(check, "check"),
+			tok(lparen, "("),
 
-	}`,
+			tok(return_, "return"),
+			tok(identifier, "value"),
+			tok(not_eq, "!="),
+			tok(number, "0"),
+			tok(apostrophe, ";"),
+
+			tok(rparen, ")"),
+		},
+	},
+	{
+		`
+		function doThing()
+		{
+			a = 2;
+		}`,
+		[]Token{
+			tok(function, "function"),
+			tok(identifier, "doThing"),
+			tok(lparen, "("),
+			tok(rparen, ")"),
+			tok(lbrace, "{"),
+			tok(identifier, "a"),
+			tok(assign, "="),
+			tok(number, "2"),
+			tok(apostrophe, ";"),
+			tok(rbrace, "}"),
+		},
+	},
+	{
+		`
+		function doThing2(value\service-charge service_charge, value\category category)
+		{
+
+		}`,
+		[]Token{
+			tok(function, "function"),
+			tok(identifier, "doThing2"),
+			tok(lparen, "("),
+			tok(typeRef, "value\\service-charge"),
+			tok(identifier, "service_charge"),
+			tok(comma, ","),
+			tok(typeRef, "value\\category"),
+			tok(identifier, "category"),
+			tok(rparen, ")"),
+			tok(lbrace, "{"),
+			tok(rbrace, "}"),
+		},
+	},/*
 	`
 	handler
 	{
@@ -269,24 +312,29 @@ func (statements testStatements) test(t *testing.T) {
 
 		actual, err := tokenizer.Tokens();
 
-		if (len(statement.expected) != len(actual)) {
-			t.Error("Error with AST produced from '"+statement.dql+"'");
-			t.Error("Number of tokens are mismtached, expected "+string(len(statement.expected))+", got "+string(len(actual)));
-			t.Error(statement.expected);
-			t.Error(actual);
-		}
-		for i, token := range statement.expected {
-			if (!token.Compare(actual[i])) {
-				t.Error("Error with AST produced from '"+statement.dql+"'");
-				t.Error("Expected: "+token.String())
-				t.Error("Got: "+actual[i].String())
-				break;
-			}
-		}
+		compareTokenLists(statement.expected, actual, statement.dql, t);
 
 		if (err != nil) {
 			t.Error("Got error")
 			t.Error(err);
+		}
+	}
+}
+
+func compareTokenLists(expected, actual []Token, dql string, t *testing.T) {
+	if (len(expected) != len(actual)) {
+		t.Error("Error with AST produced from '"+dql+"'");
+		t.Error("Number of tokens are mismtached, expected "+strconv.Itoa(len(expected))+", got "+strconv.Itoa(len(actual)));
+		t.Error(expected);
+		t.Error(actual);
+		return
+	}
+	for i, token := range expected {
+		if (!token.Compare(actual[i])) {
+			t.Error("Error with AST produced from '"+dql+"'");
+			t.Error("Expected: "+token.String())
+			t.Error("Got: "+actual[i].String())
+			return
 		}
 	}
 }

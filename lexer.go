@@ -194,8 +194,8 @@ func lexToken(l *lexer) stateFn {
 	if (l.hasNextPrefix("within")) {
 		return lexWithinAggregate
 	}
-	if (l.hasNextPrefix(value) || l.hasNextPrefix(event)) {
-		return lexClassOrTypeRef
+	if (l.hasNextPrefix(value+"\\") || l.hasNextPrefix(event+"\\")) {
+		return lexTypeRef
 	}
 
 	// No special cases, just lex and move on
@@ -206,7 +206,7 @@ func lexToken(l *lexer) stateFn {
 		return l.lexAsToken(assign);
 	}
 	if (l.hasNextPrefix(classOpen)) {
-		return l.lexAsToken(classOpen);
+		return lexClassOpen;
 	}
 	if (l.hasNextPrefix(classClose)) {
 		return l.lexAsToken(classClose);
@@ -235,6 +235,28 @@ func lexToken(l *lexer) stateFn {
 	if (l.hasNextPrefix(rbracket)) {
 		return l.lexAsToken(rbracket);
 	}
+	if (l.hasNextPrefix(check)) {
+		return l.lexAsToken(check)
+	}
+	if (l.hasNextPrefix(return_)) {
+		return l.lexAsToken(return_)
+	}
+	if (l.hasNextPrefix(lparen)) {
+		return l.lexAsToken(lparen)
+	}
+	if (l.hasNextPrefix(rparen)) {
+		return l.lexAsToken(rparen)
+	}
+	if (l.hasNextPrefix(not_eq)) {
+		return l.lexAsToken(not_eq)
+	}
+	if (l.hasNextPrefix(function)) {
+		return l.lexAsToken(function)
+	}
+	if (l.hasNextPrefix(comma)) {
+		return l.lexAsToken(comma)
+	}
+
 
 	if (isDigit(l.peek())) {
 		return lexNumber;
@@ -307,9 +329,13 @@ func lexWithinAggregate(l *lexer) stateFn {
 	return nil
 }
 
+func lexClass(l *lexer) stateFn {
+	return l.lexAsToken(class);
+}
+
 func lexClassOrTypeRef(l *lexer) stateFn {
 	if (l.hasNextPrefix(value+" ") || l.hasNextPrefix(event+" ")) {
-		return l.lexAsToken(class);
+		return lexClass;
 	}
 	return lexTypeRef
 }
@@ -329,7 +355,7 @@ func lexTypeRef(l *lexer) stateFn {
 
 func lexIdentifier(l *lexer) stateFn {
 	for {
-		if (!isLetter(l.peek())) {
+		if (!isLetter(l.peek()) && !isDigit(l.peek())) {
 			break;
 		}
 		l.next();
@@ -347,6 +373,12 @@ func lexNumber(l *lexer) stateFn {
 	}
 	l.emit(number)
 	return lexToken;
+}
+
+func lexClassOpen(l *lexer) stateFn {
+	l.lexAsToken(classOpen);
+	l.skipWS()
+	return lexClass;
 }
 
 func isLetter(ch int) bool {

@@ -60,7 +60,7 @@ const (
 	assert = "assert"
 	run = "run"
 
-	//Keywords - Objects
+	//DQL Keywords - Objects
 	database = "database"
 	domain = "domain"
 	context = "context"
@@ -105,10 +105,15 @@ const (
 	lbracked = "["
 	rbracket = "]"
 
+	//Types
 	number = "number"
 	typeRef = "type reference"
 	identifier = "identifier"
 
+	//Statements
+	if_ = "if"
+	else_ = "else"
+	return_ = "return"
 
 )
 
