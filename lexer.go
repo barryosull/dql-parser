@@ -197,10 +197,22 @@ func lexToken(l *lexer) stateFn {
 	if (l.hasNextPrefix(value+"\\") || l.hasNextPrefix(event+"\\")) {
 		return lexTypeRef
 	}
+	if (l.hasNextPrefix("assert")) {
+		return lexAssertInvariant
+	}
+	if (l.hasNextPrefix("run")) {
+		return lexRunQuery
+	}
+	if (l.hasNextPrefix("apply")) {
+		return lexApplyEvent
+	}
+	if (l.hasNextPrefix("when")) {
+		return lexWhenEvent
+	}
 
 	// No special cases, just lex and move on
-	if (l.hasNextPrefix(apostrophe)) {
-		return l.lexAsToken(apostrophe);
+	if (l.hasNextPrefix(semicolon)) {
+		return l.lexAsToken(semicolon);
 	}
 	if (l.hasNextPrefix(assign)) {
 		return l.lexAsToken(assign);
@@ -238,6 +250,9 @@ func lexToken(l *lexer) stateFn {
 	if (l.hasNextPrefix(check)) {
 		return l.lexAsToken(check)
 	}
+	if (l.hasNextPrefix(handler)) {
+		return l.lexAsToken(handler)
+	}
 	if (l.hasNextPrefix(return_)) {
 		return l.lexAsToken(return_)
 	}
@@ -256,7 +271,9 @@ func lexToken(l *lexer) stateFn {
 	if (l.hasNextPrefix(comma)) {
 		return l.lexAsToken(comma)
 	}
-
+	if (l.hasNextPrefix(arrow)) {
+		return l.lexAsToken(arrow)
+	}
 
 	if (isDigit(l.peek())) {
 		return lexNumber;
@@ -329,15 +346,68 @@ func lexWithinAggregate(l *lexer) stateFn {
 	return nil
 }
 
-func lexClass(l *lexer) stateFn {
-	return l.lexAsToken(class);
+func lexAssertInvariant(l *lexer) stateFn {
+	l.pos += len("assert")
+	for {
+		if !contains(whitespace, l.next()) {
+			l.backup()
+			break;
+		}
+	}
+	l.pos += len("invariant")
+	l.emit(assertInvariant)
+	l.skipWS()
+
+	if (l.hasNextPrefix(not)) {
+		l.lexAsToken(not)
+	}
+
+	return lexToken
 }
 
-func lexClassOrTypeRef(l *lexer) stateFn {
-	if (l.hasNextPrefix(value+" ") || l.hasNextPrefix(event+" ")) {
-		return lexClass;
+func lexRunQuery(l *lexer) stateFn {
+	l.pos += len("run")
+	for {
+		if !contains(whitespace, l.next()) {
+			l.backup()
+			break;
+		}
 	}
-	return lexTypeRef
+	l.pos += len("query")
+	l.emit(runQuery)
+	l.skipWS()
+
+	return lexToken
+}
+
+func lexApplyEvent(l *lexer) stateFn {
+	l.pos += len("apply")
+	for {
+		if !contains(whitespace, l.next()) {
+			l.backup()
+			break;
+		}
+	}
+	l.pos += len("event")
+	l.emit(applyEvent)
+	l.skipWS()
+
+	return lexToken
+}
+
+func lexWhenEvent(l *lexer) stateFn {
+	l.skipStr("when")
+	l.skipWS()
+	l.skipStr("event")
+	l.skipWS()
+
+	l.lexQuotedStringAsToken(whenEvent)
+
+	return lexToken
+}
+
+func lexClass(l *lexer) stateFn {
+	return l.lexAsToken(class);
 }
 
 func lexTypeRef(l *lexer) stateFn {
@@ -360,6 +430,12 @@ func lexIdentifier(l *lexer) stateFn {
 		}
 		l.next();
 	}
+	word := l.input[l.start:l.pos]
+	if (word == "true" || word == "false") {
+		l.emit(boolean)
+		return lexToken;
+	}
+
 	l.emit(identifier)
 	return lexToken;
 }

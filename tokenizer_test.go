@@ -163,7 +163,7 @@ var namespaceBlocks= testStatements {
 			tok(create, "create"),
 			tok(namespaceObject, "aggregate"),
 			tok(quotedName, "aggregate1"),
-			tok(apostrophe, ";"),
+			tok(semicolon, ";"),
 
 			tok(usingDatabase, "database2"),
 			tok(forDomain, "domain2"),
@@ -174,7 +174,7 @@ var namespaceBlocks= testStatements {
 			tok(create, "create"),
 			tok(namespaceObject, "aggregate"),
 			tok(quotedName, "aggregate2"),
-			tok(apostrophe, ";"),
+			tok(semicolon, ";"),
 
 			tok(rbrace, "}"),
 			tok(rbrace, "}"),
@@ -205,14 +205,14 @@ var classComponents = testStatements{
 			tok(lparen, "("),
 			tok(number, "1"),
 			tok(rparen, ")"),
-			tok(apostrophe, ";"),
+			tok(semicolon, ";"),
 
 			tok(typeRef, "value\\category"),
 			tok(identifier, "category"),
 			tok(assign, "="),
 			tok(lbracked, "["),
 			tok(rbracket, "]"),
-			tok(apostrophe, ";"),
+			tok(semicolon, ";"),
 
 			tok(rbrace, "}"),
 		},
@@ -231,7 +231,7 @@ var classComponents = testStatements{
 			tok(identifier, "value"),
 			tok(not_eq, "!="),
 			tok(number, "0"),
-			tok(apostrophe, ";"),
+			tok(semicolon, ";"),
 
 			tok(rparen, ")"),
 		},
@@ -251,7 +251,7 @@ var classComponents = testStatements{
 			tok(identifier, "a"),
 			tok(assign, "="),
 			tok(number, "2"),
-			tok(apostrophe, ";"),
+			tok(semicolon, ";"),
 			tok(rbrace, "}"),
 		},
 	},
@@ -274,23 +274,72 @@ var classComponents = testStatements{
 			tok(lbrace, "{"),
 			tok(rbrace, "}"),
 		},
-	},/*
-	`
-	handler
+	},
 	{
-		a = b + c;
-		assert invariant not 'is-started';
-		revision = run query 'next-revision-number' (agency_id, quote_number);
-		apply event 'started' (agent_id, agency_id, brand_id, quote_number, revision);
-	}`,
-	`
-	when event 'started'
+		`
+		handler
+		{
+			assert  invariant not 'is-started';
+			revision = run query 'next-revision-number' (agency_id, quote_number);
+			apply event 'started' (agency_id, brand_id, quote_number, revision);
+		}`,
+		[]Token{
+			tok(handler, "handler"),
+			tok(lbrace, "{"),
+			tok(assertInvariant, "assert  invariant"),
+			tok(not, "not"),
+			tok(quotedName, "is-started"),
+			tok(semicolon, ";"),
+			tok(identifier, "revision"),
+			tok(assign, "="),
+			tok(runQuery, "run query"),
+			tok(quotedName, "next-revision-number"),
+			tok(lparen, "("),
+			tok(identifier, "agency_id"),
+			tok(comma, ","),
+			tok(identifier, "quote_number"),
+			tok(rparen, ")"),
+			tok(semicolon, ";"),
+			tok(applyEvent, "apply event"),
+			tok(quotedName, "started"),
+			tok(lparen, "("),
+			tok(identifier, "agency_id"),
+			tok(comma, ","),
+			tok(identifier, "brand_id"),
+			tok(comma, ","),
+			tok(identifier, "quote_number"),
+			tok(comma, ","),
+			tok(identifier, "revision"),
+			tok(rparen, ")"),
+			tok(semicolon, ";"),
+			tok(rbrace, "}"),
+
+		},
+	},
 	{
-		agency_id = event->agency_id;
-		brand_id = event->brand_id;
-		is_started = true;
-	}`,
-	*/
+		`
+		when event 'started'
+		{
+			agency_id = event->agency_id;
+			is_started = true;
+		}`,
+		[]Token{
+			tok(whenEvent, "started"),
+			tok(lbrace, "{"),
+			tok(identifier, "agency_id"),
+			tok(assign, "="),
+			tok(identifier, "event"),
+			tok(arrow, "->"),
+			tok(identifier, "agency_id"),
+			tok(semicolon, ";"),
+			tok(identifier, "is_started"),
+			tok(assign, "="),
+			tok(boolean, "true"),
+			tok(semicolon, ";"),
+			tok(rbrace, "}"),
+		},
+
+	},
 };
 
 func TestClassComponents (t *testing.T) {
@@ -325,13 +374,14 @@ func compareTokenLists(expected, actual []Token, dql string, t *testing.T) {
 	if (len(expected) != len(actual)) {
 		t.Error("Error with AST produced from '"+dql+"'");
 		t.Error("Number of tokens are mismtached, expected "+strconv.Itoa(len(expected))+", got "+strconv.Itoa(len(actual)));
-		t.Error(expected);
-		t.Error(actual);
-		return
 	}
 	for i, token := range expected {
+		if i == len(actual) {
+			t.Error("Expected: "+token.String())
+			t.Error("Got: nothing")
+			return
+		}
 		if (!token.Compare(actual[i])) {
-			t.Error("Error with AST produced from '"+dql+"'");
 			t.Error("Expected: "+token.String())
 			t.Error("Got: "+actual[i].String())
 			return

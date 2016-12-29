@@ -49,16 +49,10 @@ const (
 	class = "class"
 	classOpen = "<|"
 	classClose = "|>"
-	apostrophe = ";"
 	eof = "eof"
-	namespaceBlockOpen = ":{"
-	namespaceBlockClose = "}"
 
 	//Keywords - actions
 	create = "create"
-	apply = "apply"
-	assert = "assert"
-	run = "run"
 
 	//DQL Keywords - Objects
 	database = "database"
@@ -66,8 +60,8 @@ const (
 	context = "context"
 	aggregate = "aggregate"
 	value = "value"
-	entity = "entity"
 	event = "event"
+	entity = "entity"
 	command = "command"
 	projection = "projection"
 	invariant = "invariant"
@@ -78,6 +72,14 @@ const (
 	check = "check"
 	handler = "handler"
 	function = "function"
+	whenEvent = "when event"
+
+
+	// Command Handler statements
+	assertInvariant = "assert invariant"
+	not = "not"
+	runQuery = "run query"
+	applyEvent = "apply event"
 
 	// Operators
 	assign   = "="
@@ -86,6 +88,7 @@ const (
 	bang     = "!"
 	asterisk = "*"
 	slash    = "/"
+	arrow = "->"
 
 	lt = "<"
 	gt = ">"
@@ -109,6 +112,7 @@ const (
 	number = "number"
 	typeRef = "type reference"
 	identifier = "identifier"
+	boolean = "boolean"
 
 	//Statements
 	if_ = "if"
@@ -118,7 +122,7 @@ const (
 )
 
 func Apos(pos int) Token {
-	return NewToken(apostrophe, ";", pos);
+	return NewToken(semicolon, ";", pos);
 }
 
 func Err(e string, pos int) *Token {
