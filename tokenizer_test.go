@@ -346,6 +346,35 @@ func TestClassComponents (t *testing.T) {
 	classComponents.test(t)
 }
 
+var expressions = testStatements{
+	{
+		"a + b - c",
+		[]Token{
+			tok(identifier, "a"),
+			tok(plus, "+"),
+			tok(identifier, "b"),
+			tok(minus, "-"),
+			tok(identifier, "c"),
+		},
+	},
+	/*
+		"a + (a - b)",
+		"(a + b) + (a - b)",
+		"(a + b) + (a - b) - a->b->c + a->b() - !b + a and b",
+		"a->b = 'value\\integer'(1) - ('value\\integer'(1) + b) + (a - b) - a->b->c + a->b() - !b + a and b",
+		"a = b + c = c + 24",
+		"quote->items->has(item) == true",
+		"quote->items->has(item) - 5 == true",
+		"quote->is_started == true and quote->is_completed == false",
+		"quote->is_started == true",
+	}
+	*/
+};
+
+func TestExpressions(t *testing.T) {
+	expressions.test(t)
+}
+
 
 type testStatement struct {
 	dql string;
