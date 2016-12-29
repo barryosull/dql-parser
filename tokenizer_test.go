@@ -7,7 +7,6 @@ import (
 type testStatement struct {
 	dql string;
 	expected []Token;
-	error *Token;
 }
 
 type testStatements []testStatement
@@ -25,21 +24,9 @@ func (statements testStatements) test(t *testing.T) {
 			t.Error(actual);
 		}
 
-		if (err == nil && statement.error != nil) {
-			t.Error("Expected error, got nothing.")
-			t.Error(statement.dql);
+	 	if (err != nil) {
+			t.Error("Got error")
 			t.Error(err);
-		} else if (err != nil && statement.error == nil) {
-			t.Error("Got error, expected nothing.")
-			t.Error(err);
-		}
-
-		if (err != nil && statement.error != nil) {
-			if (err.String() != statement.error.String()) {
-				t.Error("Errors do not match.")
-				t.Error(statement.error);
-				t.Error(err);
-			}
 		}
 	}
 }
@@ -47,13 +34,10 @@ func (statements testStatements) test(t *testing.T) {
 var dbStatements = testStatements {
 	{
 		"create database 'db1';",
-		[]Token{NewToken(create, "create", 0), NewToken(namespaceObject, "database", 7), NewToken(quotedName, "db1", 17), Apos(21)}, nil,
+		[]Token{NewToken(create, "create", 0), NewToken(namespaceObject, "database", 7), NewToken(quotedName, "db1", 17), Apos(21)},
 	}, {
 		"create database 'db2' ;",
-		[]Token{NewToken(create, "create", 0), NewToken(namespaceObject, "database", 7), NewToken(quotedName, "db2", 17), Apos(22)}, nil,
-	}, {
-		"create dbase 'db2' ",
-		[]Token{NewToken(create, "create", 0)}, Err("There was a problem near: \"create \"", 20),
+		[]Token{NewToken(create, "create", 0), NewToken(namespaceObject, "database", 7), NewToken(quotedName, "db2", 17), Apos(22)},
 	},
 };
 
@@ -64,7 +48,7 @@ func TestCreateDatabase(t *testing.T) {
 var multipeStatements = testStatements{
 	{
 		"create database 'db1'; create database 'db1';",
-		[]Token{tok(create, "create"), tok(namespaceObject, "database"), tok(quotedName, "db1"), apos(), tok(create, "create"), tok(namespaceObject, "database"), tok(quotedName, "db1"), apos()}, nil,
+		[]Token{tok(create, "create"), tok(namespaceObject, "database"), tok(quotedName, "db1"), apos(), tok(create, "create"), tok(namespaceObject, "database"), tok(quotedName, "db1"), apos()},
 	},
 }
 
@@ -87,12 +71,12 @@ func compareTokens(a []Token, b []Token) bool {
 var domainStatements = testStatements{
 	{
 		"create domain 'dmn' using database 'db';",
-		[]Token{tok(create, "create"), tok(namespaceObject, "domain"), tok(quotedName, "dmn"), tok(usingDatabase, "db"), apos()}, nil,
+		[]Token{tok(create, "create"), tok(namespaceObject, "domain"), tok(quotedName, "dmn"), tok(usingDatabase, "db"), apos()},
 
 	},
 	{
 		"create domain 'dmn' using database 'db'",
-		[]Token{tok(create, "create"), tok(namespaceObject, "domain"), tok(quotedName, "dmn"), tok(usingDatabase, "db")}, nil,
+		[]Token{tok(create, "create"), tok(namespaceObject, "domain"), tok(quotedName, "dmn"), tok(usingDatabase, "db")},
 
 	},
 };
@@ -113,7 +97,7 @@ func TestCreateDomain(t *testing.T) {
 var contextStatements = testStatements {
 	{
 		"create context 'ctx' using database 'db' for domain 'dmn';",
-		[]Token{tok(create, "create"), tok(namespaceObject, "context"), tok(quotedName, "ctx"), tok(usingDatabase, "db"), tok(forDomain, "dmn"), apos()}, nil,
+		[]Token{tok(create, "create"), tok(namespaceObject, "context"), tok(quotedName, "ctx"), tok(usingDatabase, "db"), tok(forDomain, "dmn"), apos()},
 	},
 };
 
@@ -124,7 +108,7 @@ func TestCreateContext(t *testing.T) {
 var valueStatements = testStatements {
 	{
 		"<| value 'address' using database 'db' for domain 'dmn' in context 'ctx' |>",
-		[]Token{clsOpen(), tok(class, "value"), tok(quotedName, "address"), tok(usingDatabase, "db"), tok(forDomain, "dmn"), tok(inContext, "ctx"), clsClose()}, nil,
+		[]Token{clsOpen(), tok(class, "value"), tok(quotedName, "address"), tok(usingDatabase, "db"), tok(forDomain, "dmn"), tok(inContext, "ctx"), clsClose()},
 	},
 }
 
@@ -143,7 +127,7 @@ func TestCreateValue(t *testing.T) {
 var aggregateStatements = testStatements{
 	{
 		"create aggregate 'ag' using database 'db' for domain 'dmn' in context 'ctx';",
-		[]Token{tok(create, "create"), tok(namespaceObject, "aggregate"),tok(quotedName, "ag"), tok(usingDatabase, "db"), tok(forDomain, "dmn"), tok(inContext, "ctx"), apos()}, nil,
+		[]Token{tok(create, "create"), tok(namespaceObject, "aggregate"),tok(quotedName, "ag"), tok(usingDatabase, "db"), tok(forDomain, "dmn"), tok(inContext, "ctx"), apos()},
 	},
 }
 
@@ -155,7 +139,7 @@ func TestAggregateStatements (t *testing.T) {
 var eventStatements = testStatements{
 	{
 		"<| event 'start' using database 'db' for domain 'dmn' in context 'ctx' within aggregate 'ag' |>",
-		[]Token{clsOpen(), tok(class, "event"), tok(quotedName, "start"), tok(usingDatabase, "db"), tok(forDomain, "dmn"), tok(inContext, "ctx"), tok(withinAggregate, "ag"), clsClose()}, nil,
+		[]Token{clsOpen(), tok(class, "event"), tok(quotedName, "start"), tok(usingDatabase, "db"), tok(forDomain, "dmn"), tok(inContext, "ctx"), tok(withinAggregate, "ag"), clsClose()},
 	},
 }
 
@@ -166,19 +150,19 @@ func TestEventStatements (t *testing.T) {
 var statementsWithGloballySetNamespaces = testStatements {
 	{
 		"using database 'db'; create domain 'dmn';",
-		[]Token{tok(usingDatabase, "db"), apos(), tok(create, "create"), tok(namespaceObject, "domain"), tok(quotedName, "dmn"), apos()}, nil,
+		[]Token{tok(usingDatabase, "db"), apos(), tok(create, "create"), tok(namespaceObject, "domain"), tok(quotedName, "dmn"), apos()},
 	},
 	{
 		"for domain 'dmn'; create context 'ctx';",
-		[]Token{tok(forDomain, "dmn"), apos(), tok(create, "create"), tok(namespaceObject, "context"), tok(quotedName, "ctx"), apos()}, nil,
+		[]Token{tok(forDomain, "dmn"), apos(), tok(create, "create"), tok(namespaceObject, "context"), tok(quotedName, "ctx"), apos()},
 	},
 	{
 		"in context 'ctx'; <| value 'address' |>",
-		[]Token{tok(inContext, "ctx"), apos(), clsOpen(), tok(class, "value"), tok(quotedName, "address"), clsClose()}, nil,
+		[]Token{tok(inContext, "ctx"), apos(), clsOpen(), tok(class, "value"), tok(quotedName, "address"), clsClose()},
 	},
 	{
 		"within aggregate 'agg'; <| event 'start' |>",
-		[]Token{tok(withinAggregate, "agg"), apos(), clsOpen(), tok(class, "event"), tok(quotedName, "start"), clsClose()}, nil,
+		[]Token{tok(withinAggregate, "agg"), apos(), clsOpen(), tok(class, "event"), tok(quotedName, "start"), clsClose()},
 	},
 };
 
@@ -186,56 +170,7 @@ func TestGloballySetNamespace (t *testing.T) {
 	statementsWithGloballySetNamespaces.test(t)
 }
 
-/*
-var statementsMissingNamespaceVars = []struct {
-	dql string;
-	error string;
-}{
-	{"create domain 'dmn';", "database not selected"},
-	{"create context 'ctx' using database 'db';", "domain not selected"},
-	{"<| value 'address' using database 'db' for domain 'dmn' |>", "context not selected"},
-	{"<| event 'start' using database 'db' for domain 'dmn' in context 'ctx' |>", "aggregate not selected"},
-};
-
-func TestNamespacesAreValidated(t *testing.T) {
-	parser := NewParser();
-	for _, statement := range statementsMissingNamespaceVars {
-		_, err := parser.Parse(statement.dql);
-		if (err != statement.error) {
-			t.Error("Invalid statement '"+statement.dql+"' was accepted");
-		}
-	}
-}
-
-var statementsWithGloballySetNamespaces = []struct {
-	dql string;
-
-}{
-	{"using database 'db'; create domain 'dmn';"},
-	{"for domain 'dmn'; create context 'ctx';"},
-	{"in context 'ctx'; <| value 'address' |>"},
-	{"create aggregate 'agg';"},
-	{"within aggregate 'agg'; <| event 'start' |>"},
-};
-
-func TestGloballySetNamespaceVarsAreUsedAsDefaults(t *testing.T) {
-	parser := NewParser();
-	for _, statement := range statementsWithGloballySetNamespaces {
-		commands, err := parser.Parse(statement.dql);
-		if (err != nil) {
-			t.Error(err);
-		}
-		if (len(commands) != 1) {
-			t.Error("GlobalNamespace commands should not return statements,")
-		}
-	}
-}
-
-var tieredNamespaces = []struct {
-	dql string;
-	namespace1 Namespace;
-	namespace2 Namespace;
-}{
+var namespaceBlocks= testStatements {
 	{
 		`using database 'database1' for domain 'domain1' in context 'context1':{
 			create aggregate 'aggregate1';
@@ -244,32 +179,33 @@ var tieredNamespaces = []struct {
 				create aggregate 'aggregate2';
 			}
 		}`,
-		&AggregateNamespace{"database1", "domain1", "context1"},
-		&AggregateNamespace{"database2", "domain2", "context2"},
-	},{
-		`using database 'database1' for domain 'domain1':{
-			in context 'context1';
-			create aggregate 'aggregate1';
+		[]Token{
+			tok(usingDatabase, "database1"),
+			tok(forDomain, "domain1"),
+			tok(inContext, "context1"),
+			tok(namespaceBlockOpen, ":{"),
 
-			using domain 'domain2' in context 'context2':{
-				create aggregate 'aggregate2';
-			}
-		}`,
-		&AggregateNamespace{"database1", "domain1", "context1"},
-		&AggregateNamespace{"database1", "domain2", "context2"},
+			tok(create, "create"),
+			tok(namespaceObject, "aggregate"),
+			tok(quotedName, "aggregate1"),
+			tok(apostrophe, ";"),
+
+			tok(usingDatabase, "database2"),
+			tok(forDomain, "domain2"),
+			tok(inContext, "context2"),
+			tok(namespaceBlockOpen, ":{"),
+
+			tok(create, "create"),
+			tok(namespaceObject, "aggregate"),
+			tok(quotedName, "aggregate2"),
+			tok(apostrophe, ";"),
+
+			tok(namespaceBlockClose, "}"),
+			tok(namespaceBlockClose, "}"),
+		},
 	},
-}
+};
 
-func TestTakesNamespaceVarsFromCurrentNamespace(t *testing.T) {
-	parser := NewParser();
-	for _, statement := range tieredNamespaces {
-		commands, err := parser.Parse(statement.dql);
-		if (commands[0].Namespace != statement.namespace1) {
-			t.Error(err);
-		}
-		if (commands[1].Namespace != statement.namespace2) {
-			t.Error(err);
-		}
-	}
+func TestNamespaceBlocks (t *testing.T) {
+	namespaceBlocks.test(t)
 }
-*/

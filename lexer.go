@@ -102,6 +102,12 @@ func lexToken(l *lexer) stateFn {
 	if (l.hasNextPrefix(classClose)) {
 		return lexClassCloser
 	}
+	if (l.hasNextPrefix(namespaceBlockOpen)) {
+		return lexNamespaceBlockOpener
+	}
+	if (l.hasNextPrefix(namespaceBlockClose)) {
+		return lexNamespaceBlockCloser
+	}
 
 	return l.err();
 }
@@ -177,19 +183,31 @@ func lexApostrophe(l *lexer) stateFn {
 }
 
 func lexClassOpener(l *lexer) stateFn {
-	l.pos += len("<|")
+	l.pos += len(classOpen)
 	l.emit(classOpen)
 	return lexToken
 }
 
 func lexClassCloser(l *lexer) stateFn {
-	l.pos += len("|>")
+	l.pos += len(classClose)
 	l.emit(classClose)
 	return lexToken
 }
 
+func lexNamespaceBlockOpener(l *lexer) stateFn {
+	l.pos += len(namespaceBlockOpen)
+	l.emit(namespaceBlockOpen)
+	return lexToken
+}
+
+func lexNamespaceBlockCloser(l *lexer) stateFn {
+	l.pos += len(namespaceBlockClose)
+	l.emit(namespaceBlockClose)
+	return lexToken
+}
+
 func lexClass(l *lexer) stateFn {
-	l.pos += 5
+	l.pos += len(class)
 	l.emit(class)
 	return lexToken
 }

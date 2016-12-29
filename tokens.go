@@ -51,6 +51,8 @@ const (
 	classClose = "|>"
 	apostrophe = ";"
 	eof = "eof"
+	namespaceBlockOpen = ":{"
+	namespaceBlockClose = "}"
 
 	//Keywords - actions
 	create = "create"
