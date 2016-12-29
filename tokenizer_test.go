@@ -4,33 +4,6 @@ import (
 	"testing"
 )
 
-type testStatement struct {
-	dql string;
-	expected []Token;
-}
-
-type testStatements []testStatement
-
-func (statements testStatements) test(t *testing.T) {
-
-	for _, statement := range statements {
-		tokenizer := NewTokenizer(statement.dql);
-
-		actual, err := tokenizer.Tokens();
-
-		if (!compareTokens(statement.expected, actual)) {
-			t.Error("AST produced from '"+statement.dql+"' is not valid");
-			t.Error(statement.expected);
-			t.Error(actual);
-		}
-
-	 	if (err != nil) {
-			t.Error("Got error")
-			t.Error(err);
-		}
-	}
-}
-
 var dbStatements = testStatements {
 	{
 		"create database 'db1';",
@@ -183,7 +156,8 @@ var namespaceBlocks= testStatements {
 			tok(usingDatabase, "database1"),
 			tok(forDomain, "domain1"),
 			tok(inContext, "context1"),
-			tok(namespaceBlockOpen, ":{"),
+			tok(colon, ":"),
+			tok(lbrace, "{"),
 
 			tok(create, "create"),
 			tok(namespaceObject, "aggregate"),
@@ -193,19 +167,117 @@ var namespaceBlocks= testStatements {
 			tok(usingDatabase, "database2"),
 			tok(forDomain, "domain2"),
 			tok(inContext, "context2"),
-			tok(namespaceBlockOpen, ":{"),
+			tok(colon, ":"),
+			tok(lbrace, "{"),
 
 			tok(create, "create"),
 			tok(namespaceObject, "aggregate"),
 			tok(quotedName, "aggregate2"),
 			tok(apostrophe, ";"),
 
-			tok(namespaceBlockClose, "}"),
-			tok(namespaceBlockClose, "}"),
+			tok(rbrace, "}"),
+			tok(rbrace, "}"),
 		},
 	},
 };
 
 func TestNamespaceBlocks (t *testing.T) {
 	namespaceBlocks.test(t)
+}
+
+var classComponents = testStatements{
+	{
+		`
+		properties
+		{
+			value\service_charge service_charge = 'value\service_charge'(1);
+			value\category category = [];
+		}`,
+		[]Token{
+			tok(properties, "properties"),
+			tok(lbrace, "{"),
+
+			tok(typeRef, "value\\service_charge"),
+			tok(identifier, "service_charge"),
+			tok(assign, "="),
+			tok(quotedName, "value\\service_charge"),
+			tok(lparen, "("),
+			tok(number, "1"),
+			tok(rparen, ")"),
+			tok(apostrophe, ";"),
+
+			tok(typeRef, "value\\category"),
+			tok(identifier, "category"),
+			tok(assign, "="),
+			tok(lbracked, "["),
+			tok(lbracked, "]"),
+			tok(apostrophe, ";"),
+
+			tok(rbrace, "}"),
+		},
+	},
+	/*
+	`
+	check
+	(
+		return value != 0;
+	)`,
+	`
+	function doThing()
+	{
+		a = 2;
+	}`,
+	`
+	function doThing2(value\service-charge service_charge, value\category category)
+	{
+
+	}`,
+	`
+	handler
+	{
+		a = b + c;
+		assert invariant not 'is-started';
+		revision = run query 'next-revision-number' (agency_id, quote_number);
+		apply event 'started' (agent_id, agency_id, brand_id, quote_number, revision);
+	}`,
+	`
+	when event 'started'
+	{
+		agency_id = event->agency_id;
+		brand_id = event->brand_id;
+		is_started = true;
+	}`,
+	*/
+};
+
+func TestClassComponents (t *testing.T) {
+	classComponents.test(t)
+}
+
+
+type testStatement struct {
+	dql string;
+	expected []Token;
+}
+
+type testStatements []testStatement
+
+func (statements testStatements) test(t *testing.T) {
+
+	for _, statement := range statements {
+		tokenizer := NewTokenizer(statement.dql);
+
+		actual, err := tokenizer.Tokens();
+
+		if (!compareTokens(statement.expected, actual)) {
+			t.Error("AST produced from '"+statement.dql+"' is not valid");
+			t.Error(statement.expected);
+			t.Error(actual);
+		}
+
+		if (err != nil) {
+			t.Error("Got error")
+			t.Error(err);
+		}
+	}
 }

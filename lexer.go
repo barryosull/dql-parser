@@ -62,160 +62,21 @@ func (l *lexer) parsed () string {
 	return l.input[start:l.pos];
 }
 
-const EOF = -1
+var whitespace = []int{' ', '\n', '\r', '\t'}
 
-func lexToken(l *lexer) stateFn {
-	l.skipWS();
-	if (l.peek() == EOF) {
-		return nil;
+func contains(s []int, e int) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
 	}
-	if (l.hasNextPrefix(create)) {
-		return lexCreate
-	}
-	if (l.hasNextPrefix(value)) {
-		return lexClass
-	}
-	if (l.hasNextPrefix(event)) {
-		return lexClass
-	}
-	if (l.hasNextPrefix("'")) {
-		return lexNSObjectName
-	}
-	if (l.hasNextPrefix("using")) {
-		return lexUsingDatabase
-	}
-	if (l.hasNextPrefix("for")) {
-		return lexForDomain
-	}
-	if (l.hasNextPrefix("in")) {
-		return lexInContext
-	}
-	if (l.hasNextPrefix("within")) {
-		return lexWithinAggregate
-	}
-	if (l.hasNextPrefix(apostrophe)) {
-		return lexApostrophe
-	}
-	if (l.hasNextPrefix(classOpen)) {
-		return lexClassOpener
-	}
-	if (l.hasNextPrefix(classClose)) {
-		return lexClassCloser
-	}
-	if (l.hasNextPrefix(namespaceBlockOpen)) {
-		return lexNamespaceBlockOpener
-	}
-	if (l.hasNextPrefix(namespaceBlockClose)) {
-		return lexNamespaceBlockCloser
-	}
-
-	return l.err();
-}
-
-func lexCreate(l *lexer) stateFn {
-	l.pos += len(create)
-	l.emit(create)
-	return lexNSObjectType
-}
-
-
-func lexNSObjectType(l *lexer) stateFn {
-	l.skipWS()
-	typ, match := l.matchingPrefix([]string{database, domain, context, aggregate})
-	if (!match) {
-		return l.err()
-	}
-	l.pos += len(typ)
-	l.emit(namespaceObject)
-	return lexToken
-}
-
-func lexNSObjectName(l *lexer) stateFn {
-	l.lexQuotedStringAsToken(quotedName)
-	return lexToken
-}
-
-func lexUsingDatabase(l *lexer) stateFn {
-	l.skipStr("using")
-	l.skipStr(database)
-
-	if l.lexQuotedStringAsToken(usingDatabase) {
-		return lexToken
-	}
-	return nil
-}
-
-func lexForDomain (l *lexer) stateFn {
-	l.skipStr("for")
-	l.skipStr(domain)
-
-	if l.lexQuotedStringAsToken(forDomain) {
-		return lexToken
-	}
-	return nil
-}
-
-func lexInContext (l *lexer) stateFn {
-	l.skipStr("in")
-	l.skipStr(context)
-
-	if l.lexQuotedStringAsToken(inContext) {
-		return lexToken
-	}
-	return nil
-}
-
-func lexWithinAggregate(l *lexer) stateFn {
-	l.skipStr("within")
-	l.skipStr(aggregate)
-
-	if l.lexQuotedStringAsToken(withinAggregate) {
-		return lexToken
-	}
-	return nil
-}
-
-
-func lexApostrophe(l *lexer) stateFn {
-	l.next();
-	l.emit(apostrophe);
-	return lexToken;
-}
-
-func lexClassOpener(l *lexer) stateFn {
-	l.pos += len(classOpen)
-	l.emit(classOpen)
-	return lexToken
-}
-
-func lexClassCloser(l *lexer) stateFn {
-	l.pos += len(classClose)
-	l.emit(classClose)
-	return lexToken
-}
-
-func lexNamespaceBlockOpener(l *lexer) stateFn {
-	l.pos += len(namespaceBlockOpen)
-	l.emit(namespaceBlockOpen)
-	return lexToken
-}
-
-func lexNamespaceBlockCloser(l *lexer) stateFn {
-	l.pos += len(namespaceBlockClose)
-	l.emit(namespaceBlockClose)
-	return lexToken
-}
-
-func lexClass(l *lexer) stateFn {
-	l.pos += len(class)
-	l.emit(class)
-	return lexToken
+	return false
 }
 
 func (l *lexer) skipWS() {
 	for {
 		switch r := l.next(); {
-		case r == ' ' || r == '\n' || r == '\r' || r == '\t':
+		case contains(whitespace, r):
 			l.ignore()
 		default :
 			l.backup()
@@ -238,6 +99,12 @@ func (l *lexer) lexQuotedStringAsToken(tokenType TokenType) bool {
 		}
 	}
 	return false;
+}
+
+func (l *lexer) lexAsToken(tokenType TokenType) stateFn {
+	l.pos += len(tokenType)
+	l.emit(tokenType)
+	return lexToken
 }
 
 
@@ -296,5 +163,147 @@ func (l *lexer) err() stateFn {
 	format := "There was a problem near: %q"
 	errToken := Token{err, fmt.Sprintf(format, l.parsed()), l.start}
 	l.error = &errToken
+	return nil
+}
+
+const EOF = -1
+
+func lexToken(l *lexer) stateFn {
+	l.skipWS();
+
+	if (l.peek() == EOF) {
+		return nil;
+	}
+
+	//Have special lexing rules
+	if (l.hasNextPrefix(create)) {
+		return lexCreate
+	}
+	if (l.hasNextPrefix("'")) {
+		return lexNSObjectName
+	}
+	if (l.hasNextPrefix("using")) {
+		return lexUsingDatabase
+	}
+	if (l.hasNextPrefix("for")) {
+		return lexForDomain
+	}
+	if (l.hasNextPrefix("in")) {
+		return lexInContext
+	}
+	if (l.hasNextPrefix("within")) {
+		return lexWithinAggregate
+	}
+
+	if (l.hasNextPrefix(value) || l.hasNextPrefix(event)) {
+		return lexClassOrTypeRef
+	}
+
+	// No special cases, just lex and move on
+	if (l.hasNextPrefix(apostrophe)) {
+		return l.lexAsToken(apostrophe);
+	}
+	if (l.hasNextPrefix(assign)) {
+		return l.lexAsToken(assign);
+	}
+	if (l.hasNextPrefix(classOpen)) {
+		return l.lexAsToken(classOpen);
+	}
+	if (l.hasNextPrefix(classClose)) {
+		return l.lexAsToken(classClose);
+	}
+	if (l.hasNextPrefix(colon)) {
+		return l.lexAsToken(colon);
+	}
+	if (l.hasNextPrefix(lbrace)) {
+		return l.lexAsToken(lbrace);
+	}
+	if (l.hasNextPrefix(rbrace)) {
+		return l.lexAsToken(rbrace);
+	}
+	if (l.hasNextPrefix(properties)) {
+		return l.lexAsToken(properties);
+	}
+
+	return l.err();
+}
+
+func lexCreate(l *lexer) stateFn {
+	l.lexAsToken(create);
+	return lexNSObjectType
+}
+
+func lexNSObjectType(l *lexer) stateFn {
+	l.skipWS()
+	typ, match := l.matchingPrefix([]string{database, domain, context, aggregate})
+	if (!match) {
+		return l.err()
+	}
+	l.pos += len(typ)
+	l.emit(namespaceObject)
+	return lexToken
+}
+
+func lexNSObjectName(l *lexer) stateFn {
+	l.lexQuotedStringAsToken(quotedName)
+	return lexToken
+}
+
+func lexUsingDatabase(l *lexer) stateFn {
+	l.skipStr("using")
+	l.skipStr(database)
+
+	if l.lexQuotedStringAsToken(usingDatabase) {
+		return lexToken
+	}
+	return nil
+}
+
+func lexForDomain (l *lexer) stateFn {
+	l.skipStr("for")
+	l.skipStr(domain)
+
+	if l.lexQuotedStringAsToken(forDomain) {
+		return lexToken
+	}
+	return nil
+}
+
+func lexInContext (l *lexer) stateFn {
+	l.skipStr("in")
+	l.skipStr(context)
+
+	if l.lexQuotedStringAsToken(inContext) {
+		return lexToken
+	}
+	return nil
+}
+
+func lexWithinAggregate(l *lexer) stateFn {
+	l.skipStr("within")
+	l.skipStr(aggregate)
+
+	if l.lexQuotedStringAsToken(withinAggregate) {
+		return lexToken
+	}
+	return nil
+}
+
+func lexClassOrTypeRef(l *lexer) stateFn {
+	if (l.hasNextPrefix(value+" ") || l.hasNextPrefix(event+" ")) {
+		return l.lexAsToken(class);
+	}
+	return lexTypeRef
+}
+
+func lexTypeRef(l *lexer) stateFn {
+	//Accept all up until whitespace
+	for {
+		if (contains(whitespace, l.peek())) {
+			l.emit(typeRef);
+			return lexToken
+		}
+		l.next();
+	}
 	return nil
 }

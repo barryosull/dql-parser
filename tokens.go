@@ -73,6 +73,43 @@ const (
 	invariant = "invariant"
 	query = "query"
 
+	// Class components
+	properties = "properties"
+	check = "check"
+	handler = "handler"
+	function = "function"
+
+	// Operators
+	assign   = "="
+	plus     = "+"
+	minus    = "-"
+	bang     = "!"
+	asterisk = "*"
+	slash    = "/"
+
+	lt = "<"
+	gt = ">"
+
+	eq     = "=="
+	not_eq = "!="
+
+	// Delimiters
+	comma     = ","
+	semicolon = ";"
+	colon     = ":"
+
+	lparen   = "("
+	rparen   = ")"
+	lbrace   = "{"
+	rbrace   = "}"
+	lbracked = "["
+	rbracket = "]"
+
+	number = "number"
+	typeRef = "type reference"
+	identifier = "identifier"
+
+
 )
 
 func Apos(pos int) Token {
