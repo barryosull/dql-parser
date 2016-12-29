@@ -210,7 +210,7 @@ var classComponents = testStatements{
 			tok(identifier, "category"),
 			tok(assign, "="),
 			tok(lbracked, "["),
-			tok(lbracked, "]"),
+			tok(rbracket, "]"),
 			tok(apostrophe, ";"),
 
 			tok(rbrace, "}"),
@@ -269,10 +269,19 @@ func (statements testStatements) test(t *testing.T) {
 
 		actual, err := tokenizer.Tokens();
 
-		if (!compareTokens(statement.expected, actual)) {
-			t.Error("AST produced from '"+statement.dql+"' is not valid");
+		if (len(statement.expected) != len(actual)) {
+			t.Error("Error with AST produced from '"+statement.dql+"'");
+			t.Error("Number of tokens are mismtached, expected "+string(len(statement.expected))+", got "+string(len(actual)));
 			t.Error(statement.expected);
 			t.Error(actual);
+		}
+		for i, token := range statement.expected {
+			if (!token.Compare(actual[i])) {
+				t.Error("Error with AST produced from '"+statement.dql+"'");
+				t.Error("Expected: "+token.String())
+				t.Error("Got: "+actual[i].String())
+				break;
+			}
 		}
 
 		if (err != nil) {

@@ -194,7 +194,6 @@ func lexToken(l *lexer) stateFn {
 	if (l.hasNextPrefix("within")) {
 		return lexWithinAggregate
 	}
-
 	if (l.hasNextPrefix(value) || l.hasNextPrefix(event)) {
 		return lexClassOrTypeRef
 	}
@@ -223,6 +222,25 @@ func lexToken(l *lexer) stateFn {
 	}
 	if (l.hasNextPrefix(properties)) {
 		return l.lexAsToken(properties);
+	}
+	if (l.hasNextPrefix(lparen)) {
+		return l.lexAsToken(lparen);
+	}
+	if (l.hasNextPrefix(rparen)) {
+		return l.lexAsToken(rparen);
+	}
+	if (l.hasNextPrefix(lbracked)) {
+		return l.lexAsToken(lbracked);
+	}
+	if (l.hasNextPrefix(rbracket)) {
+		return l.lexAsToken(rbracket);
+	}
+
+	if (isDigit(l.peek())) {
+		return lexNumber;
+	}
+	if (isLetter(l.peek())) {
+		return lexIdentifier;
 	}
 
 	return l.err();
@@ -297,13 +315,44 @@ func lexClassOrTypeRef(l *lexer) stateFn {
 }
 
 func lexTypeRef(l *lexer) stateFn {
-	//Accept all up until whitespace
 	for {
 		if (contains(whitespace, l.peek())) {
-			l.emit(typeRef);
-			return lexToken
+			break;
 		}
 		l.next();
 	}
-	return nil
+
+	l.emit(typeRef)
+	l.skipWS()
+	return lexIdentifier
+}
+
+func lexIdentifier(l *lexer) stateFn {
+	for {
+		if (!isLetter(l.peek())) {
+			break;
+		}
+		l.next();
+	}
+	l.emit(identifier)
+	return lexToken;
+}
+
+func lexNumber(l *lexer) stateFn {
+	for {
+		if (!isDigit(l.peek())) {
+			break;
+		}
+		l.next();
+	}
+	l.emit(number)
+	return lexToken;
+}
+
+func isLetter(ch int) bool {
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+}
+
+func isDigit(ch int) bool {
+	return '0' <= ch && ch <= '9'
 }
