@@ -294,7 +294,7 @@ var CLASSComponents = testStatements{
 	},
 	{
 		`
-		function doThing2(value\service-charge service_charge, value\category category)
+		function doThing2(value\service-charge service_charge, value\category category, string title, integer int, float flt, boolean bl)
 		{
 
 		}`,
@@ -307,6 +307,18 @@ var CLASSComponents = testStatements{
 			tk(tok.COMMA, ","),
 			tk(tok.TYPEREF, "value\\category"),
 			tk(tok.IDENTIFIER, "category"),
+			tk(tok.COMMA, ","),
+			tk(tok.TYPEREF, "string"),
+			tk(tok.IDENTIFIER, "title"),
+			tk(tok.COMMA, ","),
+			tk(tok.TYPEREF, "integer"),
+			tk(tok.IDENTIFIER, "int"),
+			tk(tok.COMMA, ","),
+			tk(tok.TYPEREF, "float"),
+			tk(tok.IDENTIFIER, "flt"),
+			tk(tok.COMMA, ","),
+			tk(tok.TYPEREF, "boolean"),
+			tk(tok.IDENTIFIER, "bl"),
 			tk(tok.RPAREN, ")"),
 			tk(tok.LBRACE, "{"),
 			tk(tok.RBRACE, "}"),

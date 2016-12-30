@@ -262,6 +262,18 @@ var easyLexTokens = []tok.TokenType{
 }
 
 func (l *lexer) isTypeRef() bool {
+	if (l.isKeyWordAndNotIdentifier(tok.STRING)) {
+		return true;
+	}
+	if (l.isKeyWordAndNotIdentifier(tok.INTEGER)) {
+		return true;
+	}
+	if (l.isKeyWordAndNotIdentifier(tok.FLOAT)) {
+		return true;
+	}
+	if (l.isKeyWordAndNotIdentifier(tok.BOOLEAN)) {
+		return true;
+	}
 	if (l.isNextPrefix(tok.VALUE+"\\") || l.isNextPrefix(tok.ENTITY+"\\") || l.isNextPrefix(tok.EVENT+"\\") || l.isNextPrefix(tok.COMMAND+"\\") || l.isNextPrefix(tok.INVARIANT+"\\") || l.isNextPrefix(tok.PROJECTION+"\\")|| l.isNextPrefix(tok.QUERY+"\\")) {
 		return true
 	}
