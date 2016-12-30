@@ -8,10 +8,10 @@ import (
 var dbStatements = testStatements {
 	{
 		"create database 'db1';",
-		[]Token{NewToken(create, "create", 0), NewToken(namespaceObject, "database", 7), NewToken(quotedName, "db1", 17), Apos(21)},
+		[]Token{NewToken(create, "create", 0), NewToken(namespaceObject, "database", 7), NewToken(quotedName, "db1", 17), Semicolon(21)},
 	}, {
 		"create database 'db2' ;",
-		[]Token{NewToken(create, "create", 0), NewToken(namespaceObject, "database", 7), NewToken(quotedName, "db2", 17), Apos(22)},
+		[]Token{NewToken(create, "create", 0), NewToken(namespaceObject, "database", 7), NewToken(quotedName, "db2", 17), Semicolon(22)},
 	},
 };
 
@@ -22,7 +22,7 @@ func TestCreateDatabase(t *testing.T) {
 var multipleStatements = testStatements{
 	{
 		"create database 'db1'; create database 'db1';",
-		[]Token{tok(create, "create"), tok(namespaceObject, "database"), tok(quotedName, "db1"), apos(), tok(create, "create"), tok(namespaceObject, "database"), tok(quotedName, "db1"), apos()},
+		[]Token{tok(create, "create"), tok(namespaceObject, "database"), tok(quotedName, "db1"), semi(), tok(create, "create"), tok(namespaceObject, "database"), tok(quotedName, "db1"), semi()},
 	},
 }
 
@@ -33,7 +33,7 @@ func TestMultipeStatements(t *testing.T) {
 var domainStatements = testStatements{
 	{
 		"create domain 'dmn' using database 'db';",
-		[]Token{tok(create, "create"), tok(namespaceObject, "domain"), tok(quotedName, "dmn"), tok(usingDatabase, "db"), apos()},
+		[]Token{tok(create, "create"), tok(namespaceObject, "domain"), tok(quotedName, "dmn"), tok(usingDatabase, "db"), semi()},
 
 	},
 	{
@@ -47,8 +47,8 @@ func tok(typ TokenType, val string) Token {
 	return Token{typ, val, ignoreTokenPos};
 }
 
-func apos() Token {
-	return Apos(ignoreTokenPos);
+func semi() Token {
+	return Semicolon(ignoreTokenPos);
 }
 
 func TestCreateDomain(t *testing.T) {
@@ -59,7 +59,7 @@ func TestCreateDomain(t *testing.T) {
 var contextStatements = testStatements {
 	{
 		"create context 'ctx' using database 'db' for domain 'dmn';",
-		[]Token{tok(create, "create"), tok(namespaceObject, "context"), tok(quotedName, "ctx"), tok(usingDatabase, "db"), tok(forDomain, "dmn"), apos()},
+		[]Token{tok(create, "create"), tok(namespaceObject, "context"), tok(quotedName, "ctx"), tok(usingDatabase, "db"), tok(forDomain, "dmn"), semi()},
 	},
 };
 
@@ -89,7 +89,7 @@ func TestCreateValue(t *testing.T) {
 var aggregateStatements = testStatements{
 	{
 		"create aggregate 'ag' using database 'db' for domain 'dmn' in context 'ctx';",
-		[]Token{tok(create, "create"), tok(namespaceObject, "aggregate"),tok(quotedName, "ag"), tok(usingDatabase, "db"), tok(forDomain, "dmn"), tok(inContext, "ctx"), apos()},
+		[]Token{tok(create, "create"), tok(namespaceObject, "aggregate"),tok(quotedName, "ag"), tok(usingDatabase, "db"), tok(forDomain, "dmn"), tok(inContext, "ctx"), semi()},
 	},
 }
 
@@ -112,19 +112,19 @@ func TestEventStatements (t *testing.T) {
 var statementsWithGloballySetNamespaces = testStatements {
 	{
 		"using database 'db'; create domain 'dmn';",
-		[]Token{tok(usingDatabase, "db"), apos(), tok(create, "create"), tok(namespaceObject, "domain"), tok(quotedName, "dmn"), apos()},
+		[]Token{tok(usingDatabase, "db"), semi(), tok(create, "create"), tok(namespaceObject, "domain"), tok(quotedName, "dmn"), semi()},
 	},
 	{
 		"for domain 'dmn'; create context 'ctx';",
-		[]Token{tok(forDomain, "dmn"), apos(), tok(create, "create"), tok(namespaceObject, "context"), tok(quotedName, "ctx"), apos()},
+		[]Token{tok(forDomain, "dmn"), semi(), tok(create, "create"), tok(namespaceObject, "context"), tok(quotedName, "ctx"), semi()},
 	},
 	{
 		"in context 'ctx'; <| value 'address' |>",
-		[]Token{tok(inContext, "ctx"), apos(), clsOpen(), tok(class, "value"), tok(quotedName, "address"), clsClose()},
+		[]Token{tok(inContext, "ctx"), semi(), clsOpen(), tok(class, "value"), tok(quotedName, "address"), clsClose()},
 	},
 	{
 		"within aggregate 'agg'; <| event 'start' |>",
-		[]Token{tok(withinAggregate, "agg"), apos(), clsOpen(), tok(class, "event"), tok(quotedName, "start"), clsClose()},
+		[]Token{tok(withinAggregate, "agg"), semi(), clsOpen(), tok(class, "event"), tok(quotedName, "start"), clsClose()},
 	},
 };
 
@@ -150,7 +150,7 @@ var objectTypes = testStatements {
 			tok(return_, "return"),
 			tok(identifier, "value"),
 			tok(not_eq, "!="),
-			tok(number, "0"),
+			tok(integer, "0"),
 			tok(semicolon, ";"),
 
 			tok(rparen, ")"),
@@ -239,7 +239,7 @@ var classComponents = testStatements{
 			tok(assign, "="),
 			tok(quotedName, "value\\service_charge"),
 			tok(lparen, "("),
-			tok(number, "1"),
+			tok(integer, "1"),
 			tok(rparen, ")"),
 			tok(semicolon, ";"),
 
@@ -266,7 +266,7 @@ var classComponents = testStatements{
 			tok(return_, "return"),
 			tok(identifier, "value"),
 			tok(not_eq, "!="),
-			tok(number, "0"),
+			tok(integer, "0"),
 			tok(semicolon, ";"),
 
 			tok(rparen, ")"),
@@ -276,7 +276,7 @@ var classComponents = testStatements{
 		`
 		function doThing()
 		{
-			a = 2;
+			a = 2.1;
 		}`,
 		[]Token{
 			tok(function, "function"),
@@ -286,7 +286,7 @@ var classComponents = testStatements{
 			tok(lbrace, "{"),
 			tok(identifier, "a"),
 			tok(assign, "="),
-			tok(number, "2"),
+			tok(float, "2.1"),
 			tok(semicolon, ";"),
 			tok(rbrace, "}"),
 		},
@@ -455,6 +455,12 @@ var expressions = testStatements{
 			tok(rparen, ")"),
 		},
 	},
+	{
+		`"string value"`,
+		[]Token{
+			tok(string_, "string value"),
+		},
+	},
 };
 
 func TestExpressions(t *testing.T) {
@@ -553,6 +559,7 @@ func compareTokenLists(expected, actual []Token, dql string, t *testing.T) {
 		t.Error("Error with AST produced from '"+dql+"'");
 		t.Error("Number of tokens are mismtached, expected "+strconv.Itoa(len(expected))+", got "+strconv.Itoa(len(actual)));
 	}
+
 	for i, token := range expected {
 		if i == len(actual) {
 			t.Error("Expected: "+token.String())

@@ -196,6 +196,9 @@ func lexToken(l *lexer) stateFn {
 	if (l.hasNextPrefix("'")) {
 		return lexNSObjectName
 	}
+	if (l.hasNextPrefix("\"")) {
+		return lexString
+	}
 	if (l.hasKeyword("using")) {
 		return lexUsingDatabase
 	}
@@ -500,16 +503,38 @@ func lexIdentifier(l *lexer) stateFn {
 	return lexToken;
 }
 
+func lexString(l *lexer) stateFn {
+	l.skip()
+	for {
+		if l.next() == '"' {
+			l.backup()
+			break;
+		}
+	}
 
+	l.emit(string_)
+	l.skip()
+
+	return lexToken
+}
 
 func lexNumber(l *lexer) stateFn {
+	hasDot := false;
 	for {
-		if (!isDigit(l.peek())) {
+		if (l.peek() == '.') {
+			hasDot = true;
+		}
+		if (!isDigit(l.peek()) && l.peek() != '.') {
 			break;
 		}
 		l.next();
 	}
-	l.emit(number)
+	if (hasDot) {
+		l.emit(float)
+	} else {
+		l.emit(integer)
+	}
+
 	return lexToken;
 }
 

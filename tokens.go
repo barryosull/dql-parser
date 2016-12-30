@@ -74,7 +74,6 @@ const (
 	function = "function"
 	whenEvent = "when event"
 
-
 	// Command Handler statements
 	assertInvariant = "assert invariant"
 	not = "not"
@@ -101,7 +100,6 @@ const (
 	comma     = ","
 	semicolon = ";"
 	colon     = ":"
-
 	lparen   = "("
 	rparen   = ")"
 	lbrace   = "{"
@@ -110,10 +108,12 @@ const (
 	rbracket = "]"
 
 	//Types
-	number = "number"
-	typeRef = "type reference"
+	integer = "integer"
+	float = "float"
 	identifier = "identifier"
 	boolean = "boolean"
+	string_ = "string"
+	typeRef = "type reference"
 
 	//Statements
 	if_ = "if"
@@ -124,7 +124,7 @@ const (
 	as = "as"
 )
 
-func Apos(pos int) Token {
+func Semicolon(pos int) Token {
 	return NewToken(semicolon, ";", pos);
 }
 
