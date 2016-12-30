@@ -20,11 +20,26 @@ type lexer struct {
 
 type stateFn func(*lexer) stateFn
 
+var tokenToLexer = map[string]stateFn {}
+
 func lex(name, input string) (*lexer) {
 	l := &lexer{
 		name:  name,
 		input: input,
 	}
+
+	tokenToLexer = map[string]stateFn{
+		"create": lexCreate,
+		"using": lexUsingDatabase,
+		"for": lexForDomain,
+		"in": lexInContext,
+		"within": lexWithinAggregate,
+		"assert": lexAssertInvariant,
+		"run": lexRunQuery,
+		"apply": lexApplyEvent,
+		"when": lexWhenEvent,
+	}
+
 	l.run()
 	return l
 }
@@ -47,7 +62,7 @@ func (l *lexer) isNextPrefix(prefix string) bool {
 }
 
 //Check of the prefix matches and is not followed immediately by another identifier character
-func (l *lexer) isNextKeyword(prefix string) bool {
+func (l *lexer) isKeyWordAndNotIdentifier(prefix string) bool {
 	hasPrefix := l.isNextPrefix(prefix)
 	if (!hasPrefix) {
 		return false
@@ -204,7 +219,50 @@ func (l *lexer) scanIdentifier() {
 
 const EOF = -1
 
+var easyLexKeywords = []tok.TokenType{
+	tok.AND,
+	tok.OR,
+	tok.PROPERTIES,
+	tok.CHECK,
+	tok.HANDLER,
+	tok.FUNCTION,
+	tok.IF,
+	tok.ELSEIF,
+	tok.ELSE,
+	tok.FOREACH,
+	tok.RETURN,
+	tok.AS,
+}
+
+var easyLexTokens = []tok.TokenType{
+	tok.STRONGARROW,
+	tok.EQ,
+	tok.SEMICOLON,
+	tok.ASSIGN,
+	tok.CLASSCLOSE,
+	tok.COLON,
+	tok.LBRACE,
+	tok.RBRACE,
+	tok.LPAREN,
+	tok.RPAREN,
+	tok.LBRACKET,
+	tok.RBRACKET,
+	tok.NOTEQ,
+	tok.COMMA,
+	tok.ARROW,
+	tok.PLUS,
+	tok.MINUS,
+	tok.BANG,
+	tok.ASTERISK,
+	tok.SLASH,
+	tok.LTOREQ,
+	tok.GTOREQ,
+	tok.LT,
+	tok.GT,
+}
+
 func lexToken(l *lexer) stateFn {
+
 	l.skipWS();
 
 	if (l.peek() == EOF) {
@@ -212,8 +270,8 @@ func lexToken(l *lexer) stateFn {
 	}
 
 	//Have special lexing rules
-	if (l.isNextKeyword(tok.CREATE)) {
-		return lexCreate
+	if (l.isNextPrefix(tok.VALUE+"\\") || l.isNextPrefix(tok.EVENT+"\\")) {
+		return lexTypeRef
 	}
 	if (l.isNextPrefix("'")) {
 		return lexNSObjectName
@@ -221,153 +279,26 @@ func lexToken(l *lexer) stateFn {
 	if (l.isNextPrefix("\"")) {
 		return lexString
 	}
-	if (l.isNextKeyword("using")) {
-		return lexUsingDatabase
-	}
-	if (l.isNextKeyword("for")) {
-		return lexForDomain
-	}
-	if (l.isNextKeyword("in")) {
-		return lexInContext
-	}
-	if (l.isNextKeyword("within")) {
-		return lexWithinAggregate
-	}
-	if (l.isNextPrefix(tok.VALUE+"\\") || l.isNextPrefix(tok.EVENT+"\\")) {
-		return lexTypeRef
-	}
-	if (l.isNextKeyword("assert")) {
-		return lexAssertInvariant
-	}
-	if (l.isNextKeyword("run")) {
-		return lexRunQuery
-	}
-	if (l.isNextKeyword("apply")) {
-		return lexApplyEvent
-	}
-	if (l.isNextKeyword("when")) {
-		return lexWhenEvent
-	}
 	if (l.isNextPrefix(tok.CLASSOPEN)) {
 		return lexClassOpen;
 	}
 
-
-	// No special cases, just lex and move on
-	if (l.isNextKeyword(tok.AND)) {
-		return l.lexAsToken(tok.AND)
-	}
-	if (l.isNextKeyword(tok.OR)) {
-		return l.lexAsToken(tok.OR)
-	}
-	if (l.isNextKeyword(tok.PROPERTIES)) {
-		return l.lexAsToken(tok.PROPERTIES);
-	}
-	if (l.isNextKeyword(tok.CHECK)) {
-		return l.lexAsToken(tok.CHECK)
-	}
-	if (l.isNextKeyword(tok.HANDLER)) {
-		return l.lexAsToken(tok.HANDLER)
-	}
-	if (l.isNextKeyword(tok.FUNCTION)) {
-		return l.lexAsToken(tok.FUNCTION)
-	}
-	if (l.isNextKeyword(tok.IF)) {
-		return l.lexAsToken(tok.IF)
-	}
-	if (l.isNextKeyword(tok.ELSEIF)) {
-		return l.lexAsToken(tok.ELSEIF)
-	}
-	if (l.isNextKeyword(tok.ELSE)) {
-		return l.lexAsToken(tok.ELSE)
-	}
-	if (l.isNextKeyword(tok.FOREACH)) {
-		return l.lexAsToken(tok.FOREACH)
-	}
-	if (l.isNextKeyword(tok.RETURN)) {
-		return l.lexAsToken(tok.RETURN)
-	}
-	if (l.isNextKeyword(tok.AS)) {
-		return l.lexAsToken(tok.AS)
+	for token, stateFn := range tokenToLexer {
+		if l.isKeyWordAndNotIdentifier(token) {
+			return stateFn
+		}
 	}
 
-	if (l.isNextPrefix(tok.STRONGARROW)) {
-		return l.lexAsToken(tok.STRONGARROW)
+	for _, token := range easyLexKeywords {
+		if l.isKeyWordAndNotIdentifier(string(token)) {
+			return l.lexAsToken(token)
+		}
 	}
-	if (l.isNextPrefix(tok.EQ)) {
-		return l.lexAsToken(tok.EQ)
-	}
-	if (l.isNextPrefix(tok.SEMICOLON)) {
-		return l.lexAsToken(tok.SEMICOLON);
-	}
-	if (l.isNextPrefix(tok.ASSIGN)) {
-		return l.lexAsToken(tok.ASSIGN);
-	}
-	if (l.isNextPrefix(tok.CLASSCLOSE)) {
-		return l.lexAsToken(tok.CLASSCLOSE);
-	}
-	if (l.isNextPrefix(tok.COLON)) {
-		return l.lexAsToken(tok.COLON);
-	}
-	if (l.isNextPrefix(tok.LBRACE)) {
-		return l.lexAsToken(tok.LBRACE);
-	}
-	if (l.isNextPrefix(tok.RBRACE)) {
-		return l.lexAsToken(tok.RBRACE);
-	}
-	if (l.isNextPrefix(tok.LPAREN)) {
-		return l.lexAsToken(tok.LPAREN);
-	}
-	if (l.isNextPrefix(tok.RPAREN)) {
-		return l.lexAsToken(tok.RPAREN);
-	}
-	if (l.isNextPrefix(tok.LBRACKET)) {
-		return l.lexAsToken(tok.LBRACKET);
-	}
-	if (l.isNextPrefix(tok.RBRACKET)) {
-		return l.lexAsToken(tok.RBRACKET);
-	}
-	if (l.isNextPrefix(tok.LPAREN)) {
-		return l.lexAsToken(tok.LPAREN)
-	}
-	if (l.isNextPrefix(tok.RPAREN)) {
-		return l.lexAsToken(tok.RPAREN)
-	}
-	if (l.isNextPrefix(tok.NOTEQ)) {
-		return l.lexAsToken(tok.NOTEQ)
-	}
-	if (l.isNextPrefix(tok.COMMA)) {
-		return l.lexAsToken(tok.COMMA)
-	}
-	if (l.isNextPrefix(tok.ARROW)) {
-		return l.lexAsToken(tok.ARROW)
-	}
-	if (l.isNextPrefix(tok.PLUS)) {
-		return l.lexAsToken(tok.PLUS)
-	}
-	if (l.isNextPrefix(tok.MINUS)) {
-		return l.lexAsToken(tok.MINUS)
-	}
-	if (l.isNextPrefix(tok.BANG)) {
-		return l.lexAsToken(tok.BANG)
-	}
-	if (l.isNextPrefix(tok.ASTERISK)) {
-		return l.lexAsToken(tok.ASTERISK)
-	}
-	if (l.isNextPrefix(tok.SLASH)) {
-		return l.lexAsToken(tok.SLASH)
-	}
-	if (l.isNextPrefix(tok.LTOREQ)) {
-		return l.lexAsToken(tok.LTOREQ)
-	}
-	if (l.isNextPrefix(tok.GTOREQ)) {
-		return l.lexAsToken(tok.GTOREQ)
-	}
-	if (l.isNextPrefix(tok.LT)) {
-		return l.lexAsToken(tok.LT)
-	}
-	if (l.isNextPrefix(tok.GT)) {
-		return l.lexAsToken(tok.GT)
+
+	for _, token := range easyLexTokens {
+		if l.isNextPrefix(string(token)) {
+			return l.lexAsToken(token)
+		}
 	}
 
 	if (isDigit(l.peek())) {

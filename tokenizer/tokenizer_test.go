@@ -9,10 +9,10 @@ import (
 var dbStatements = testStatements {
 	{
 		"create database 'db1';",
-		[]tok.Token{tok.NewToken(tok.CREATE, "create", 0), tok.NewToken(tok.NAMESPACEOBJECT, "database", 7), tok.NewToken(tok.QUOTEDNAME, "db1", 17), tok.SEMICOLON(21)},
+		[]tok.Token{tok.NewToken(tok.CREATE, "create", 0), tok.NewToken(tok.NAMESPACEOBJECT, "database", 7), tok.NewToken(tok.QUOTEDNAME, "db1", 17), tok.Semicolon(21)},
 	}, {
 		"create database 'db2' ;",
-		[]tok.Token{tok.NewToken(tok.CREATE, "create", 0), tok.NewToken(tok.NAMESPACEOBJECT, "database", 7), tok.NewToken(tok.QUOTEDNAME, "db2", 17), tok.SEMICOLON(22)},
+		[]tok.Token{tok.NewToken(tok.CREATE, "create", 0), tok.NewToken(tok.NAMESPACEOBJECT, "database", 7), tok.NewToken(tok.QUOTEDNAME, "db2", 17), tok.Semicolon(22)},
 	},
 };
 
@@ -49,7 +49,7 @@ func tk(typ tok.TokenType, val string) tok.Token {
 }
 
 func semi() tok.Token {
-	return tok.SEMICOLON(tok.IgnoreTokenPos);
+	return tok.Semicolon(tok.IgnoreTokenPos);
 }
 
 func TestCreateDomain(t *testing.T) {
@@ -139,13 +139,13 @@ var objectTypes = testStatements {
 		[]tok.Token{clsOpen(), tk(tok.CLASS, "entity"), tk(tok.QUOTEDNAME, "ent"), clsClose()},
 	},
 	{
-		"<| entity 'ent' CHECK ( return value != 0;) |>",
+		"<| entity 'ent' check ( return value != 0;) |>",
 		[]tok.Token{
 			clsOpen(),
 			tk(tok.CLASS, "entity"),
 			tk(tok.QUOTEDNAME, "ent"),
 
-			tk(tok.CHECK, "CHECK"),
+			tk(tok.CHECK, "check"),
 			tk(tok.LPAREN, "("),
 
 			tk(tok.RETURN, "return"),
@@ -163,8 +163,8 @@ var objectTypes = testStatements {
 		[]tok.Token{clsOpen(), tk(tok.CLASS, "invariant"), tk(tok.QUOTEDNAME, "invar"), clsClose()},
 	},
 	{
-		"<| COMMAnd 'cmd' |>",
-		[]tok.Token{clsOpen(), tk(tok.CLASS, "COMMAnd"), tk(tok.QUOTEDNAME, "cmd"), clsClose()},
+		"<| command 'cmd' |>",
+		[]tok.Token{clsOpen(), tk(tok.CLASS, "command"), tk(tok.QUOTEDNAME, "cmd"), clsClose()},
 	},
 	{
 		"<| query 'qry' |>",
@@ -226,13 +226,13 @@ func TestNamespaceBlocks (t *testing.T) {
 var CLASSComponents = testStatements{
 	{
 		`
-		PROPERTIES
+		properties
 		{
 			value\service_charge service_charge = 'value\service_charge'(1);
 			value\category category = [];
 		}`,
 		[]tok.Token{
-			tk(tok.PROPERTIES, "PROPERTIES"),
+			tk(tok.PROPERTIES, "properties"),
 			tk(tok.LBRACE, "{"),
 
 			tk(tok.TYPEREF, "value\\service_charge"),
@@ -256,12 +256,12 @@ var CLASSComponents = testStatements{
 	},
 	{
 		`
-		CHECK
+		check
 		(
 			return value != 0;
 		)`,
 		[]tok.Token{
-			tk(tok.CHECK, "CHECK"),
+			tk(tok.CHECK, "check"),
 			tk(tok.LPAREN, "("),
 
 			tk(tok.RETURN, "return"),
@@ -275,12 +275,12 @@ var CLASSComponents = testStatements{
 	},
 	{
 		`
-		FUNCTION doThing()
+		function doThing()
 		{
 			a = 2.1;
 		}`,
 		[]tok.Token{
-			tk(tok.FUNCTION, "FUNCTION"),
+			tk(tok.FUNCTION, "function"),
 			tk(tok.IDENTIFIER, "doThing"),
 			tk(tok.LPAREN, "("),
 			tk(tok.RPAREN, ")"),
@@ -294,12 +294,12 @@ var CLASSComponents = testStatements{
 	},
 	{
 		`
-		FUNCTION doThing2(value\service-charge service_charge, value\category category)
+		function doThing2(value\service-charge service_charge, value\category category)
 		{
 
 		}`,
 		[]tok.Token{
-			tk(tok.FUNCTION, "FUNCTION"),
+			tk(tok.FUNCTION, "function"),
 			tk(tok.IDENTIFIER, "doThing2"),
 			tk(tok.LPAREN, "("),
 			tk(tok.TYPEREF, "value\\service-charge"),
@@ -314,17 +314,17 @@ var CLASSComponents = testStatements{
 	},
 	{
 		`
-		HANDLER
+		handler
 		{
-			assert  invariant NOT 'is-started';
+			assert  invariant not 'is-started';
 			revision = run query 'next-revision-number' (agency_id, quote_number);
 			apply event 'started' (agency_id, brand_id, quote_number, revision);
 		}`,
 		[]tok.Token{
-			tk(tok.HANDLER, "HANDLER"),
+			tk(tok.HANDLER, "handler"),
 			tk(tok.LBRACE, "{"),
 			tk(tok.ASSERTINVARIANT, "assert  invariant"),
-			tk(tok.NOT, "NOT"),
+			tk(tok.NOT, "not"),
 			tk(tok.QUOTEDNAME, "is-started"),
 			tk(tok.SEMICOLON, ";"),
 			tk(tok.IDENTIFIER, "revision"),
@@ -379,7 +379,7 @@ var CLASSComponents = testStatements{
 	},
 };
 
-func TestCLASSComponents (t *testing.T) {
+func TestClassComponents (t *testing.T) {
 	CLASSComponents.test(t)
 }
 
@@ -562,7 +562,7 @@ var keyWordsAsExpressions = testStatements{
 		value
 		event
 		entity
-		COMMAnd
+		command
 		projection
 		invariant
 		query
@@ -575,7 +575,7 @@ var keyWordsAsExpressions = testStatements{
 			tk(tok.IDENTIFIER, "value"),
 			tk(tok.IDENTIFIER, "event"),
 			tk(tok.IDENTIFIER, "entity"),
-			tk(tok.IDENTIFIER, "COMMAnd"),
+			tk(tok.IDENTIFIER, "command"),
 			tk(tok.IDENTIFIER, "projection"),
 			tk(tok.IDENTIFIER, "invariant"),
 			tk(tok.IDENTIFIER, "query"),
@@ -591,10 +591,10 @@ func TestKeywordsAsExpressions(t *testing.T) {
 var keywordsInExpressions = testStatements {
 	{
 		`
-		PROPERTIESA
-		CHECKA
-		HANDLERA
-		FUNCTIONA
+		propertiesA
+		checkA
+		handlerA
+		functionA
 		whenA
 		andA
 		orA
@@ -605,10 +605,10 @@ var keywordsInExpressions = testStatements {
 		asA
 		createA`,
 		[]tok.Token {
-			tk(tok.IDENTIFIER, "PROPERTIESA"),
-			tk(tok.IDENTIFIER, "CHECKA"),
-			tk(tok.IDENTIFIER, "HANDLERA"),
-			tk(tok.IDENTIFIER, "FUNCTIONA"),
+			tk(tok.IDENTIFIER, "propertiesA"),
+			tk(tok.IDENTIFIER, "checkA"),
+			tk(tok.IDENTIFIER, "handlerA"),
+			tk(tok.IDENTIFIER, "functionA"),
 			tk(tok.IDENTIFIER, "whenA"),
 			tk(tok.IDENTIFIER, "andA"),
 			tk(tok.IDENTIFIER, "orA"),

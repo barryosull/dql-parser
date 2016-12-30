@@ -5,9 +5,9 @@ import (
 )
 
 type Token struct {
-	typ TokenType
-	val string
-	pos int
+	Typ TokenType
+	Val string
+	Pos int
 }
 
 func NewToken(typ TokenType, val string, pos int) Token {
@@ -17,23 +17,23 @@ func NewToken(typ TokenType, val string, pos int) Token {
 const IgnoreTokenPos = -1
 
 func (t *Token) Compare(o Token) bool{
-	if (t.pos == IgnoreTokenPos || o.pos == IgnoreTokenPos) {
-		return t.typ == o.typ && t.val == o.val;
+	if (t.Pos == IgnoreTokenPos || o.Pos == IgnoreTokenPos) {
+		return t.Typ == o.Typ && t.Val == o.Val;
 	}
-	return t.typ == o.typ && t.val == o.val && t.pos == o.pos;
+	return t.Typ == o.Typ && t.Val == o.Val && t.Pos == o.Pos;
 }
 
 func (i *Token) String() string {
-	switch i.typ {
+	switch i.Typ {
 	case EOF:
 		return "EOF"
 	case ERR:
-		return i.val
+		return i.Val
 	}
-	if len(i.val) > 10 {
-		return fmt.Sprintf("char %q, %q, %.10q...", i.pos, i.typ, i.val)
+	if len(i.Val) > 10 {
+		return fmt.Sprintf("char %q, %q, %.10q...", i.Pos, i.Typ, i.Val)
 	}
-	return fmt.Sprintf("char %q, %q, %q", i.pos, i.typ, i.val)
+	return fmt.Sprintf("char %q, %q, %q", i.Pos, i.Typ, i.Val)
 }
 
 type TokenType string
