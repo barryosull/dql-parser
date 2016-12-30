@@ -14,10 +14,10 @@ func NewToken(typ TokenType, val string, pos int) Token {
 	return Token{typ, val, pos};
 }
 
-const ignoreTokenPos = 1
+const IgnoreTokenPos = -1
 
 func (t *Token) Compare(o Token) bool{
-	if (t.pos == ignoreTokenPos || o.pos == ignoreTokenPos) {
+	if (t.pos == IgnoreTokenPos || o.pos == IgnoreTokenPos) {
 		return t.typ == o.typ && t.val == o.val;
 	}
 	return t.typ == o.typ && t.val == o.val && t.pos == o.pos;
@@ -25,9 +25,9 @@ func (t *Token) Compare(o Token) bool{
 
 func (i *Token) String() string {
 	switch i.typ {
-	case eof:
+	case EOF:
 		return "EOF"
-	case err:
+	case ERR:
 		return i.val
 	}
 	if len(i.val) > 10 {
@@ -39,103 +39,103 @@ func (i *Token) String() string {
 type TokenType string
 
 const (
-	err TokenType = "err"
+	ERR TokenType = "err"
 
-	namespaceObject = "namespaceObject"
-	quotedName = "quotedName"
-	usingDatabase = "using database"
-	forDomain = "forDomain"
-	inContext = "inContext"
-	withinAggregate = "within aggregate"
-	class = "class"
-	classOpen = "<|"
-	classClose = "|>"
-	eof = "eof"
+	NAMESPACEOBJECT = "namespaceObject"
+	QUOTEDNAME = "quotedName"
+	USINGDATABASE = "using database"
+	FORDOMAIN = "forDomain"
+	INCONTEXT = "inContext"
+	WITHINAGGREGATE = "within aggregate"
+	CLASS = "class"
+	CLASSOPEN = "<|"
+	CLASSCLOSE = "|>"
+	EOF = "eof"
 
 	//Keywords - actions
-	create = "create"
+	CREATE = "create"
 
 	//DQL Keywords - Objects
-	database = "database"
-	domain = "domain"
-	context = "context"
-	aggregate = "aggregate"
-	value = "value"
-	event = "event"
-	entity = "entity"
-	command = "command"
-	projection = "projection"
-	invariant = "invariant"
-	query = "query"
+	DATABASE = "database"
+	DOMAIN = "domain"
+	CONTEXT = "context"
+	AGGREGATE = "aggregate"
+	VALUE = "value"
+	EVENT = "event"
+	ENTITY = "entity"
+	COMMAND = "command"
+	PROJECTION = "projection"
+	INVARIANT = "invariant"
+	QUERY = "query"
 
 	// Class components
-	properties = "properties"
-	check = "check"
-	handler = "handler"
-	function = "function"
-	whenEvent = "when event"
+	PROPERTIES = "properties"
+	CHECK = "check"
+	HANDLER = "handler"
+	FUNCTION = "function"
+	WHENEVENT = "when event"
 
 	// Command Handler statements
-	assertInvariant = "assert invariant"
-	not = "not"
-	runQuery = "run query"
-	applyEvent = "apply event"
+	ASSERTINVARIANT = "assert invariant"
+	NOT = "not"
+	RUNQUERY = "run query"
+	APPLYEVENT = "apply event"
 
 	// Operators
-	assign   = "="
-	plus     = "+"
-	minus    = "-"
-	bang     = "!"
-	asterisk = "*"
-	slash    = "/"
-	arrow 	 = "->"
-	strongArrow = "=>"
-	and 	 = "and"
-	or 	 = "or"
-	lt = "<"
-	gt = ">"
-	eq     = "=="
-	not_eq = "!="
-	ltOrEq = "<="
-	gtOrEq = ">="
+	ASSIGN   = "="
+	PLUS     = "+"
+	MINUS    = "-"
+	BANG     = "!"
+	ASTERISK = "*"
+	SLASH    = "/"
+	ARROW 	 = "->"
+	STRONGARROW = "=>"
+	AND 	 = "and"
+	OR 	 = "or"
+	LT = "<"
+	GT = ">"
+	EQ     = "=="
+	NOTEQ = "!="
+	LTOREQ = "<="
+	GTOREQ = ">="
 
 	// Delimiters
-	comma     = ","
-	semicolon = ";"
-	colon     = ":"
-	lparen   = "("
-	rparen   = ")"
-	lbrace   = "{"
-	rbrace   = "}"
-	lbracked = "["
-	rbracket = "]"
+	COMMA     = ","
+	SEMICOLON = ";"
+	COLON     = ":"
+	LPAREN   = "("
+	RPAREN   = ")"
+	LBRACE   = "{"
+	RBRACE   = "}"
+	LBRACKET = "["
+	RBRACKET = "]"
 
 	//Types
-	integer = "integer"
-	float = "float"
-	boolean = "boolean"
-	string_ = "string"
-	typeRef = "type reference"
+	INTEGER = "integer"
+	FLOAT = "float"
+	BOOLEAN = "boolean"
+	STRING = "string"
+	TYPEREF = "type reference"
 
-	identifier = "identifier"
+	IDENTIFIER = "identifier"
 
 	//Statements
-	if_ = "if"
-	elseIf = "else if"
-	else_ = "else"
-	return_ = "return"
-	foreach = "foreach"
-	as = "as"
+	IF = "if"
+	ELSEIF = "else if"
+	ELSE = "else"
+	RETURN = "return"
+	FOREACH = "foreach"
+	AS = "as"
 )
 
 func Semicolon(pos int) Token {
-	return NewToken(semicolon, ";", pos);
+	return NewToken(SEMICOLON, ";", pos);
 }
 
 func ClsOpen(pos int) Token {
-	return NewToken(classOpen, "<|", pos);
+	return NewToken(CLASSOPEN, "<|", pos);
 }
 
 func ClsClose(pos int) Token {
-	return NewToken(classClose, "|>", pos);
+	return NewToken(CLASSCLOSE, "|>", pos);
 }

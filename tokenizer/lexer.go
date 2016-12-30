@@ -4,6 +4,7 @@ import (
 	"strings"
 	"unicode/utf8"
 	"fmt"
+	tok "parser/token"
 )
 
 // lexer holds the state of the scanner.
@@ -13,8 +14,8 @@ type lexer struct {
 	start int       // start position of this item.
 	pos   int       // current position in the input.
 	width int       // width of last rune read from input.
-	tokens []Token
-	error *Token
+	tokens []tok.Token
+	error *tok.Token
 }
 
 type stateFn func(*lexer) stateFn
@@ -35,8 +36,8 @@ func (l *lexer) run() {
 	return
 }
 
-func (l *lexer) emit(t TokenType) {
-	l.tokens = append(l.tokens, Token{t, l.input[l.start:l.pos], l.start});
+func (l *lexer) emit(t tok.TokenType) {
+	l.tokens = append(l.tokens, tok.Token{t, l.input[l.start:l.pos], l.start});
 	l.start = l.pos
 }
 
@@ -98,7 +99,7 @@ func (l *lexer) skipWS() {
 	}
 }
 
-func (l *lexer) lexQuotedStringAsToken(tokenType TokenType) bool {
+func (l *lexer) lexQuotedStringAsToken(tokenType tok.TokenType) bool {
 	l.skipWS()
 	if (l.next() == '\'') {
 		l.ignore();
@@ -114,7 +115,7 @@ func (l *lexer) lexQuotedStringAsToken(tokenType TokenType) bool {
 	return false;
 }
 
-func (l *lexer) lexAsToken(tokenType TokenType) stateFn {
+func (l *lexer) lexAsToken(tokenType tok.TokenType) stateFn {
 	l.pos += len(tokenType)
 	l.emit(tokenType)
 	return lexToken
@@ -186,7 +187,7 @@ func (l *lexer) acceptRun(valid string) {
 
 func (l *lexer) err() stateFn {
 	format := "There was a problem near: %q"
-	errToken := Token{err, fmt.Sprintf(format, l.parsed()), l.start}
+	errToken := tok.Token{tok.ERR, fmt.Sprintf(format, l.parsed()), l.start}
 	l.error = &errToken
 	return nil
 }
@@ -211,7 +212,7 @@ func lexToken(l *lexer) stateFn {
 	}
 
 	//Have special lexing rules
-	if (l.isNextKeyword(create)) {
+	if (l.isNextKeyword(tok.CREATE)) {
 		return lexCreate
 	}
 	if (l.isNextPrefix("'")) {
@@ -232,7 +233,7 @@ func lexToken(l *lexer) stateFn {
 	if (l.isNextKeyword("within")) {
 		return lexWithinAggregate
 	}
-	if (l.isNextPrefix(value+"\\") || l.isNextPrefix(event+"\\")) {
+	if (l.isNextPrefix(tok.VALUE+"\\") || l.isNextPrefix(tok.EVENT+"\\")) {
 		return lexTypeRef
 	}
 	if (l.isNextKeyword("assert")) {
@@ -247,125 +248,126 @@ func lexToken(l *lexer) stateFn {
 	if (l.isNextKeyword("when")) {
 		return lexWhenEvent
 	}
-	if (l.isNextKeyword(and)) {
-		return l.lexAsToken(and)
-	}
-	if (l.isNextKeyword(or)) {
-		return l.lexAsToken(or)
-	}
-
-	// No special cases, just lex and move on
-	if (l.isNextKeyword(properties)) {
-		return l.lexAsToken(properties);
-	}
-	if (l.isNextKeyword(check)) {
-		return l.lexAsToken(check)
-	}
-	if (l.isNextKeyword(handler)) {
-		return l.lexAsToken(handler)
-	}
-	if (l.isNextKeyword(function)) {
-		return l.lexAsToken(function)
-	}
-	if (l.isNextKeyword(if_)) {
-		return l.lexAsToken(if_)
-	}
-	if (l.isNextKeyword(elseIf)) {
-		return l.lexAsToken(elseIf)
-	}
-	if (l.isNextKeyword(else_)) {
-		return l.lexAsToken(else_)
-	}
-	if (l.isNextKeyword(foreach)) {
-		return l.lexAsToken(foreach)
-	}
-	if (l.isNextKeyword(return_)) {
-		return l.lexAsToken(return_)
-	}
-	if (l.isNextKeyword(as)) {
-		return l.lexAsToken(as)
-	}
-
-	if (l.isNextPrefix(strongArrow)) {
-		return l.lexAsToken(strongArrow)
-	}
-	if (l.isNextPrefix(eq)) {
-		return l.lexAsToken(eq)
-	}
-	if (l.isNextPrefix(semicolon)) {
-		return l.lexAsToken(semicolon);
-	}
-	if (l.isNextPrefix(assign)) {
-		return l.lexAsToken(assign);
-	}
-	if (l.isNextPrefix(classOpen)) {
+	if (l.isNextPrefix(tok.CLASSOPEN)) {
 		return lexClassOpen;
 	}
-	if (l.isNextPrefix(classClose)) {
-		return l.lexAsToken(classClose);
+
+
+	// No special cases, just lex and move on
+	if (l.isNextKeyword(tok.AND)) {
+		return l.lexAsToken(tok.AND)
 	}
-	if (l.isNextPrefix(colon)) {
-		return l.lexAsToken(colon);
+	if (l.isNextKeyword(tok.OR)) {
+		return l.lexAsToken(tok.OR)
 	}
-	if (l.isNextPrefix(lbrace)) {
-		return l.lexAsToken(lbrace);
+	if (l.isNextKeyword(tok.PROPERTIES)) {
+		return l.lexAsToken(tok.PROPERTIES);
 	}
-	if (l.isNextPrefix(rbrace)) {
-		return l.lexAsToken(rbrace);
+	if (l.isNextKeyword(tok.CHECK)) {
+		return l.lexAsToken(tok.CHECK)
 	}
-	if (l.isNextPrefix(lparen)) {
-		return l.lexAsToken(lparen);
+	if (l.isNextKeyword(tok.HANDLER)) {
+		return l.lexAsToken(tok.HANDLER)
 	}
-	if (l.isNextPrefix(rparen)) {
-		return l.lexAsToken(rparen);
+	if (l.isNextKeyword(tok.FUNCTION)) {
+		return l.lexAsToken(tok.FUNCTION)
 	}
-	if (l.isNextPrefix(lbracked)) {
-		return l.lexAsToken(lbracked);
+	if (l.isNextKeyword(tok.IF)) {
+		return l.lexAsToken(tok.IF)
 	}
-	if (l.isNextPrefix(rbracket)) {
-		return l.lexAsToken(rbracket);
+	if (l.isNextKeyword(tok.ELSEIF)) {
+		return l.lexAsToken(tok.ELSEIF)
 	}
-	if (l.isNextPrefix(lparen)) {
-		return l.lexAsToken(lparen)
+	if (l.isNextKeyword(tok.ELSE)) {
+		return l.lexAsToken(tok.ELSE)
 	}
-	if (l.isNextPrefix(rparen)) {
-		return l.lexAsToken(rparen)
+	if (l.isNextKeyword(tok.FOREACH)) {
+		return l.lexAsToken(tok.FOREACH)
 	}
-	if (l.isNextPrefix(not_eq)) {
-		return l.lexAsToken(not_eq)
+	if (l.isNextKeyword(tok.RETURN)) {
+		return l.lexAsToken(tok.RETURN)
 	}
-	if (l.isNextPrefix(comma)) {
-		return l.lexAsToken(comma)
+	if (l.isNextKeyword(tok.AS)) {
+		return l.lexAsToken(tok.AS)
 	}
-	if (l.isNextPrefix(arrow)) {
-		return l.lexAsToken(arrow)
+
+	if (l.isNextPrefix(tok.STRONGARROW)) {
+		return l.lexAsToken(tok.STRONGARROW)
 	}
-	if (l.isNextPrefix(plus)) {
-		return l.lexAsToken(plus)
+	if (l.isNextPrefix(tok.EQ)) {
+		return l.lexAsToken(tok.EQ)
 	}
-	if (l.isNextPrefix(minus)) {
-		return l.lexAsToken(minus)
+	if (l.isNextPrefix(tok.SEMICOLON)) {
+		return l.lexAsToken(tok.SEMICOLON);
 	}
-	if (l.isNextPrefix(bang)) {
-		return l.lexAsToken(bang)
+	if (l.isNextPrefix(tok.ASSIGN)) {
+		return l.lexAsToken(tok.ASSIGN);
 	}
-	if (l.isNextPrefix(asterisk)) {
-		return l.lexAsToken(asterisk)
+	if (l.isNextPrefix(tok.CLASSCLOSE)) {
+		return l.lexAsToken(tok.CLASSCLOSE);
 	}
-	if (l.isNextPrefix(slash)) {
-		return l.lexAsToken(slash)
+	if (l.isNextPrefix(tok.COLON)) {
+		return l.lexAsToken(tok.COLON);
 	}
-	if (l.isNextPrefix(ltOrEq)) {
-		return l.lexAsToken(ltOrEq)
+	if (l.isNextPrefix(tok.LBRACE)) {
+		return l.lexAsToken(tok.LBRACE);
 	}
-	if (l.isNextPrefix(gtOrEq)) {
-		return l.lexAsToken(gtOrEq)
+	if (l.isNextPrefix(tok.RBRACE)) {
+		return l.lexAsToken(tok.RBRACE);
 	}
-	if (l.isNextPrefix(lt)) {
-		return l.lexAsToken(lt)
+	if (l.isNextPrefix(tok.LPAREN)) {
+		return l.lexAsToken(tok.LPAREN);
 	}
-	if (l.isNextPrefix(gt)) {
-		return l.lexAsToken(gt)
+	if (l.isNextPrefix(tok.RPAREN)) {
+		return l.lexAsToken(tok.RPAREN);
+	}
+	if (l.isNextPrefix(tok.LBRACKET)) {
+		return l.lexAsToken(tok.LBRACKET);
+	}
+	if (l.isNextPrefix(tok.RBRACKET)) {
+		return l.lexAsToken(tok.RBRACKET);
+	}
+	if (l.isNextPrefix(tok.LPAREN)) {
+		return l.lexAsToken(tok.LPAREN)
+	}
+	if (l.isNextPrefix(tok.RPAREN)) {
+		return l.lexAsToken(tok.RPAREN)
+	}
+	if (l.isNextPrefix(tok.NOTEQ)) {
+		return l.lexAsToken(tok.NOTEQ)
+	}
+	if (l.isNextPrefix(tok.COMMA)) {
+		return l.lexAsToken(tok.COMMA)
+	}
+	if (l.isNextPrefix(tok.ARROW)) {
+		return l.lexAsToken(tok.ARROW)
+	}
+	if (l.isNextPrefix(tok.PLUS)) {
+		return l.lexAsToken(tok.PLUS)
+	}
+	if (l.isNextPrefix(tok.MINUS)) {
+		return l.lexAsToken(tok.MINUS)
+	}
+	if (l.isNextPrefix(tok.BANG)) {
+		return l.lexAsToken(tok.BANG)
+	}
+	if (l.isNextPrefix(tok.ASTERISK)) {
+		return l.lexAsToken(tok.ASTERISK)
+	}
+	if (l.isNextPrefix(tok.SLASH)) {
+		return l.lexAsToken(tok.SLASH)
+	}
+	if (l.isNextPrefix(tok.LTOREQ)) {
+		return l.lexAsToken(tok.LTOREQ)
+	}
+	if (l.isNextPrefix(tok.GTOREQ)) {
+		return l.lexAsToken(tok.GTOREQ)
+	}
+	if (l.isNextPrefix(tok.LT)) {
+		return l.lexAsToken(tok.LT)
+	}
+	if (l.isNextPrefix(tok.GT)) {
+		return l.lexAsToken(tok.GT)
 	}
 
 	if (isDigit(l.peek())) {
@@ -379,31 +381,31 @@ func lexToken(l *lexer) stateFn {
 }
 
 func lexCreate(l *lexer) stateFn {
-	l.lexAsToken(create);
+	l.lexAsToken(tok.CREATE);
 	return lexNSObjectType
 }
 
 func lexNSObjectType(l *lexer) stateFn {
 	l.skipWS()
-	typ, match := l.matchingPrefix([]string{database, domain, context, aggregate})
+	typ, match := l.matchingPrefix([]string{tok.DATABASE, tok.DOMAIN, tok.CONTEXT, tok.AGGREGATE})
 	if (!match) {
 		return l.err()
 	}
 	l.pos += len(typ)
-	l.emit(namespaceObject)
+	l.emit(tok.NAMESPACEOBJECT)
 	return lexToken
 }
 
 func lexNSObjectName(l *lexer) stateFn {
-	l.lexQuotedStringAsToken(quotedName)
+	l.lexQuotedStringAsToken(tok.QUOTEDNAME)
 	return lexToken
 }
 
 func lexUsingDatabase(l *lexer) stateFn {
 	l.skipStr("using")
-	l.skipStr(database)
+	l.skipStr(tok.DATABASE)
 
-	if l.lexQuotedStringAsToken(usingDatabase) {
+	if l.lexQuotedStringAsToken(tok.USINGDATABASE) {
 		return lexToken
 	}
 	return nil
@@ -411,9 +413,9 @@ func lexUsingDatabase(l *lexer) stateFn {
 
 func lexForDomain (l *lexer) stateFn {
 	l.skipStr("for")
-	l.skipStr(domain)
+	l.skipStr(tok.DOMAIN)
 
-	if l.lexQuotedStringAsToken(forDomain) {
+	if l.lexQuotedStringAsToken(tok.FORDOMAIN) {
 		return lexToken
 	}
 	return nil
@@ -421,9 +423,9 @@ func lexForDomain (l *lexer) stateFn {
 
 func lexInContext (l *lexer) stateFn {
 	l.skipStr("in")
-	l.skipStr(context)
+	l.skipStr(tok.CONTEXT)
 
-	if l.lexQuotedStringAsToken(inContext) {
+	if l.lexQuotedStringAsToken(tok.INCONTEXT) {
 		return lexToken
 	}
 	return nil
@@ -431,9 +433,9 @@ func lexInContext (l *lexer) stateFn {
 
 func lexWithinAggregate(l *lexer) stateFn {
 	l.skipStr("within")
-	l.skipStr(aggregate)
+	l.skipStr(tok.AGGREGATE)
 
-	if l.lexQuotedStringAsToken(withinAggregate) {
+	if l.lexQuotedStringAsToken(tok.WITHINAGGREGATE) {
 		return lexToken
 	}
 	return nil
@@ -448,11 +450,11 @@ func lexAssertInvariant(l *lexer) stateFn {
 		}
 	}
 	l.pos += len("invariant")
-	l.emit(assertInvariant)
+	l.emit(tok.ASSERTINVARIANT)
 	l.skipWS()
 
-	if (l.isNextPrefix(not)) {
-		l.lexAsToken(not)
+	if (l.isNextPrefix(tok.NOT)) {
+		l.lexAsToken(tok.NOT)
 	}
 
 	return lexToken
@@ -467,7 +469,7 @@ func lexRunQuery(l *lexer) stateFn {
 		}
 	}
 	l.pos += len("query")
-	l.emit(runQuery)
+	l.emit(tok.RUNQUERY)
 	l.skipWS()
 
 	return lexToken
@@ -482,7 +484,7 @@ func lexApplyEvent(l *lexer) stateFn {
 		}
 	}
 	l.pos += len("event")
-	l.emit(applyEvent)
+	l.emit(tok.APPLYEVENT)
 	l.skipWS()
 
 	return lexToken
@@ -494,15 +496,15 @@ func lexWhenEvent(l *lexer) stateFn {
 	l.skipStr("event")
 	l.skipWS()
 
-	l.lexQuotedStringAsToken(whenEvent)
+	l.lexQuotedStringAsToken(tok.WHENEVENT)
 
 	return lexToken
 }
 
 func lexClass(l *lexer) stateFn {
-	match, _ := l.matchingPrefix([]string{value, entity, event, command, query, invariant, projection})
+	match, _ := l.matchingPrefix([]string{tok.VALUE, tok.ENTITY, tok.EVENT, tok.COMMAND, tok.QUERY, tok.INVARIANT, tok.PROJECTION})
 	l.pos += len(match)
-	l.emit(class)
+	l.emit(tok.CLASS)
 	return lexToken
 }
 
@@ -514,7 +516,7 @@ func lexTypeRef(l *lexer) stateFn {
 		l.next();
 	}
 
-	l.emit(typeRef)
+	l.emit(tok.TYPEREF)
 	l.skipWS()
 	return lexIdentifier
 }
@@ -523,11 +525,11 @@ func lexIdentifier(l *lexer) stateFn {
 	l.scanIdentifier()
 	word := l.input[l.start:l.pos]
 	if (word == "true" || word == "false") {
-		l.emit(boolean)
+		l.emit(tok.BOOLEAN)
 		return lexToken;
 	}
 
-	l.emit(identifier)
+	l.emit(tok.IDENTIFIER)
 	return lexToken;
 }
 
@@ -540,7 +542,7 @@ func lexString(l *lexer) stateFn {
 		}
 	}
 
-	l.emit(string_)
+	l.emit(tok.STRING)
 	l.skip()
 
 	return lexToken
@@ -558,16 +560,16 @@ func lexNumber(l *lexer) stateFn {
 		l.next();
 	}
 	if (hasDot) {
-		l.emit(float)
+		l.emit(tok.FLOAT)
 	} else {
-		l.emit(integer)
+		l.emit(tok.INTEGER)
 	}
 
 	return lexToken;
 }
 
 func lexClassOpen(l *lexer) stateFn {
-	l.lexAsToken(classOpen);
+	l.lexAsToken(tok.CLASSOPEN);
 	l.skipWS()
 	return lexClass;
 }
