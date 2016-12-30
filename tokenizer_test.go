@@ -144,6 +144,33 @@ func TestGloballySetNamespace (t *testing.T) {
 	statementsWithGloballySetNamespaces.test(t)
 }
 
+var objectTypes = testStatements {
+	{
+		"<| entity 'ent' |>",
+		[]Token{clsOpen(), tok(class, "entity"), tok(quotedName, "ent"), clsClose()},
+	},
+	{
+		"<| invariant 'invar' |>",
+		[]Token{clsOpen(), tok(class, "invariant"), tok(quotedName, "invar"), clsClose()},
+	},
+	{
+		"<| command 'cmd' |>",
+		[]Token{clsOpen(), tok(class, "command"), tok(quotedName, "cmd"), clsClose()},
+	},
+	{
+		"<| query 'qry' |>",
+		[]Token{clsOpen(), tok(class, "query"), tok(quotedName, "qry"), clsClose()},
+	},
+	{
+		"<| projection 'proj' |>",
+		[]Token{clsOpen(), tok(class, "projection"), tok(quotedName, "proj"), clsClose()},
+	},
+}
+
+func TestObjectTypes(t *testing.T) {
+	objectTypes.test(t)
+}
+
 var namespaceBlocks= testStatements {
 	{
 		`using database 'database1' for domain 'domain1' in context 'context1':{
@@ -370,7 +397,7 @@ var expressions = testStatements{
 		},
 	},
 	{
-		"a->b->c + a->b() - !b and c",
+		"a->b->c + a->b() - !b and a == b and a < b or a > b ",
 		[]Token{
 			tok(identifier, "a"),
 			tok(arrow, "->"),
@@ -387,7 +414,17 @@ var expressions = testStatements{
 			tok(bang, "!"),
 			tok(identifier, "b"),
 			tok(and, "and"),
-			tok(identifier, "c"),
+			tok(identifier, "a"),
+			tok(eq, "=="),
+			tok(identifier, "b"),
+			tok(and, "and"),
+			tok(identifier, "a"),
+			tok(lt, "<"),
+			tok(identifier, "b"),
+			tok(or, "or"),
+			tok(identifier, "a"),
+			tok(gt, ">"),
+			tok(identifier, "b"),
 		},
 	},
 	{

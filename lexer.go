@@ -170,6 +170,16 @@ func (l *lexer) err() stateFn {
 	return nil
 }
 
+//Scan until next space or non identifier character
+func (l *lexer) scanIdentifier() {
+	for {
+		if (!isLetter(l.peek()) && !isDigit(l.peek())) {
+			break;
+		}
+		l.next();
+	}
+}
+
 const EOF = -1
 
 func lexToken(l *lexer) stateFn {
@@ -216,10 +226,16 @@ func lexToken(l *lexer) stateFn {
 	if (l.hasKeyword(and)) {
 		return l.lexAsToken(and)
 	}
+	if (l.hasKeyword(or)) {
+		return l.lexAsToken(or)
+	}
 
 	// No special cases, just lex and move on
 	if (l.hasNextPrefix(strongArrow)) {
 		return l.lexAsToken(strongArrow)
+	}
+	if (l.hasNextPrefix(eq)) {
+		return l.lexAsToken(eq)
 	}
 	if (l.hasNextPrefix(semicolon)) {
 		return l.lexAsToken(semicolon);
@@ -313,6 +329,12 @@ func lexToken(l *lexer) stateFn {
 	}
 	if (l.hasNextPrefix(as)) {
 		return l.lexAsToken(as)
+	}
+	if (l.hasNextPrefix(lt)) {
+		return l.lexAsToken(lt)
+	}
+	if (l.hasNextPrefix(gt)) {
+		return l.lexAsToken(gt)
 	}
 
 	if (isDigit(l.peek())) {
@@ -447,7 +469,10 @@ func lexWhenEvent(l *lexer) stateFn {
 }
 
 func lexClass(l *lexer) stateFn {
-	return l.lexAsToken(class);
+	match, _ := l.matchingPrefix([]string{value, entity, event, command, query, invariant, projection})
+	l.pos += len(match)
+	l.emit(class)
+	return lexToken
 }
 
 func lexTypeRef(l *lexer) stateFn {
@@ -464,12 +489,7 @@ func lexTypeRef(l *lexer) stateFn {
 }
 
 func lexIdentifier(l *lexer) stateFn {
-	for {
-		if (!isLetter(l.peek()) && !isDigit(l.peek())) {
-			break;
-		}
-		l.next();
-	}
+	l.scanIdentifier()
 	word := l.input[l.start:l.pos]
 	if (word == "true" || word == "false") {
 		l.emit(boolean)
@@ -479,6 +499,8 @@ func lexIdentifier(l *lexer) stateFn {
 	l.emit(identifier)
 	return lexToken;
 }
+
+
 
 func lexNumber(l *lexer) stateFn {
 	for {
