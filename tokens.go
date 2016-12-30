@@ -88,11 +88,12 @@ const (
 	bang     = "!"
 	asterisk = "*"
 	slash    = "/"
-	arrow = "->"
-
+	arrow 	 = "->"
+	strongArrow = "=>"
+	and 	 = "and"
+	or 	 = "or"
 	lt = "<"
 	gt = ">"
-
 	eq     = "=="
 	not_eq = "!="
 
@@ -116,8 +117,12 @@ const (
 
 	//Statements
 	if_ = "if"
+	elseIf = "else if"
 	else_ = "else"
 	return_ = "return"
+	foreach = "foreach"
+	as = "as"
+
 
 )
 

@@ -45,6 +45,10 @@ func (l *lexer) hasNextPrefix (prefix string) bool {
 	return strings.HasPrefix(unlexed, prefix);
 }
 
+func (l *lexer) hasKeyword (prefix string) bool {
+	return l.hasNextPrefix(prefix+" ")
+}
+
 func (l *lexer) matchingPrefix (prefixes []string) (string, bool) {
 	for _, prefix := range prefixes {
 		if (l.hasNextPrefix(prefix)) {
@@ -176,41 +180,47 @@ func lexToken(l *lexer) stateFn {
 	}
 
 	//Have special lexing rules
-	if (l.hasNextPrefix(create)) {
+	if (l.hasKeyword(create)) {
 		return lexCreate
 	}
 	if (l.hasNextPrefix("'")) {
 		return lexNSObjectName
 	}
-	if (l.hasNextPrefix("using")) {
+	if (l.hasKeyword("using")) {
 		return lexUsingDatabase
 	}
-	if (l.hasNextPrefix("for")) {
+	if (l.hasKeyword("for")) {
 		return lexForDomain
 	}
-	if (l.hasNextPrefix("in")) {
+	if (l.hasKeyword("in")) {
 		return lexInContext
 	}
-	if (l.hasNextPrefix("within")) {
+	if (l.hasKeyword("within")) {
 		return lexWithinAggregate
 	}
 	if (l.hasNextPrefix(value+"\\") || l.hasNextPrefix(event+"\\")) {
 		return lexTypeRef
 	}
-	if (l.hasNextPrefix("assert")) {
+	if (l.hasKeyword("assert")) {
 		return lexAssertInvariant
 	}
-	if (l.hasNextPrefix("run")) {
+	if (l.hasKeyword("run")) {
 		return lexRunQuery
 	}
-	if (l.hasNextPrefix("apply")) {
+	if (l.hasKeyword("apply")) {
 		return lexApplyEvent
 	}
-	if (l.hasNextPrefix("when")) {
+	if (l.hasKeyword("when")) {
 		return lexWhenEvent
+	}
+	if (l.hasKeyword(and)) {
+		return l.lexAsToken(and)
 	}
 
 	// No special cases, just lex and move on
+	if (l.hasNextPrefix(strongArrow)) {
+		return l.lexAsToken(strongArrow)
+	}
 	if (l.hasNextPrefix(semicolon)) {
 		return l.lexAsToken(semicolon);
 	}
@@ -253,7 +263,7 @@ func lexToken(l *lexer) stateFn {
 	if (l.hasNextPrefix(handler)) {
 		return l.lexAsToken(handler)
 	}
-	if (l.hasNextPrefix(return_)) {
+	if (l.hasKeyword(return_)) {
 		return l.lexAsToken(return_)
 	}
 	if (l.hasNextPrefix(lparen)) {
@@ -273,6 +283,36 @@ func lexToken(l *lexer) stateFn {
 	}
 	if (l.hasNextPrefix(arrow)) {
 		return l.lexAsToken(arrow)
+	}
+	if (l.hasNextPrefix(plus)) {
+		return l.lexAsToken(plus)
+	}
+	if (l.hasNextPrefix(minus)) {
+		return l.lexAsToken(minus)
+	}
+	if (l.hasNextPrefix(bang)) {
+		return l.lexAsToken(bang)
+	}
+	if (l.hasNextPrefix(asterisk)) {
+		return l.lexAsToken(asterisk)
+	}
+	if (l.hasNextPrefix(slash)) {
+		return l.lexAsToken(slash)
+	}
+	if (l.hasKeyword(if_)) {
+		return l.lexAsToken(if_)
+	}
+	if (l.hasKeyword(elseIf)) {
+		return l.lexAsToken(elseIf)
+	}
+	if (l.hasKeyword(else_)) {
+		return l.lexAsToken(else_)
+	}
+	if (l.hasKeyword(foreach)) {
+		return l.lexAsToken(foreach)
+	}
+	if (l.hasNextPrefix(as)) {
+		return l.lexAsToken(as)
 	}
 
 	if (isDigit(l.peek())) {

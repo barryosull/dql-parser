@@ -357,22 +357,125 @@ var expressions = testStatements{
 			tok(identifier, "c"),
 		},
 	},
-	/*
+	{
 		"a + (a - b)",
-		"(a + b) + (a - b)",
-		"(a + b) + (a - b) - a->b->c + a->b() - !b + a and b",
-		"a->b = 'value\\integer'(1) - ('value\\integer'(1) + b) + (a - b) - a->b->c + a->b() - !b + a and b",
-		"a = b + c = c + 24",
-		"quote->items->has(item) == true",
-		"quote->items->has(item) - 5 == true",
-		"quote->is_started == true and quote->is_completed == false",
-		"quote->is_started == true",
-	}
-	*/
+		[]Token{
+			tok(identifier, "a"),
+			tok(plus, "+"),
+			tok(lparen, "("),
+			tok(identifier, "a"),
+			tok(minus, "-"),
+			tok(identifier, "b"),
+			tok(rparen, ")"),
+		},
+	},
+	{
+		"a->b->c + a->b() - !b and c",
+		[]Token{
+			tok(identifier, "a"),
+			tok(arrow, "->"),
+			tok(identifier, "b"),
+			tok(arrow, "->"),
+			tok(identifier, "c"),
+			tok(plus, "+"),
+			tok(identifier, "a"),
+			tok(arrow, "->"),
+			tok(identifier, "b"),
+			tok(lparen, "("),
+			tok(rparen, ")"),
+			tok(minus, "-"),
+			tok(bang, "!"),
+			tok(identifier, "b"),
+			tok(and, "and"),
+			tok(identifier, "c"),
+		},
+	},
+	{
+		"a = andrew",
+		[]Token {
+			tok(identifier, "a"),
+			tok(assign, "="),
+			tok(identifier, "andrew"),
+		},
+	},
+	{
+		"clarkKent = 'value\\isSuperman'(false)",
+		[]Token{
+			tok(identifier, "clarkKent"),
+			tok(assign, "="),
+			tok(quotedName, "value\\isSuperman"),
+			tok(lparen, "("),
+			tok(boolean, "false"),
+			tok(rparen, ")"),
+		},
+	},
 };
 
 func TestExpressions(t *testing.T) {
 	expressions.test(t)
+}
+
+
+var statements = testStatements{
+	{
+		`if (a) {
+			a;
+		} else if (b) {
+			a;
+		} else {
+			b;
+		}
+		foreach (a->b() as b=>c) {
+			a;
+		}`,
+		[]Token{
+			tok(if_, "if"),
+			tok(lparen, "("),
+			tok(identifier, "a"),
+			tok(rparen, ")"),
+			tok(lbrace, "{"),
+			tok(identifier, "a"),
+			tok(semicolon, ";"),
+			tok(rbrace, "}"),
+
+			tok(elseIf, "else if"),
+			tok(lparen, "("),
+			tok(identifier, "b"),
+			tok(rparen, ")"),
+			tok(lbrace, "{"),
+			tok(identifier, "a"),
+			tok(semicolon, ";"),
+			tok(rbrace, "}"),
+
+			tok(else_, "else"),
+			tok(lbrace, "{"),
+			tok(identifier, "b"),
+			tok(semicolon, ";"),
+			tok(rbrace, "}"),
+
+			tok(foreach, "foreach"),
+			tok(lparen, "("),
+			tok(identifier, "a"),
+			tok(arrow, "->"),
+			tok(identifier, "b"),
+			tok(lparen, "("),
+			tok(rparen, ")"),
+			tok(as, "as"),
+			tok(identifier, "b"),
+			tok(strongArrow, "=>"),
+			tok(identifier, "c"),
+			tok(rparen, ")"),
+
+			tok(lbrace, "{"),
+			tok(identifier, "a"),
+			tok(semicolon, ";"),
+			tok(rbrace, "}"),
+		},
+	},
+}
+
+func TestStatements(t *testing.T) {
+	statements.test(t)
 }
 
 
