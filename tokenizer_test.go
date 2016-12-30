@@ -150,6 +150,26 @@ var objectTypes = testStatements {
 		[]Token{clsOpen(), tok(class, "entity"), tok(quotedName, "ent"), clsClose()},
 	},
 	{
+		"<| entity 'ent' check ( return value != 0;) |>",
+		[]Token{
+			clsOpen(),
+			tok(class, "entity"),
+			tok(quotedName, "ent"),
+
+			tok(check, "check"),
+			tok(lparen, "("),
+
+			tok(return_, "return"),
+			tok(identifier, "value"),
+			tok(not_eq, "!="),
+			tok(number, "0"),
+			tok(semicolon, ";"),
+
+			tok(rparen, ")"),
+			clsClose(),
+		},
+	},
+	{
 		"<| invariant 'invar' |>",
 		[]Token{clsOpen(), tok(class, "invariant"), tok(quotedName, "invar"), clsClose()},
 	},
@@ -165,6 +185,7 @@ var objectTypes = testStatements {
 		"<| projection 'proj' |>",
 		[]Token{clsOpen(), tok(class, "projection"), tok(quotedName, "proj"), clsClose()},
 	},
+
 }
 
 func TestObjectTypes(t *testing.T) {
