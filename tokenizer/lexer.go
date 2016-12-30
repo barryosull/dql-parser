@@ -261,6 +261,13 @@ var easyLexTokens = []tok.TokenType{
 	tok.GT,
 }
 
+func (l *lexer) isTypeRef() bool {
+	if (l.isNextPrefix(tok.VALUE+"\\") || l.isNextPrefix(tok.ENTITY+"\\") || l.isNextPrefix(tok.EVENT+"\\") || l.isNextPrefix(tok.COMMAND+"\\") || l.isNextPrefix(tok.INVARIANT+"\\") || l.isNextPrefix(tok.PROJECTION+"\\")|| l.isNextPrefix(tok.QUERY+"\\")) {
+		return true
+	}
+	return false
+}
+
 func lexToken(l *lexer) stateFn {
 
 	l.skipWS();
@@ -270,7 +277,7 @@ func lexToken(l *lexer) stateFn {
 	}
 
 	//Have special lexing rules
-	if (l.isNextPrefix(tok.VALUE+"\\") || l.isNextPrefix(tok.EVENT+"\\")) {
+	if (l.isTypeRef()) {
 		return lexTypeRef
 	}
 	if (l.isNextPrefix("'")) {
