@@ -384,6 +384,26 @@ func TestClassComponents (t *testing.T) {
 
 var expressions = testStatements{
 	{
+		`--a
+		a++
+		a <= b
+		b >= a`,
+		[]Token{
+			tok(minus, "-"),
+			tok(minus, "-"),
+			tok(identifier, "a"),
+			tok(identifier, "a"),
+			tok(plus, "+"),
+			tok(plus, "+"),
+			tok(identifier, "a"),
+			tok(ltOrEq, "<="),
+			tok(identifier, "b"),
+			tok(identifier, "b"),
+			tok(gtOrEq, ">="),
+			tok(identifier, "a"),
+		},
+	},
+	{
 		"a + b - c",
 		[]Token{
 			tok(identifier, "a"),

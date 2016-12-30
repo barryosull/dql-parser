@@ -96,6 +96,8 @@ const (
 	gt = ">"
 	eq     = "=="
 	not_eq = "!="
+	ltOrEq = "<="
+	gtOrEq = ">="
 
 	// Delimiters
 	comma     = ","
