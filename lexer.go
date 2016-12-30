@@ -355,6 +355,12 @@ func lexToken(l *lexer) stateFn {
 	if (l.isNextPrefix(slash)) {
 		return l.lexAsToken(slash)
 	}
+	if (l.isNextPrefix(ltOrEq)) {
+		return l.lexAsToken(ltOrEq)
+	}
+	if (l.isNextPrefix(gtOrEq)) {
+		return l.lexAsToken(gtOrEq)
+	}
 	if (l.isNextPrefix(lt)) {
 		return l.lexAsToken(lt)
 	}
