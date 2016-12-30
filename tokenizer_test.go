@@ -19,7 +19,7 @@ func TestCreateDatabase(t *testing.T) {
 	dbStatements.test(t);
 }
 
-var multipeStatements = testStatements{
+var multipleStatements = testStatements{
 	{
 		"create database 'db1'; create database 'db1';",
 		[]Token{tok(create, "create"), tok(namespaceObject, "database"), tok(quotedName, "db1"), apos(), tok(create, "create"), tok(namespaceObject, "database"), tok(quotedName, "db1"), apos()},
@@ -27,19 +27,7 @@ var multipeStatements = testStatements{
 }
 
 func TestMultipeStatements(t *testing.T) {
-	multipeStatements.test(t);
-}
-
-func compareTokens(a []Token, b []Token) bool {
-	if (len(a) != len(b)) {
-		return false;
-	}
-	for i, t := range a {
-		if (!t.Compare(b[i])) {
-			return false;
-		}
-	}
-	return true;
+	multipleStatements.test(t);
 }
 
 var domainStatements = testStatements{

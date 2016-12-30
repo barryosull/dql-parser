@@ -122,17 +122,10 @@ const (
 	return_ = "return"
 	foreach = "foreach"
 	as = "as"
-
-
 )
 
 func Apos(pos int) Token {
 	return NewToken(semicolon, ";", pos);
-}
-
-func Err(e string, pos int) *Token {
-	t := NewToken(err, e, pos);
-	return &t
 }
 
 func ClsOpen(pos int) Token {
