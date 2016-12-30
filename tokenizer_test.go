@@ -543,7 +543,16 @@ func (statements testStatements) test(t *testing.T) {
 	for _, statement := range statements {
 		tokenizer := NewTokenizer(statement.dql);
 
-		actual, err := tokenizer.Tokens();
+		var token *Token
+		var actual []Token
+		var err *Token
+		for {
+			token, err = tokenizer.Next()
+			if (token == nil) {
+				break;
+			}
+			actual = append(actual, *token)
+		}
 
 		compareTokenLists(statement.expected, actual, statement.dql, t);
 
