@@ -530,6 +530,80 @@ func TestStatements(t *testing.T) {
 	statements.test(t)
 }
 
+// These keywords should be seen as expressions, not keywords, dependent on context
+var keyWordsAsExpressions = testStatements{
+	{
+		`
+		database
+		domain
+		context
+		aggregate
+		value
+		event
+		entity
+		command
+		projection
+		invariant
+		query
+		`,
+		[]Token{
+			tok(identifier, "database"),
+			tok(identifier, "domain"),
+			tok(identifier, "context"),
+			tok(identifier, "aggregate"),
+			tok(identifier, "value"),
+			tok(identifier, "event"),
+			tok(identifier, "entity"),
+			tok(identifier, "command"),
+			tok(identifier, "projection"),
+			tok(identifier, "invariant"),
+			tok(identifier, "query"),
+		},
+	},
+}
+
+func TestKeywordsAsExpressions(t *testing.T) {
+	keyWordsAsExpressions.test(t)
+}
+
+// These keywords can be used in expressions only if they're part of an identifier
+var keywordsInExpressions = testStatements {
+	{
+		`
+		propertiesA
+		checkA
+		handlerA
+		functionA
+		whenA
+		andA
+		orA
+		ifA
+		elseA
+		returnA
+		foreachA
+		asA
+		createA`,
+		[]Token {
+			tok(identifier, "propertiesA"),
+			tok(identifier, "checkA"),
+			tok(identifier, "handlerA"),
+			tok(identifier, "functionA"),
+			tok(identifier, "whenA"),
+			tok(identifier, "andA"),
+			tok(identifier, "orA"),
+			tok(identifier, "ifA"),
+			tok(identifier, "elseA"),
+			tok(identifier, "returnA"),
+			tok(identifier, "foreachA"),
+			tok(identifier, "asA"),
+			tok(identifier, "createA"),
+		},
+	},
+}
+
+func TestKeywordsInExpressions(t *testing.T) {
+	keywordsInExpressions.test(t)
+}
 
 type testStatement struct {
 	dql string;

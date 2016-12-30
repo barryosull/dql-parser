@@ -40,6 +40,7 @@ type TokenType string
 
 const (
 	err TokenType = "err"
+
 	namespaceObject = "namespaceObject"
 	quotedName = "quotedName"
 	usingDatabase = "using database"
@@ -110,10 +111,11 @@ const (
 	//Types
 	integer = "integer"
 	float = "float"
-	identifier = "identifier"
 	boolean = "boolean"
 	string_ = "string"
 	typeRef = "type reference"
+
+	identifier = "identifier"
 
 	//Statements
 	if_ = "if"
