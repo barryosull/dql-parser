@@ -139,13 +139,13 @@ var objectTypes = testStatements {
 		[]tok.Token{clsOpen(), tk(tok.CLASS, "entity"), tk(tok.QUOTEDNAME, "ent"), clsClose()},
 	},
 	{
-		"<| entity 'ent' check ( return value != 0;) |>",
+		"<| entity 'ent' CHECK ( return value != 0;) |>",
 		[]tok.Token{
 			clsOpen(),
 			tk(tok.CLASS, "entity"),
 			tk(tok.QUOTEDNAME, "ent"),
 
-			tk(tok.CHECK, "check"),
+			tk(tok.CHECK, "CHECK"),
 			tk(tok.LPAREN, "("),
 
 			tk(tok.RETURN, "return"),
