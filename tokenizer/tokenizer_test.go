@@ -643,8 +643,17 @@ var badStatements = []struct{
 	err tok.Error
 }{
 	{
-		"create dbase 'database",
-		tok.Error{"create dbase 'database", 7, "database, domain, context, aggregate", "dbase",},
+		"create dbase",
+		tok.Error{"create dbase", 7, "database, domain, context, aggregate", "dbase", },
+	}, {
+		"create dmain",
+		tok.Error{"create dmain", 7, "database, domain, context, aggregate", "dmain", },
+	}, {
+		"create cntext",
+		tok.Error{"create cntext", 7, "database, domain, context, aggregate", "cntext", },
+	},{
+		"create aggrege",
+		tok.Error{"create aggrege", 7, "database, domain, context, aggregate", "aggrege",},
 	},
 }
 
