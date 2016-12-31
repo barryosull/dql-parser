@@ -690,6 +690,9 @@ var badStatements = []struct{
 	},{
 		"<| value ''",
 		tok.Error{"<| value ''", 10, "value name", "empty name",},
+	},{
+		"~",
+		tok.Error{"~", 10, "keyword", "nothing",},
 	},
 }
 
