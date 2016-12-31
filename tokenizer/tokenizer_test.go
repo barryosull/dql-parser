@@ -11,7 +11,7 @@ var dbStatements = testStatements {
 		"create database 'db1';",
 		[]tok.Token{tok.NewToken(tok.CREATE, "create", 0), tok.NewToken(tok.NAMESPACEOBJECT, "database", 7), tok.NewToken(tok.QUOTEDNAME, "db1", 17), tok.Semicolon(21)},
 	}, {
-		"create database 'db2' ;",
+		"create DATABASE 'db2' ;",
 		[]tok.Token{tok.NewToken(tok.CREATE, "create", 0), tok.NewToken(tok.NAMESPACEOBJECT, "database", 7), tok.NewToken(tok.QUOTEDNAME, "db2", 17), tok.Semicolon(22)},
 	},
 };
