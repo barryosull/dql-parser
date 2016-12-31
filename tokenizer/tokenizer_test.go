@@ -638,6 +638,39 @@ func TestKeywordsInExpressions(t *testing.T) {
 	keywordsInExpressions.test(t)
 }
 
+var badStatements = []struct{
+	dql string
+	err tok.Error
+}{
+	{
+		"create dbase 'database",
+		tok.Error{"create dbase 'database", 7, "database, domain, context, aggregate", "dbase",},
+	},
+}
+
+func TestBadStatements(t *testing.T){
+	for _, statement := range badStatements {
+		tokenizer := NewTokenizer(statement.dql);
+
+		var token *tok.Token
+		var err *tok.Error
+		for {
+			token, err = tokenizer.Next()
+			if (token == nil) {
+				break;
+			}
+		}
+		if (err == nil) {
+			t.Error("No error found in DQL statement '"+statement.dql+"'")
+			t.Error(tokenizer.Tokens())
+		} else if (!err.Equals(statement.err)) {
+			t.Error("Error found in DQL statement '"+statement.dql+"' does not match expected")
+			t.Error("Expected: "+statement.err.String())
+			t.Error("Actual: "+err.String())
+		}
+	}
+}
+
 type testStatement struct {
 	dql string;
 	expected []tok.Token;
@@ -652,7 +685,7 @@ func (statements testStatements) test(t *testing.T) {
 
 		var token *tok.Token
 		var actual []tok.Token
-		var err *tok.Token
+		var err *tok.Error
 		for {
 			token, err = tokenizer.Next()
 			if (token == nil) {
@@ -679,7 +712,7 @@ func compareTokenLists(expected, actual []tok.Token, dql string, t *testing.T) {
 	for i, token := range expected {
 		if i == len(actual) {
 			t.Error("Expected: "+token.String())
-			t.Error("Got: NOThing")
+			t.Error("Got: Nothing")
 			return
 		}
 		if (!token.Compare(actual[i])) {

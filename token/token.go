@@ -2,6 +2,7 @@ package token
 
 import (
 	"fmt"
+	"strconv"
 )
 
 type Token struct {
@@ -138,4 +139,19 @@ func ClsOpen(pos int) Token {
 
 func ClsClose(pos int) Token {
 	return NewToken(CLASSCLOSE, "|>", pos);
+}
+
+type Error struct {
+	Dql string
+	Pos int
+	Expected string
+	Found string
+}
+
+func (e Error) Equals(other Error) bool {
+	return e == other
+}
+
+func (e Error) String() string {
+	return "Parse error in statement '"+e.Dql+"' at pos '"+strconv.Itoa(e.Pos)+", expected "+e.Expected+", found "+e.Found
 }

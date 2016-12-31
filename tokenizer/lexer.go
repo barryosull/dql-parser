@@ -3,7 +3,6 @@ package tokenizer
 import (
 	"strings"
 	"unicode/utf8"
-	"fmt"
 	tok "parser/token"
 )
 
@@ -15,12 +14,14 @@ type lexer struct {
 	pos   int       // current position in the input.
 	width int       // width of last rune read from input.
 	tokens []tok.Token
-	error *tok.Token
+	error *tok.Error
 }
 
 type stateFn func(*lexer) stateFn
 
 var tokenToLexer = map[string]stateFn {}
+var easyLexKeywords = []tok.TokenType{}
+var easyLexTokens = []tok.TokenType{}
 
 func lex(name, input string) (*lexer) {
 	l := &lexer{
@@ -38,6 +39,48 @@ func lex(name, input string) (*lexer) {
 		"run": lexRunQuery,
 		"apply": lexApplyEvent,
 		"when": lexWhenEvent,
+	}
+
+	easyLexKeywords = []tok.TokenType{
+		tok.AND,
+		tok.OR,
+		tok.PROPERTIES,
+		tok.CHECK,
+		tok.HANDLER,
+		tok.FUNCTION,
+		tok.IF,
+		tok.ELSEIF,
+		tok.ELSE,
+		tok.FOREACH,
+		tok.RETURN,
+		tok.AS,
+	}
+
+	easyLexTokens = []tok.TokenType{
+		tok.STRONGARROW,
+		tok.EQ,
+		tok.SEMICOLON,
+		tok.ASSIGN,
+		tok.CLASSCLOSE,
+		tok.COLON,
+		tok.LBRACE,
+		tok.RBRACE,
+		tok.LPAREN,
+		tok.RPAREN,
+		tok.LBRACKET,
+		tok.RBRACKET,
+		tok.NOTEQ,
+		tok.COMMA,
+		tok.ARROW,
+		tok.PLUS,
+		tok.MINUS,
+		tok.BANG,
+		tok.ASTERISK,
+		tok.SLASH,
+		tok.LTOREQ,
+		tok.GTOREQ,
+		tok.LT,
+		tok.GT,
 	}
 
 	l.run()
@@ -74,13 +117,16 @@ func (l *lexer) isKeyWordAndNotIdentifier(prefix string) bool {
 	return true
 }
 
-func (l *lexer) matchingPrefix (prefixes []string) (string, bool) {
-	for _, prefix := range prefixes {
+func (l *lexer) matchPrefix(expected []string) (string, *tok.Error) {
+	for _, prefix := range expected {
 		if (l.isNextPrefix(prefix)) {
-			return prefix, true
+			return prefix, nil
 		}
 	}
-	return "", false
+	l.scanIdentifier()
+	found := l.input[l.start:l.pos]
+	l.err(strings.Join(expected, ", "), found)
+	return found, l.error
 }
 
 func (l *lexer) parsed () string {
@@ -200,10 +246,8 @@ func (l *lexer) acceptRun(valid string) {
 	l.backup()
 }
 
-func (l *lexer) err() stateFn {
-	format := "There was a problem near: %q"
-	errToken := tok.Token{tok.ERR, fmt.Sprintf(format, l.parsed()), l.start}
-	l.error = &errToken
+func (l *lexer) err(expected string, found string) stateFn {
+	l.error = &tok.Error{l.input, l.start, expected, found}
 	return nil
 }
 
@@ -219,47 +263,7 @@ func (l *lexer) scanIdentifier() {
 
 const EOF = -1
 
-var easyLexKeywords = []tok.TokenType{
-	tok.AND,
-	tok.OR,
-	tok.PROPERTIES,
-	tok.CHECK,
-	tok.HANDLER,
-	tok.FUNCTION,
-	tok.IF,
-	tok.ELSEIF,
-	tok.ELSE,
-	tok.FOREACH,
-	tok.RETURN,
-	tok.AS,
-}
 
-var easyLexTokens = []tok.TokenType{
-	tok.STRONGARROW,
-	tok.EQ,
-	tok.SEMICOLON,
-	tok.ASSIGN,
-	tok.CLASSCLOSE,
-	tok.COLON,
-	tok.LBRACE,
-	tok.RBRACE,
-	tok.LPAREN,
-	tok.RPAREN,
-	tok.LBRACKET,
-	tok.RBRACKET,
-	tok.NOTEQ,
-	tok.COMMA,
-	tok.ARROW,
-	tok.PLUS,
-	tok.MINUS,
-	tok.BANG,
-	tok.ASTERISK,
-	tok.SLASH,
-	tok.LTOREQ,
-	tok.GTOREQ,
-	tok.LT,
-	tok.GT,
-}
 
 func (l *lexer) isTypeRef() bool {
 	if (l.isKeyWordAndNotIdentifier(tok.STRING)) {
@@ -327,7 +331,7 @@ func lexToken(l *lexer) stateFn {
 		return lexIdentifier;
 	}
 
-	return l.err();
+	return l.err("keyword", "nothing");
 }
 
 func lexCreate(l *lexer) stateFn {
@@ -337,11 +341,11 @@ func lexCreate(l *lexer) stateFn {
 
 func lexNSObjectType(l *lexer) stateFn {
 	l.skipWS()
-	typ, match := l.matchingPrefix([]string{tok.DATABASE, tok.DOMAIN, tok.CONTEXT, tok.AGGREGATE})
-	if (!match) {
-		return l.err()
+	found, err := l.matchPrefix([]string{tok.DATABASE, tok.DOMAIN, tok.CONTEXT, tok.AGGREGATE})
+	if (err != nil) {
+		return nil
 	}
-	l.pos += len(typ)
+	l.pos += len(found)
 	l.emit(tok.NAMESPACEOBJECT)
 	return lexToken
 }
@@ -452,7 +456,7 @@ func lexWhenEvent(l *lexer) stateFn {
 }
 
 func lexClass(l *lexer) stateFn {
-	match, _ := l.matchingPrefix([]string{tok.VALUE, tok.ENTITY, tok.EVENT, tok.COMMAND, tok.QUERY, tok.INVARIANT, tok.PROJECTION})
+	match, _ := l.matchPrefix([]string{tok.VALUE, tok.ENTITY, tok.EVENT, tok.COMMAND, tok.QUERY, tok.INVARIANT, tok.PROJECTION})
 	l.pos += len(match)
 	l.emit(tok.CLASS)
 	return lexToken
