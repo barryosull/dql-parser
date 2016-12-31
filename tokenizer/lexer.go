@@ -11,6 +11,7 @@ import (
 type lexer struct {
 	name  string    // used only for error reports.
 	input string    // the string being scanned.
+	length int	// length of the input
 	start int       // start position of this item.
 	pos   int       // current position in the input.
 	width int       // width of last rune read from input.
@@ -28,6 +29,7 @@ func lex(name, input string) (*lexer) {
 	l := &lexer{
 		name:  name,
 		input: input,
+		length: len(input),
 	}
 
 	tokenToLexer = map[string]stateFn{
@@ -101,8 +103,13 @@ func (l *lexer) emit(t tok.TokenType) {
 }
 
 func (l *lexer) isNextPrefix(prefix string) bool {
-	var unlexed = l.input[l.pos:];
-	return strings.HasPrefix(unlexed, prefix);
+	var unlexed string;
+	if (l.pos + len(prefix) < l.length) {
+		unlexed = l.input[l.pos: l.pos + len(prefix)];
+	} else {
+		unlexed = l.input[l.pos:];
+	}
+	return strings.HasPrefix(strings.ToLower(unlexed), strings.ToLower(prefix));
 }
 
 //Check of the prefix matches and is not followed immediately by another identifier character
@@ -507,6 +514,8 @@ func lexIdentifier(l *lexer) stateFn {
 	word := l.scanWord()
 	if (word == "true" || word == "false") {
 		l.emit(tok.BOOLEAN)
+	} else if (word == "null") {
+		l.emit(tok.NULL)
 	} else {
 		l.emit(tok.IDENTIFIER)
 	}

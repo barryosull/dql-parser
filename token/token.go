@@ -35,7 +35,7 @@ func (i *Token) String() string {
 	if len(val) > 10 {
 		val = fmt.Sprintf("%.10q...", val)
 	}
-	return fmt.Sprintf("Token(%q, %q, %d)", i.Typ, val, i.Pos)
+	return fmt.Sprintf("Token(%v, %q, %d)", i.Typ, val, i.Pos)
 }
 
 type TokenType string
@@ -117,7 +117,8 @@ const (
 	FLOAT = "float"
 	BOOLEAN = "boolean"
 	STRING = "string"
-	TYPEREF = "type reference"
+	TYPEREF = "typeReference"
+	NULL = "null"
 
 	IDENTIFIER = "identifier"
 

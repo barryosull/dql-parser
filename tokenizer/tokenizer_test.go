@@ -367,7 +367,7 @@ var CLASSComponents = testStatements{
 	},
 	{
 		`
-		when event 'started'
+		WHEN event 'started'
 		{
 			agency_id = event->agency_id;
 			is_started = true;
@@ -468,16 +468,14 @@ var expressions = testStatements{
 			tk(tok.GT, ">"),
 			tk(tok.IDENTIFIER, "b"),
 		},
-	},
-	{
+	},{
 		"a = andrew",
 		[]tok.Token {
 			tk(tok.IDENTIFIER, "a"),
 			tk(tok.ASSIGN, "="),
 			tk(tok.IDENTIFIER, "andrew"),
 		},
-	},
-	{
+	},{
 		"clarkKent = 'value\\isSuperman'(false)",
 		[]tok.Token{
 			tk(tok.IDENTIFIER, "clarkKent"),
@@ -487,11 +485,15 @@ var expressions = testStatements{
 			tk(tok.BOOLEAN, "false"),
 			tk(tok.RPAREN, ")"),
 		},
-	},
-	{
+	},{
 		`"string value"`,
 		[]tok.Token{
 			tk(tok.STRING, "string value"),
+		},
+	},{
+		`null`,
+		[]tok.Token{
+			tk(tok.NULL, "null"),
 		},
 	},
 };
@@ -615,7 +617,8 @@ var keywordsInExpressions = testStatements {
 		returnA
 		foreachA
 		asA
-		createA`,
+		createA
+		nullA`,
 		[]tok.Token {
 			tk(tok.IDENTIFIER, "propertiesA"),
 			tk(tok.IDENTIFIER, "checkA"),
@@ -630,6 +633,7 @@ var keywordsInExpressions = testStatements {
 			tk(tok.IDENTIFIER, "foreachA"),
 			tk(tok.IDENTIFIER, "asA"),
 			tk(tok.IDENTIFIER, "createA"),
+			tk(tok.IDENTIFIER, "nullA"),
 		},
 	},
 }
