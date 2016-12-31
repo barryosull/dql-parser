@@ -692,7 +692,7 @@ var badStatements = []struct{
 		tok.Error{"<| value ''", 10, "value name", "empty name",},
 	},{
 		"~",
-		tok.Error{"~", 10, "keyword", "nothing",},
+		tok.Error{"~", 0, "keyword", "~",},
 	},
 }
 

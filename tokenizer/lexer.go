@@ -4,6 +4,7 @@ import (
 	"strings"
 	"unicode/utf8"
 	tok "parser/token"
+	"fmt"
 )
 
 // lexer holds the state of the scanner.
@@ -332,7 +333,7 @@ func lexToken(l *lexer) stateFn {
 		return lexIdentifier;
 	}
 
-	return l.err("keyword", "nothing");
+	return l.err("keyword", fmt.Sprintf("%c", rune(l.peek())));
 }
 
 func (l *lexer) lexQuotedStringAsToken(tokenType tok.TokenType) bool {
