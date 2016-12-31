@@ -31,10 +31,11 @@ func (i *Token) String() string {
 	case ERR:
 		return i.Val
 	}
-	if len(i.Val) > 10 {
-		return fmt.Sprintf("char %q, %q, %.10q...", i.Pos, i.Typ, i.Val)
+	val := i.Val
+	if len(val) > 10 {
+		val = fmt.Sprintf("%.10q...", val)
 	}
-	return fmt.Sprintf("char %q, %q, %q", i.Pos, i.Typ, i.Val)
+	return fmt.Sprintf("Token(%q, %q, %d)", i.Typ, val, i.Pos)
 }
 
 type TokenType string
