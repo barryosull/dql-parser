@@ -123,8 +123,7 @@ func (l *lexer) matchPrefix(expected []string) (string, *tok.Error) {
 			return prefix, nil
 		}
 	}
-	l.scanIdentifier()
-	found := l.input[l.start:l.pos]
+	found := l.scanWord()
 	l.err(strings.Join(expected, ", "), found)
 	return found, l.error
 }
@@ -160,28 +159,14 @@ func (l *lexer) skipWS() {
 	}
 }
 
-func (l *lexer) lexQuotedStringAsToken(tokenType tok.TokenType) bool {
-	l.skipWS()
-	if (l.next() == '\'') {
-		l.ignore();
-		for {
-			if (l.peek() == '\'') {
-				l.emit(tokenType)
-				l.skip()
-				return true;
-			}
-			l.next();
+func (l *lexer) consumeWS() {
+	for {
+		if !contains(whitespace, l.next()) {
+			l.backup()
+			break;
 		}
 	}
-	return false;
 }
-
-func (l *lexer) lexAsToken(tokenType tok.TokenType) stateFn {
-	l.pos += len(tokenType)
-	l.emit(tokenType)
-	return lexToken
-}
-
 
 // next returns the next rune in the input.
 func (l *lexer) next() int {
@@ -252,18 +237,34 @@ func (l *lexer) err(expected string, found string) stateFn {
 }
 
 //Scan until next space or non identifier character
-func (l *lexer) scanIdentifier() {
+func (l *lexer) scanWord() string {
 	for {
 		if (!isLetter(l.peek()) && !isDigit(l.peek())) {
 			break;
 		}
 		l.next();
 	}
+	return l.input[l.start:l.pos]
+}
+
+//Scan until the quotedname is finished
+func (l *lexer) scanQuotedName() (found string, isEOF bool) {
+	for {
+		if (l.peek() == '\'') {
+			isEOF = false
+			break;
+		}
+		if (l.peek() == EOF) {
+			isEOF = true
+			break;
+		}
+		l.next();
+	}
+	found = l.input[l.start:l.pos]
+	return
 }
 
 const EOF = -1
-
-
 
 func (l *lexer) isTypeRef() bool {
 	if (l.isKeyWordAndNotIdentifier(tok.STRING)) {
@@ -334,6 +335,41 @@ func lexToken(l *lexer) stateFn {
 	return l.err("keyword", "nothing");
 }
 
+func (l *lexer) lexQuotedStringAsToken(tokenType tok.TokenType) bool {
+	l.skipWS()
+	nxt := l.next()
+	if (nxt == EOF) {
+		l.err("'", "EOF")
+		return false
+	}
+	if (nxt != '\'') {
+		l.err("'", l.scanWord())
+		return false
+	}
+	l.ignore();
+
+	found, isEOF := l.scanQuotedName()
+	if (isEOF) {
+		l.err("'", "EOF")
+		return false
+	}
+
+	if (found == "") {
+		l.err("value name", "empty name")
+		return false
+	}
+
+	l.emit(tokenType)
+	l.skip()
+	return true;
+}
+
+func (l *lexer) lexAsToken(tokenType tok.TokenType) stateFn {
+	l.pos += len(tokenType)
+	l.emit(tokenType)
+	return lexToken
+}
+
 func lexCreate(l *lexer) stateFn {
 	l.lexAsToken(tok.CREATE);
 	return lexNSObjectType
@@ -351,12 +387,19 @@ func lexNSObjectType(l *lexer) stateFn {
 }
 
 func lexNSObjectName(l *lexer) stateFn {
-	l.lexQuotedStringAsToken(tok.QUOTEDNAME)
-	return lexToken
+	if l.lexQuotedStringAsToken(tok.QUOTEDNAME) {
+		return lexToken
+	}
+	return nil
 }
 
 func lexUsingDatabase(l *lexer) stateFn {
 	l.skipStr("using")
+	l.skipWS()
+	if (!l.isKeyWordAndNotIdentifier(tok.DATABASE)) {
+		return l.err(tok.DATABASE, l.scanWord())
+	}
+
 	l.skipStr(tok.DATABASE)
 
 	if l.lexQuotedStringAsToken(tok.USINGDATABASE) {
@@ -367,6 +410,11 @@ func lexUsingDatabase(l *lexer) stateFn {
 
 func lexForDomain (l *lexer) stateFn {
 	l.skipStr("for")
+	l.skipWS()
+	if (!l.isKeyWordAndNotIdentifier(tok.DOMAIN)) {
+		return l.err(tok.DOMAIN, l.scanWord())
+	}
+
 	l.skipStr(tok.DOMAIN)
 
 	if l.lexQuotedStringAsToken(tok.FORDOMAIN) {
@@ -377,6 +425,11 @@ func lexForDomain (l *lexer) stateFn {
 
 func lexInContext (l *lexer) stateFn {
 	l.skipStr("in")
+	l.skipWS()
+	if (!l.isKeyWordAndNotIdentifier(tok.CONTEXT)) {
+		return l.err(tok.CONTEXT, l.scanWord())
+	}
+
 	l.skipStr(tok.CONTEXT)
 
 	if l.lexQuotedStringAsToken(tok.INCONTEXT) {
@@ -387,6 +440,11 @@ func lexInContext (l *lexer) stateFn {
 
 func lexWithinAggregate(l *lexer) stateFn {
 	l.skipStr("within")
+	l.skipWS()
+	if (!l.isKeyWordAndNotIdentifier(tok.AGGREGATE)) {
+		return l.err(tok.AGGREGATE, l.scanWord())
+	}
+
 	l.skipStr(tok.AGGREGATE)
 
 	if l.lexQuotedStringAsToken(tok.WITHINAGGREGATE) {
@@ -397,13 +455,14 @@ func lexWithinAggregate(l *lexer) stateFn {
 
 func lexAssertInvariant(l *lexer) stateFn {
 	l.pos += len("assert")
-	for {
-		if !contains(whitespace, l.next()) {
-			l.backup()
-			break;
-		}
+	l.consumeWS()
+
+	if (!l.isKeyWordAndNotIdentifier(tok.INVARIANT)) {
+		return l.err(tok.ASSERTINVARIANT, l.scanWord())
 	}
-	l.pos += len("invariant")
+
+	l.pos += len(tok.INVARIANT)
+
 	l.emit(tok.ASSERTINVARIANT)
 	l.skipWS()
 
@@ -416,13 +475,13 @@ func lexAssertInvariant(l *lexer) stateFn {
 
 func lexRunQuery(l *lexer) stateFn {
 	l.pos += len("run")
-	for {
-		if !contains(whitespace, l.next()) {
-			l.backup()
-			break;
-		}
+	l.consumeWS()
+
+	if (!l.isKeyWordAndNotIdentifier(tok.QUERY)) {
+		return l.err(tok.RUNQUERY, l.scanWord())
 	}
-	l.pos += len("query")
+
+	l.pos += len(tok.QUERY)
 	l.emit(tok.RUNQUERY)
 	l.skipWS()
 
@@ -431,13 +490,13 @@ func lexRunQuery(l *lexer) stateFn {
 
 func lexApplyEvent(l *lexer) stateFn {
 	l.pos += len("apply")
-	for {
-		if !contains(whitespace, l.next()) {
-			l.backup()
-			break;
-		}
+	l.consumeWS()
+
+	if (!l.isKeyWordAndNotIdentifier(tok.EVENT)) {
+		return l.err(tok.APPLYEVENT, l.scanWord())
 	}
-	l.pos += len("event")
+
+	l.pos += len(tok.EVENT)
 	l.emit(tok.APPLYEVENT)
 	l.skipWS()
 
@@ -447,17 +506,25 @@ func lexApplyEvent(l *lexer) stateFn {
 func lexWhenEvent(l *lexer) stateFn {
 	l.skipStr("when")
 	l.skipWS()
-	l.skipStr("event")
+
+	if (!l.isKeyWordAndNotIdentifier(tok.EVENT)) {
+		return l.err(tok.EVENT, l.scanWord())
+	}
+	l.skipStr(tok.EVENT)
+
 	l.skipWS()
-
-	l.lexQuotedStringAsToken(tok.WHENEVENT)
-
-	return lexToken
+	if l.lexQuotedStringAsToken(tok.WHENEVENT) {
+		return lexToken
+	}
+	return nil
 }
 
 func lexClass(l *lexer) stateFn {
-	match, _ := l.matchPrefix([]string{tok.VALUE, tok.ENTITY, tok.EVENT, tok.COMMAND, tok.QUERY, tok.INVARIANT, tok.PROJECTION})
-	l.pos += len(match)
+	found, err := l.matchPrefix([]string{tok.VALUE, tok.ENTITY, tok.EVENT, tok.COMMAND, tok.QUERY, tok.INVARIANT, tok.PROJECTION})
+	if (err != nil) {
+		return nil
+	}
+	l.pos += len(found)
 	l.emit(tok.CLASS)
 	return lexToken
 }
@@ -476,8 +543,7 @@ func lexTypeRef(l *lexer) stateFn {
 }
 
 func lexIdentifier(l *lexer) stateFn {
-	l.scanIdentifier()
-	word := l.input[l.start:l.pos]
+	word := l.scanWord()
 	if (word == "true" || word == "false") {
 		l.emit(tok.BOOLEAN)
 		return lexToken;

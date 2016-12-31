@@ -654,6 +654,42 @@ var badStatements = []struct{
 	},{
 		"create aggrege",
 		tok.Error{"create aggrege", 7, "database, domain, context, aggregate", "aggrege",},
+	},{
+		"using dbase",
+		tok.Error{"using dbase", 6, "database", "dbase",},
+	},{
+		"for dom",
+		tok.Error{"for dom", 4, "domain", "dom",},
+	},{
+		"in cntext",
+		tok.Error{"in cntext", 3, "context", "cntext",},
+	},{
+		"within agg",
+		tok.Error{"within agg", 7, "aggregate", "agg",},
+	},{
+		"assert invar",
+		tok.Error{"assert invar", 0, "assert invariant", "assert invar",},
+	},{
+		"run qry",
+		tok.Error{"run qry", 0, "run query", "run qry",},
+	},{
+		"apply evt",
+		tok.Error{"apply evt", 0, "apply event", "apply evt",},
+	},{
+		"when evt",
+		tok.Error{"when evt", 5, "event", "evt",},
+	},{
+		"<| valu ",
+		tok.Error{"<| valu ", 3, "value, entity, event, command, query, invariant, projection", "valu",},
+	},{
+		"for domain ",
+		tok.Error{"for domain ", 11, "'", "EOF",},
+	},{
+		"for domain '",
+		tok.Error{"for domain '", 12, "'", "EOF",},
+	},{
+		"<| value ''",
+		tok.Error{"<| value ''", 10, "value name", "empty name",},
 	},
 }
 
