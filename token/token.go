@@ -41,12 +41,10 @@ type TokenType string
 const (
 	EOF 		= "eof"
 
-	NAMESPACEOBJECT = "namespaceObject"
 	USINGDATABASE 	= "usingDatabase"
 	FORDOMAIN 	= "forDomain"
 	INCONTEXT 	= "inContext"
 	WITHINAGGREGATE = "withinAggregate"
-	CLASS 		= "class"
 	CLASSOPEN 	= "<|"
 	CLASSCLOSE 	= "|>"
 	OBJECTNAME 	= "objectName"
@@ -100,7 +98,7 @@ const (
 
 	// Delimiters
 	COMMA    = ","
-	SEMICOLON = ";"
+	SEMICOLON= ";"
 	COLON    = ":"
 	LPAREN   = "("
 	RPAREN   = ")"
