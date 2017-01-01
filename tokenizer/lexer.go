@@ -59,6 +59,7 @@ func lex(name, input string) (*lexer) {
 		tok.FOREACH,
 		tok.RETURN,
 		tok.AS,
+		tok.ON,
 	}
 
 	easyLexTokens = []tok.TokenType{
@@ -296,7 +297,7 @@ func lexToken(l *lexer) stateFn {
 		return nil;
 	}
 
-	//Have special lexing rules
+	//Complex/partal check, special lexing rule
 	if (l.isTypeRefence()) {
 		return lexTypeRef
 	}
@@ -310,18 +311,21 @@ func lexToken(l *lexer) stateFn {
 		return lexClassOpen;
 	}
 
+	// Basic check, special rule
 	for token, stateFn := range tokenToLexer {
 		if l.isKeyWordAndNotIdentifier(token) {
 			return stateFn
 		}
 	}
 
+	// Is keyword, then lex
 	for _, token := range easyLexKeywords {
 		if l.isKeyWordAndNotIdentifier(string(token)) {
 			return l.lexAsToken(token)
 		}
 	}
 
+	//Is match, then lex
 	for _, token := range easyLexTokens {
 		if l.isNextPrefix(string(token)) {
 			return l.lexAsToken(token)
@@ -390,7 +394,7 @@ func lexNSObjectType(l *lexer) stateFn {
 }
 
 func lexNSObjectName(l *lexer) stateFn {
-	return l.lexQuotedStringAsToken(tok.QUOTEDNAME)
+	return l.lexQuotedStringAsToken(tok.OBJECTNAME)
 }
 
 func lexUsingDatabase(l *lexer) stateFn {
@@ -520,7 +524,7 @@ func lexTypeRef(l *lexer) stateFn {
 		l.next();
 	}
 
-	l.emit(tok.TYPEREF)
+	l.emit(tok.OBJECTNAME)
 	l.skipWS()
 	return lexIdentifier
 }

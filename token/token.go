@@ -44,7 +44,6 @@ const (
 	ERR TokenType = "err"
 
 	NAMESPACEOBJECT = "namespaceObject"
-	QUOTEDNAME = "quotedName"
 	USINGDATABASE = "using database"
 	FORDOMAIN = "forDomain"
 	INCONTEXT = "inContext"
@@ -53,6 +52,8 @@ const (
 	CLASSOPEN = "<|"
 	CLASSCLOSE = "|>"
 	EOF = "eof"
+
+	OBJECTNAME = "objectName"
 
 	//Keywords - actions
 	CREATE = "create"
@@ -117,7 +118,6 @@ const (
 	FLOAT = "float"
 	BOOLEAN = "boolean"
 	STRING = "string"
-	TYPEREF = "typeReference"
 	NULL = "null"
 
 	IDENTIFIER = "identifier"
@@ -129,6 +129,7 @@ const (
 	RETURN = "return"
 	FOREACH = "foreach"
 	AS = "as"
+	ON = "on"
 )
 
 func Semicolon(pos int) Token {
