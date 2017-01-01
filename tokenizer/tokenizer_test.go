@@ -9,10 +9,10 @@ import (
 var dbStatements = testStatements {
 	{
 		"create database 'db1';",
-		[]tok.Token{tok.NewToken(tok.CREATE, "create", 0), tok.NewToken(tok.NAMESPACEOBJECT, "database", 7), tok.NewToken(tok.OBJECTNAME, "db1", 17), tok.Semicolon(21)},
+		[]tok.Token{tok.NewToken(tok.CREATE, "create", 0), tok.NewToken(tok.DATABASE, "database", 7), tok.NewToken(tok.OBJECTNAME, "db1", 17), tok.Semicolon(21)},
 	}, {
 		"create DATABASE 'db2' ;",
-		[]tok.Token{tok.NewToken(tok.CREATE, "create", 0), tok.NewToken(tok.NAMESPACEOBJECT, "DATABASE", 7), tok.NewToken(tok.OBJECTNAME, "db2", 17), tok.Semicolon(22)},
+		[]tok.Token{tok.NewToken(tok.CREATE, "create", 0), tok.NewToken(tok.DATABASE, "DATABASE", 7), tok.NewToken(tok.OBJECTNAME, "db2", 17), tok.Semicolon(22)},
 	},
 };
 
@@ -23,7 +23,7 @@ func TestCreateDatabase(t *testing.T) {
 var multipleStatements = testStatements{
 	{
 		"create database 'db1'; create database 'db1';",
-		[]tok.Token{tk(tok.CREATE, "create"), tk(tok.NAMESPACEOBJECT, "database"), tk(tok.OBJECTNAME, "db1"), semi(), tk(tok.CREATE, "create"), tk(tok.NAMESPACEOBJECT, "database"), tk(tok.OBJECTNAME, "db1"), semi()},
+		[]tok.Token{tk(tok.CREATE, "create"), tk(tok.DATABASE, "database"), tk(tok.OBJECTNAME, "db1"), semi(), tk(tok.CREATE, "create"), tk(tok.DATABASE, "database"), tk(tok.OBJECTNAME, "db1"), semi()},
 	},
 }
 
@@ -34,12 +34,12 @@ func TestMultipeStatements(t *testing.T) {
 var domainStatements = testStatements{
 	{
 		"create domain 'dmn' using database 'db';",
-		[]tok.Token{tk(tok.CREATE, "create"), tk(tok.NAMESPACEOBJECT, "domain"), tk(tok.OBJECTNAME, "dmn"), tk(tok.USINGDATABASE, "db"), semi()},
+		[]tok.Token{tk(tok.CREATE, "create"), tk(tok.DOMAIN, "domain"), tk(tok.OBJECTNAME, "dmn"), tk(tok.USINGDATABASE, "db"), semi()},
 
 	},
 	{
 		"create domain 'dmn' using database 'db'",
-		[]tok.Token{tk(tok.CREATE, "create"), tk(tok.NAMESPACEOBJECT, "domain"), tk(tok.OBJECTNAME, "dmn"), tk(tok.USINGDATABASE, "db")},
+		[]tok.Token{tk(tok.CREATE, "create"), tk(tok.DOMAIN, "domain"), tk(tok.OBJECTNAME, "dmn"), tk(tok.USINGDATABASE, "db")},
 
 	},
 };
@@ -60,7 +60,7 @@ func TestCreateDomain(t *testing.T) {
 var contextStatements = testStatements {
 	{
 		"create context 'ctx' using database 'db' for domain 'dmn';",
-		[]tok.Token{tk(tok.CREATE, "create"), tk(tok.NAMESPACEOBJECT, "context"), tk(tok.OBJECTNAME, "ctx"), tk(tok.USINGDATABASE, "db"), tk(tok.FORDOMAIN, "dmn"), semi()},
+		[]tok.Token{tk(tok.CREATE, "create"), tk(tok.CONTEXT, "context"), tk(tok.OBJECTNAME, "ctx"), tk(tok.USINGDATABASE, "db"), tk(tok.FORDOMAIN, "dmn"), semi()},
 	},
 };
 
@@ -71,7 +71,7 @@ func TestCreateContext(t *testing.T) {
 var valueStatements = testStatements {
 	{
 		"<| value 'address' using database 'db' for domain 'dmn' in context 'ctx' |>",
-		[]tok.Token{clsOpen(), tk(tok.CLASS, "value"), tk(tok.OBJECTNAME, "address"), tk(tok.USINGDATABASE, "db"), tk(tok.FORDOMAIN, "dmn"), tk(tok.INCONTEXT, "ctx"), clsClose()},
+		[]tok.Token{clsOpen(), tk(tok.VALUE, "value"), tk(tok.OBJECTNAME, "address"), tk(tok.USINGDATABASE, "db"), tk(tok.FORDOMAIN, "dmn"), tk(tok.INCONTEXT, "ctx"), clsClose()},
 	},
 }
 
@@ -90,7 +90,7 @@ func TestCreateValue(t *testing.T) {
 var aggregateStatements = testStatements{
 	{
 		"create aggregate 'ag' using database 'db' for domain 'dmn' in context 'ctx';",
-		[]tok.Token{tk(tok.CREATE, "create"), tk(tok.NAMESPACEOBJECT, "aggregate"),tk(tok.OBJECTNAME, "ag"), tk(tok.USINGDATABASE, "db"), tk(tok.FORDOMAIN, "dmn"), tk(tok.INCONTEXT, "ctx"), semi()},
+		[]tok.Token{tk(tok.CREATE, "create"), tk(tok.AGGREGATE, "aggregate"),tk(tok.OBJECTNAME, "ag"), tk(tok.USINGDATABASE, "db"), tk(tok.FORDOMAIN, "dmn"), tk(tok.INCONTEXT, "ctx"), semi()},
 	},
 }
 
@@ -102,7 +102,7 @@ func TestAggregateStatements (t *testing.T) {
 var eventStatements = testStatements{
 	{
 		"<| event 'start' using database 'db' for domain 'dmn' in context 'ctx' within aggregate 'ag' |>",
-		[]tok.Token{clsOpen(), tk(tok.CLASS, "event"), tk(tok.OBJECTNAME, "start"), tk(tok.USINGDATABASE, "db"), tk(tok.FORDOMAIN, "dmn"), tk(tok.INCONTEXT, "ctx"), tk(tok.WITHINAGGREGATE, "ag"), clsClose()},
+		[]tok.Token{clsOpen(), tk(tok.EVENT, "event"), tk(tok.OBJECTNAME, "start"), tk(tok.USINGDATABASE, "db"), tk(tok.FORDOMAIN, "dmn"), tk(tok.INCONTEXT, "ctx"), tk(tok.WITHINAGGREGATE, "ag"), clsClose()},
 	},
 }
 
@@ -113,19 +113,19 @@ func TestEventStatements (t *testing.T) {
 var statementsWithGloballySetNamespaces = testStatements {
 	{
 		"using database 'db'; create domain 'dmn';",
-		[]tok.Token{tk(tok.USINGDATABASE, "db"), semi(), tk(tok.CREATE, "create"), tk(tok.NAMESPACEOBJECT, "domain"), tk(tok.OBJECTNAME, "dmn"), semi()},
+		[]tok.Token{tk(tok.USINGDATABASE, "db"), semi(), tk(tok.CREATE, "create"), tk(tok.DOMAIN, "domain"), tk(tok.OBJECTNAME, "dmn"), semi()},
 	},
 	{
 		"for domain 'dmn'; create context 'ctx';",
-		[]tok.Token{tk(tok.FORDOMAIN, "dmn"), semi(), tk(tok.CREATE, "create"), tk(tok.NAMESPACEOBJECT, "context"), tk(tok.OBJECTNAME, "ctx"), semi()},
+		[]tok.Token{tk(tok.FORDOMAIN, "dmn"), semi(), tk(tok.CREATE, "create"), tk(tok.CONTEXT, "context"), tk(tok.OBJECTNAME, "ctx"), semi()},
 	},
 	{
 		"in context 'ctx'; <| value 'address' |>",
-		[]tok.Token{tk(tok.INCONTEXT, "ctx"), semi(), clsOpen(), tk(tok.CLASS, "value"), tk(tok.OBJECTNAME, "address"), clsClose()},
+		[]tok.Token{tk(tok.INCONTEXT, "ctx"), semi(), clsOpen(), tk(tok.VALUE, "value"), tk(tok.OBJECTNAME, "address"), clsClose()},
 	},
 	{
 		"within aggregate 'agg'; <| event 'start' |>",
-		[]tok.Token{tk(tok.WITHINAGGREGATE, "agg"), semi(), clsOpen(), tk(tok.CLASS, "event"), tk(tok.OBJECTNAME, "start"), clsClose()},
+		[]tok.Token{tk(tok.WITHINAGGREGATE, "agg"), semi(), clsOpen(), tk(tok.EVENT, "event"), tk(tok.OBJECTNAME, "start"), clsClose()},
 	},
 };
 
@@ -136,20 +136,20 @@ func TestGloballySetNamespace (t *testing.T) {
 var createObjectTypes = testStatements {
 	{
 		"<| entity 'ent' |>",
-		[]tok.Token{clsOpen(), tk(tok.CLASS, "entity"), tk(tok.OBJECTNAME, "ent"), clsClose()},
+		[]tok.Token{clsOpen(), tk(tok.ENTITY, "entity"), tk(tok.OBJECTNAME, "ent"), clsClose()},
 	},
 	{
 		"<| entity 'ent' CHECK ( return value != 0;) |>",
 		[]tok.Token{
 			clsOpen(),
-			tk(tok.CLASS, "entity"),
+			tk(tok.ENTITY, "entity"),
 			tk(tok.OBJECTNAME, "ent"),
 
 			tk(tok.CHECK, "CHECK"),
 			tk(tok.LPAREN, "("),
 
 			tk(tok.RETURN, "return"),
-			tk(tok.IDENTIFIER, "value"),
+			tk(tok.IDENT, "value"),
 			tk(tok.NOTEQ, "!="),
 			tk(tok.INTEGER, "0"),
 			tk(tok.SEMICOLON, ";"),
@@ -160,19 +160,19 @@ var createObjectTypes = testStatements {
 	},
 	{
 		"<| projection 'proj' |>",
-		[]tok.Token{clsOpen(), tk(tok.CLASS, "projection"), tk(tok.OBJECTNAME, "proj"), clsClose()},
+		[]tok.Token{clsOpen(), tk(tok.PROJECTION, "projection"), tk(tok.OBJECTNAME, "proj"), clsClose()},
 	},
 	{
 		"<| invariant 'invar' on 'projection\\quote' |>",
-		[]tok.Token{clsOpen(), tk(tok.CLASS, "invariant"), tk(tok.OBJECTNAME, "invar"), tk(tok.ON, "on"), tk(tok.OBJECTNAME, "projection\\quote"), clsClose()},
+		[]tok.Token{clsOpen(), tk(tok.INVARIANT, "invariant"), tk(tok.OBJECTNAME, "invar"), tk(tok.ON, "on"), tk(tok.OBJECTNAME, "projection\\quote"), clsClose()},
 	},
 	{
 		"<| command 'cmd' |>",
-		[]tok.Token{clsOpen(), tk(tok.CLASS, "command"), tk(tok.OBJECTNAME, "cmd"), clsClose()},
+		[]tok.Token{clsOpen(), tk(tok.COMMAND, "command"), tk(tok.OBJECTNAME, "cmd"), clsClose()},
 	},
 	{
 		"<| query 'qry' |>",
-		[]tok.Token{clsOpen(), tk(tok.CLASS, "query"), tk(tok.OBJECTNAME, "qry"), clsClose()},
+		[]tok.Token{clsOpen(), tk(tok.QUERY, "query"), tk(tok.OBJECTNAME, "qry"), clsClose()},
 	},
 
 }
@@ -198,7 +198,7 @@ var namespaceBlocks= testStatements {
 			tk(tok.LBRACE, "{"),
 
 			tk(tok.CREATE, "create"),
-			tk(tok.NAMESPACEOBJECT, "aggregate"),
+			tk(tok.AGGREGATE, "aggregate"),
 			tk(tok.OBJECTNAME, "aggregate1"),
 			tk(tok.SEMICOLON, ";"),
 
@@ -209,7 +209,7 @@ var namespaceBlocks= testStatements {
 			tk(tok.LBRACE, "{"),
 
 			tk(tok.CREATE, "create"),
-			tk(tok.NAMESPACEOBJECT, "aggregate"),
+			tk(tok.AGGREGATE, "aggregate"),
 			tk(tok.OBJECTNAME, "aggregate2"),
 			tk(tok.SEMICOLON, ";"),
 
@@ -236,7 +236,7 @@ var classComponents = testStatements{
 			tk(tok.LBRACE, "{"),
 
 			tk(tok.OBJECTNAME, "value\\service_charge"),
-			tk(tok.IDENTIFIER, "service_charge"),
+			tk(tok.IDENT, "service_charge"),
 			tk(tok.ASSIGN, "="),
 			tk(tok.OBJECTNAME, "value\\service_charge"),
 			tk(tok.LPAREN, "("),
@@ -245,7 +245,7 @@ var classComponents = testStatements{
 			tk(tok.SEMICOLON, ";"),
 
 			tk(tok.OBJECTNAME, "value\\category"),
-			tk(tok.IDENTIFIER, "category"),
+			tk(tok.IDENT, "category"),
 			tk(tok.ASSIGN, "="),
 			tk(tok.LBRACKET, "["),
 			tk(tok.RBRACKET, "]"),
@@ -265,7 +265,7 @@ var classComponents = testStatements{
 			tk(tok.LPAREN, "("),
 
 			tk(tok.RETURN, "return"),
-			tk(tok.IDENTIFIER, "value"),
+			tk(tok.IDENT, "value"),
 			tk(tok.NOTEQ, "!="),
 			tk(tok.INTEGER, "0"),
 			tk(tok.SEMICOLON, ";"),
@@ -281,11 +281,11 @@ var classComponents = testStatements{
 		}`,
 		[]tok.Token{
 			tk(tok.FUNCTION, "function"),
-			tk(tok.IDENTIFIER, "doThing"),
+			tk(tok.IDENT, "doThing"),
 			tk(tok.LPAREN, "("),
 			tk(tok.RPAREN, ")"),
 			tk(tok.LBRACE, "{"),
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
 			tk(tok.ASSIGN, "="),
 			tk(tok.FLOAT, "2.1"),
 			tk(tok.SEMICOLON, ";"),
@@ -300,25 +300,25 @@ var classComponents = testStatements{
 		}`,
 		[]tok.Token{
 			tk(tok.FUNCTION, "function"),
-			tk(tok.IDENTIFIER, "doThing2"),
+			tk(tok.IDENT, "doThing2"),
 			tk(tok.LPAREN, "("),
 			tk(tok.OBJECTNAME, "value\\service-charge"),
-			tk(tok.IDENTIFIER, "service_charge"),
+			tk(tok.IDENT, "service_charge"),
 			tk(tok.COMMA, ","),
 			tk(tok.OBJECTNAME, "value\\category"),
-			tk(tok.IDENTIFIER, "category"),
+			tk(tok.IDENT, "category"),
 			tk(tok.COMMA, ","),
 			tk(tok.OBJECTNAME, "string"),
-			tk(tok.IDENTIFIER, "title"),
+			tk(tok.IDENT, "title"),
 			tk(tok.COMMA, ","),
 			tk(tok.OBJECTNAME, "integer"),
-			tk(tok.IDENTIFIER, "int"),
+			tk(tok.IDENT, "int"),
 			tk(tok.COMMA, ","),
 			tk(tok.OBJECTNAME, "float"),
-			tk(tok.IDENTIFIER, "flt"),
+			tk(tok.IDENT, "flt"),
 			tk(tok.COMMA, ","),
 			tk(tok.OBJECTNAME, "boolean"),
-			tk(tok.IDENTIFIER, "bl"),
+			tk(tok.IDENT, "bl"),
 			tk(tok.RPAREN, ")"),
 			tk(tok.LBRACE, "{"),
 			tk(tok.RBRACE, "}"),
@@ -339,26 +339,26 @@ var classComponents = testStatements{
 			tk(tok.NOT, "not"),
 			tk(tok.OBJECTNAME, "is-started"),
 			tk(tok.SEMICOLON, ";"),
-			tk(tok.IDENTIFIER, "revision"),
+			tk(tok.IDENT, "revision"),
 			tk(tok.ASSIGN, "="),
 			tk(tok.RUNQUERY, "run query"),
 			tk(tok.OBJECTNAME, "next-revision-number"),
 			tk(tok.LPAREN, "("),
-			tk(tok.IDENTIFIER, "agency_id"),
+			tk(tok.IDENT, "agency_id"),
 			tk(tok.COMMA, ","),
-			tk(tok.IDENTIFIER, "quote_number"),
+			tk(tok.IDENT, "quote_number"),
 			tk(tok.RPAREN, ")"),
 			tk(tok.SEMICOLON, ";"),
 			tk(tok.APPLYEVENT, "apply event"),
 			tk(tok.OBJECTNAME, "started"),
 			tk(tok.LPAREN, "("),
-			tk(tok.IDENTIFIER, "agency_id"),
+			tk(tok.IDENT, "agency_id"),
 			tk(tok.COMMA, ","),
-			tk(tok.IDENTIFIER, "brand_id"),
+			tk(tok.IDENT, "brand_id"),
 			tk(tok.COMMA, ","),
-			tk(tok.IDENTIFIER, "quote_number"),
+			tk(tok.IDENT, "quote_number"),
 			tk(tok.COMMA, ","),
-			tk(tok.IDENTIFIER, "revision"),
+			tk(tok.IDENT, "revision"),
 			tk(tok.RPAREN, ")"),
 			tk(tok.SEMICOLON, ";"),
 			tk(tok.RBRACE, "}"),
@@ -375,13 +375,13 @@ var classComponents = testStatements{
 		[]tok.Token{
 			tk(tok.WHENEVENT, "started"),
 			tk(tok.LBRACE, "{"),
-			tk(tok.IDENTIFIER, "agency_id"),
+			tk(tok.IDENT, "agency_id"),
 			tk(tok.ASSIGN, "="),
-			tk(tok.IDENTIFIER, "event"),
+			tk(tok.IDENT, "event"),
 			tk(tok.ARROW, "->"),
-			tk(tok.IDENTIFIER, "agency_id"),
+			tk(tok.IDENT, "agency_id"),
 			tk(tok.SEMICOLON, ";"),
-			tk(tok.IDENTIFIER, "is_started"),
+			tk(tok.IDENT, "is_started"),
 			tk(tok.ASSIGN, "="),
 			tk(tok.BOOLEAN, "true"),
 			tk(tok.SEMICOLON, ";"),
@@ -404,81 +404,81 @@ var expressions = testStatements{
 		[]tok.Token{
 			tk(tok.MINUS, "-"),
 			tk(tok.MINUS, "-"),
-			tk(tok.IDENTIFIER, "a"),
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
+			tk(tok.IDENT, "a"),
 			tk(tok.PLUS, "+"),
 			tk(tok.PLUS, "+"),
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
 			tk(tok.LTOREQ, "<="),
-			tk(tok.IDENTIFIER, "b"),
-			tk(tok.IDENTIFIER, "b"),
+			tk(tok.IDENT, "b"),
+			tk(tok.IDENT, "b"),
 			tk(tok.GTOREQ, ">="),
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
 		},
 	},
 	{
 		"a + b - c",
 		[]tok.Token{
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
 			tk(tok.PLUS, "+"),
-			tk(tok.IDENTIFIER, "b"),
+			tk(tok.IDENT, "b"),
 			tk(tok.MINUS, "-"),
-			tk(tok.IDENTIFIER, "c"),
+			tk(tok.IDENT, "c"),
 		},
 	},
 	{
 		"a + (a - b)",
 		[]tok.Token{
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
 			tk(tok.PLUS, "+"),
 			tk(tok.LPAREN, "("),
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
 			tk(tok.MINUS, "-"),
-			tk(tok.IDENTIFIER, "b"),
+			tk(tok.IDENT, "b"),
 			tk(tok.RPAREN, ")"),
 		},
 	},
 	{
 		"a->b->c + a->b() - !b and a == b and a < b or a > b ",
 		[]tok.Token{
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
 			tk(tok.ARROW, "->"),
-			tk(tok.IDENTIFIER, "b"),
+			tk(tok.IDENT, "b"),
 			tk(tok.ARROW, "->"),
-			tk(tok.IDENTIFIER, "c"),
+			tk(tok.IDENT, "c"),
 			tk(tok.PLUS, "+"),
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
 			tk(tok.ARROW, "->"),
-			tk(tok.IDENTIFIER, "b"),
+			tk(tok.IDENT, "b"),
 			tk(tok.LPAREN, "("),
 			tk(tok.RPAREN, ")"),
 			tk(tok.MINUS, "-"),
 			tk(tok.BANG, "!"),
-			tk(tok.IDENTIFIER, "b"),
+			tk(tok.IDENT, "b"),
 			tk(tok.AND, "and"),
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
 			tk(tok.EQ, "=="),
-			tk(tok.IDENTIFIER, "b"),
+			tk(tok.IDENT, "b"),
 			tk(tok.AND, "and"),
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
 			tk(tok.LT, "<"),
-			tk(tok.IDENTIFIER, "b"),
+			tk(tok.IDENT, "b"),
 			tk(tok.OR, "or"),
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
 			tk(tok.GT, ">"),
-			tk(tok.IDENTIFIER, "b"),
+			tk(tok.IDENT, "b"),
 		},
 	},{
 		"a = andrew",
 		[]tok.Token {
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
 			tk(tok.ASSIGN, "="),
-			tk(tok.IDENTIFIER, "andrew"),
+			tk(tok.IDENT, "andrew"),
 		},
 	},{
 		"clarkKent = 'value\\isSuperman'(false)",
 		[]tok.Token{
-			tk(tok.IDENTIFIER, "clarkKent"),
+			tk(tok.IDENT, "clarkKent"),
 			tk(tok.ASSIGN, "="),
 			tk(tok.OBJECTNAME, "value\\isSuperman"),
 			tk(tok.LPAREN, "("),
@@ -518,43 +518,43 @@ var statements = testStatements{
 		[]tok.Token{
 			tk(tok.IF, "if"),
 			tk(tok.LPAREN, "("),
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
 			tk(tok.RPAREN, ")"),
 			tk(tok.LBRACE, "{"),
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
 			tk(tok.SEMICOLON, ";"),
 			tk(tok.RBRACE, "}"),
 
 			tk(tok.ELSEIF, "else if"),
 			tk(tok.LPAREN, "("),
-			tk(tok.IDENTIFIER, "b"),
+			tk(tok.IDENT, "b"),
 			tk(tok.RPAREN, ")"),
 			tk(tok.LBRACE, "{"),
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
 			tk(tok.SEMICOLON, ";"),
 			tk(tok.RBRACE, "}"),
 
 			tk(tok.ELSE, "else"),
 			tk(tok.LBRACE, "{"),
-			tk(tok.IDENTIFIER, "b"),
+			tk(tok.IDENT, "b"),
 			tk(tok.SEMICOLON, ";"),
 			tk(tok.RBRACE, "}"),
 
 			tk(tok.FOREACH, "foreach"),
 			tk(tok.LPAREN, "("),
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
 			tk(tok.ARROW, "->"),
-			tk(tok.IDENTIFIER, "b"),
+			tk(tok.IDENT, "b"),
 			tk(tok.LPAREN, "("),
 			tk(tok.RPAREN, ")"),
 			tk(tok.AS, "as"),
-			tk(tok.IDENTIFIER, "b"),
+			tk(tok.IDENT, "b"),
 			tk(tok.STRONGARROW, "=>"),
-			tk(tok.IDENTIFIER, "c"),
+			tk(tok.IDENT, "c"),
 			tk(tok.RPAREN, ")"),
 
 			tk(tok.LBRACE, "{"),
-			tk(tok.IDENTIFIER, "a"),
+			tk(tok.IDENT, "a"),
 			tk(tok.SEMICOLON, ";"),
 			tk(tok.RBRACE, "}"),
 		},
@@ -582,17 +582,17 @@ var keyWordsAsExpressions = testStatements{
 		query
 		`,
 		[]tok.Token{
-			tk(tok.IDENTIFIER, "database"),
-			tk(tok.IDENTIFIER, "domain"),
-			tk(tok.IDENTIFIER, "context"),
-			tk(tok.IDENTIFIER, "aggregate"),
-			tk(tok.IDENTIFIER, "value"),
-			tk(tok.IDENTIFIER, "event"),
-			tk(tok.IDENTIFIER, "entity"),
-			tk(tok.IDENTIFIER, "command"),
-			tk(tok.IDENTIFIER, "projection"),
-			tk(tok.IDENTIFIER, "invariant"),
-			tk(tok.IDENTIFIER, "query"),
+			tk(tok.IDENT, "database"),
+			tk(tok.IDENT, "domain"),
+			tk(tok.IDENT, "context"),
+			tk(tok.IDENT, "aggregate"),
+			tk(tok.IDENT, "value"),
+			tk(tok.IDENT, "event"),
+			tk(tok.IDENT, "entity"),
+			tk(tok.IDENT, "command"),
+			tk(tok.IDENT, "projection"),
+			tk(tok.IDENT, "invariant"),
+			tk(tok.IDENT, "query"),
 		},
 	},
 }
@@ -620,20 +620,20 @@ var keywordsInExpressions = testStatements {
 		createA
 		nullA`,
 		[]tok.Token {
-			tk(tok.IDENTIFIER, "propertiesA"),
-			tk(tok.IDENTIFIER, "checkA"),
-			tk(tok.IDENTIFIER, "handlerA"),
-			tk(tok.IDENTIFIER, "functionA"),
-			tk(tok.IDENTIFIER, "whenA"),
-			tk(tok.IDENTIFIER, "andA"),
-			tk(tok.IDENTIFIER, "orA"),
-			tk(tok.IDENTIFIER, "ifA"),
-			tk(tok.IDENTIFIER, "elseA"),
-			tk(tok.IDENTIFIER, "returnA"),
-			tk(tok.IDENTIFIER, "foreachA"),
-			tk(tok.IDENTIFIER, "asA"),
-			tk(tok.IDENTIFIER, "createA"),
-			tk(tok.IDENTIFIER, "nullA"),
+			tk(tok.IDENT, "propertiesA"),
+			tk(tok.IDENT, "checkA"),
+			tk(tok.IDENT, "handlerA"),
+			tk(tok.IDENT, "functionA"),
+			tk(tok.IDENT, "whenA"),
+			tk(tok.IDENT, "andA"),
+			tk(tok.IDENT, "orA"),
+			tk(tok.IDENT, "ifA"),
+			tk(tok.IDENT, "elseA"),
+			tk(tok.IDENT, "returnA"),
+			tk(tok.IDENT, "foreachA"),
+			tk(tok.IDENT, "asA"),
+			tk(tok.IDENT, "createA"),
+			tk(tok.IDENT, "nullA"),
 		},
 	},
 }

@@ -28,8 +28,6 @@ func (i *Token) String() string {
 	switch i.Typ {
 	case EOF:
 		return "EOF"
-	case ERR:
-		return i.Val
 	}
 	val := i.Val
 	if len(val) > 10 {
@@ -41,71 +39,69 @@ func (i *Token) String() string {
 type TokenType string
 
 const (
-	ERR TokenType = "err"
+	EOF 		= "eof"
 
 	NAMESPACEOBJECT = "namespaceObject"
-	USINGDATABASE = "using database"
-	FORDOMAIN = "forDomain"
-	INCONTEXT = "inContext"
-	WITHINAGGREGATE = "within aggregate"
-	CLASS = "class"
-	CLASSOPEN = "<|"
-	CLASSCLOSE = "|>"
-	EOF = "eof"
-
-	OBJECTNAME = "objectName"
-
-	//Keywords - actions
-	CREATE = "create"
+	USINGDATABASE 	= "usingDatabase"
+	FORDOMAIN 	= "forDomain"
+	INCONTEXT 	= "inContext"
+	WITHINAGGREGATE = "withinAggregate"
+	CLASS 		= "class"
+	CLASSOPEN 	= "<|"
+	CLASSCLOSE 	= "|>"
+	OBJECTNAME 	= "objectName"
 
 	//DQL Keywords - Objects
-	DATABASE = "database"
-	DOMAIN = "domain"
-	CONTEXT = "context"
-	AGGREGATE = "aggregate"
-	VALUE = "value"
-	EVENT = "event"
-	ENTITY = "entity"
-	COMMAND = "command"
+	CREATE 	   = "create"
+	DATABASE   = "database"
+	DOMAIN     = "domain"
+	CONTEXT    = "context"
+	AGGREGATE  = "aggregate"
+	VALUE      = "value"
+	EVENT      = "event"
+	ENTITY     = "entity"
+	COMMAND    = "command"
 	PROJECTION = "projection"
-	INVARIANT = "invariant"
-	QUERY = "query"
+	INVARIANT  = "invariant"
+	QUERY      = "query"
+	AS 	   = "as"
+	ON 	   = "on"
 
 	// Class components
 	PROPERTIES = "properties"
-	CHECK = "check"
-	HANDLER = "handler"
-	FUNCTION = "function"
-	WHENEVENT = "when event"
+	CHECK      = "check"
+	HANDLER    = "handler"
+	FUNCTION   = "function"
+	WHENEVENT  = "when event"
 
 	// Command Handler statements
 	ASSERTINVARIANT = "assert invariant"
-	NOT = "not"
-	RUNQUERY = "run query"
-	APPLYEVENT = "apply event"
+	NOT 		= "not"
+	RUNQUERY 	= "run query"
+	APPLYEVENT 	= "apply event"
 
 	// Operators
-	ASSIGN   = "="
-	PLUS     = "+"
-	MINUS    = "-"
-	BANG     = "!"
+	ASSIGN  = "="
+	PLUS    = "+"
+	MINUS   = "-"
+	BANG    = "!"
 	ASTERISK = "*"
-	SLASH    = "/"
-	ARROW 	 = "->"
+	SLASH   = "/"
+	ARROW 	= "->"
 	STRONGARROW = "=>"
-	AND 	 = "and"
-	OR 	 = "or"
-	LT = "<"
-	GT = ">"
-	EQ     = "=="
-	NOTEQ = "!="
-	LTOREQ = "<="
-	GTOREQ = ">="
+	AND 	= "and"
+	OR 	= "or"
+	LT 	= "<"
+	GT 	= ">"
+	EQ 	= "=="
+	NOTEQ	= "!="
+	LTOREQ 	= "<="
+	GTOREQ 	= ">="
 
 	// Delimiters
-	COMMA     = ","
+	COMMA    = ","
 	SEMICOLON = ";"
-	COLON     = ":"
+	COLON    = ":"
 	LPAREN   = "("
 	RPAREN   = ")"
 	LBRACE   = "{"
@@ -114,22 +110,19 @@ const (
 	RBRACKET = "]"
 
 	//Types
-	INTEGER = "integer"
-	FLOAT = "float"
+	INTEGER	= "integer"
+	FLOAT   = "float"
 	BOOLEAN = "boolean"
-	STRING = "string"
-	NULL = "null"
-
-	IDENTIFIER = "identifier"
+	STRING  = "string"
+	NULL    = "null"
+	IDENT 	= "identifier"
 
 	//Statements
-	IF = "if"
-	ELSEIF = "else if"
-	ELSE = "else"
-	RETURN = "return"
+	IF 	= "if"
+	ELSEIF 	= "else if"
+	ELSE 	= "else"
+	RETURN 	= "return"
 	FOREACH = "foreach"
-	AS = "as"
-	ON = "on"
 )
 
 func Semicolon(pos int) Token {

@@ -129,15 +129,21 @@ func (l *lexer) isKeyWordAndNotIdentifier(prefix string) bool {
 }
 
 //Tries to match the current prefix against a series of strings, if it doesn't get a match, it logs the error
-func (l *lexer) matchPrefix(expected []string) (string, *tok.Error) {
-	for _, prefix := range expected {
-		if (l.isNextPrefix(prefix)) {
-			return prefix, nil
+func (l *lexer) lexMatchingPrefix(prefixes []tok.TokenType) stateFn {
+	for _, prefix := range prefixes {
+		if (l.isNextPrefix(string(prefix))) {
+			l.pos += len(prefix)
+			l.emit(prefix)
+			return lexToken
 		}
+	}
+	expected := []string{}
+	for _, prefix := range prefixes {
+		expected = append(expected, string(prefix))
 	}
 	found := l.scanWord()
 	l.err(strings.Join(expected, ", "), found)
-	return found, l.error
+	return nil
 }
 
 var whitespace = []int{' ', '\n', '\r', '\t'}
@@ -384,13 +390,7 @@ func lexCreate(l *lexer) stateFn {
 
 func lexNSObjectType(l *lexer) stateFn {
 	l.skipWS()
-	found, err := l.matchPrefix([]string{tok.DATABASE, tok.DOMAIN, tok.CONTEXT, tok.AGGREGATE})
-	if (err != nil) {
-		return nil
-	}
-	l.pos += len(found)
-	l.emit(tok.NAMESPACEOBJECT)
-	return lexToken
+	return l.lexMatchingPrefix([]tok.TokenType{tok.DATABASE, tok.DOMAIN, tok.CONTEXT, tok.AGGREGATE})
 }
 
 func lexNSObjectName(l *lexer) stateFn {
@@ -507,13 +507,7 @@ func lexApplyEvent(l *lexer) stateFn {
 }
 
 func lexClass(l *lexer) stateFn {
-	found, err := l.matchPrefix([]string{tok.VALUE, tok.ENTITY, tok.EVENT, tok.COMMAND, tok.QUERY, tok.INVARIANT, tok.PROJECTION})
-	if (err != nil) {
-		return nil
-	}
-	l.pos += len(found)
-	l.emit(tok.CLASS)
-	return lexToken
+	return l.lexMatchingPrefix([]tok.TokenType{tok.VALUE, tok.ENTITY, tok.EVENT, tok.COMMAND, tok.QUERY, tok.INVARIANT, tok.PROJECTION})
 }
 
 func lexTypeRef(l *lexer) stateFn {
@@ -536,7 +530,7 @@ func lexIdentifier(l *lexer) stateFn {
 	} else if (word == "null") {
 		l.emit(tok.NULL)
 	} else {
-		l.emit(tok.IDENTIFIER)
+		l.emit(tok.IDENT)
 	}
 	return lexToken;
 }
