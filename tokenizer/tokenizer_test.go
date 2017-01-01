@@ -133,7 +133,7 @@ func TestGloballySetNamespace (t *testing.T) {
 	statementsWithGloballySetNamespaces.test(t)
 }
 
-var objectTypes = testStatements {
+var createObjectTypes = testStatements {
 	{
 		"<| entity 'ent' |>",
 		[]tok.Token{clsOpen(), tk(tok.CLASS, "entity"), tk(tok.QUOTEDNAME, "ent"), clsClose()},
@@ -178,7 +178,7 @@ var objectTypes = testStatements {
 }
 
 func TestObjectTypes(t *testing.T) {
-	objectTypes.test(t)
+	createObjectTypes.test(t)
 }
 
 var namespaceBlocks= testStatements {

@@ -25,6 +25,8 @@ var tokenToLexer = map[string]stateFn {}
 var easyLexKeywords = []tok.TokenType{}
 var easyLexTokens = []tok.TokenType{}
 
+const EOF = -1
+
 func lex(name, input string) (*lexer) {
 	l := &lexer{
 		name:  name,
@@ -112,7 +114,7 @@ func (l *lexer) isNextPrefix(prefix string) bool {
 	return strings.HasPrefix(strings.ToLower(unlexed), strings.ToLower(prefix));
 }
 
-//Check of the prefix matches and is not followed immediately by another identifier character
+//Check if the prefix matches and is not followed immediately by another identifier character
 func (l *lexer) isKeyWordAndNotIdentifier(prefix string) bool {
 	hasPrefix := l.isNextPrefix(prefix)
 	if (!hasPrefix) {
@@ -125,6 +127,7 @@ func (l *lexer) isKeyWordAndNotIdentifier(prefix string) bool {
 	return true
 }
 
+//Tries to match the current prefix against a series of strings, if it doesn't get a match, it logs the error
 func (l *lexer) matchPrefix(expected []string) (string, *tok.Error) {
 	for _, prefix := range expected {
 		if (l.isNextPrefix(prefix)) {
@@ -170,7 +173,7 @@ func (l *lexer) consumeWS() {
 	}
 }
 
-// next returns the next rune in the input.
+//Get the next rune in the input.
 func (l *lexer) next() int {
 	r, width := l.runeAtPos(l.pos)
 	if r == EOF {
@@ -195,11 +198,13 @@ func (l *lexer) runeAtPos(pos int) (rn int, width int) {
 	return
 }
 
+//Skip the next token
 func (l *lexer) skip() {
 	l.next()
 	l.ignore()
 }
 
+//Skip a string of tokens
 func (l *lexer) skipStr(string string) {
 	l.pos += len(string)
 	l.skipWS()
@@ -235,7 +240,7 @@ func (l *lexer) scanWord() string {
 	return l.input[l.start:l.pos]
 }
 
-//Scan until the quotedname is finished
+//Scan until the quotedname is finished, or the EOF
 func (l *lexer) scanQuotedName() (found string, isEOF bool) {
 	for {
 		if (l.peek() == '\'') {
@@ -252,9 +257,17 @@ func (l *lexer) scanQuotedName() (found string, isEOF bool) {
 	return
 }
 
-const EOF = -1
+var objectTypes = []string{
+	tok.VALUE,
+	tok.ENTITY,
+	tok.EVENT,
+	tok.COMMAND,
+	tok.INVARIANT,
+	tok.PROJECTION,
+	tok.QUERY,
+}
 
-func (l *lexer) isTypeRef() bool {
+func (l *lexer) isTypeRefence() bool {
 	if (l.isKeyWordAndNotIdentifier(tok.STRING)) {
 		return true;
 	}
@@ -267,8 +280,10 @@ func (l *lexer) isTypeRef() bool {
 	if (l.isKeyWordAndNotIdentifier(tok.BOOLEAN)) {
 		return true;
 	}
-	if (l.isNextPrefix(tok.VALUE+"\\") || l.isNextPrefix(tok.ENTITY+"\\") || l.isNextPrefix(tok.EVENT+"\\") || l.isNextPrefix(tok.COMMAND+"\\") || l.isNextPrefix(tok.INVARIANT+"\\") || l.isNextPrefix(tok.PROJECTION+"\\")|| l.isNextPrefix(tok.QUERY+"\\")) {
-		return true
+	for _, objectType := range objectTypes {
+		if (l.isNextPrefix(objectType+"\\")) {
+			return true;
+		}
 	}
 	return false
 }
@@ -282,7 +297,7 @@ func lexToken(l *lexer) stateFn {
 	}
 
 	//Have special lexing rules
-	if (l.isTypeRef()) {
+	if (l.isTypeRefence()) {
 		return lexTypeRef
 	}
 	if (l.isNextPrefix("'")) {
