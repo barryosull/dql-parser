@@ -223,7 +223,7 @@ func TestNamespaceBlocks (t *testing.T) {
 	namespaceBlocks.test(t)
 }
 
-var CLASSComponents = testStatements{
+var classComponents = testStatements{
 	{
 		`
 		properties
@@ -392,7 +392,7 @@ var CLASSComponents = testStatements{
 };
 
 func TestClassComponents (t *testing.T) {
-	CLASSComponents.test(t)
+	classComponents.test(t)
 }
 
 var expressions = testStatements{
