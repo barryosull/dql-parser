@@ -87,6 +87,7 @@ func lex(name, input string) (*lexer) {
 		tok.GTOREQ,
 		tok.LT,
 		tok.GT,
+		tok.REMAINDER,
 	}
 
 	l.run()

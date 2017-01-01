@@ -427,7 +427,7 @@ var expressions = testStatements{
 		},
 	},
 	{
-		"a + (a - b)",
+		"a + (a - b) % a",
 		[]tok.Token{
 			tk(tok.IDENT, "a"),
 			tk(tok.PLUS, "+"),
@@ -436,6 +436,8 @@ var expressions = testStatements{
 			tk(tok.MINUS, "-"),
 			tk(tok.IDENT, "b"),
 			tk(tok.RPAREN, ")"),
+			tk(tok.REMAINDER, "%"),
+			tk(tok.IDENT, "a"),
 		},
 	},
 	{
