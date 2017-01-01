@@ -132,7 +132,7 @@ func (l *lexer) isKeyWordAndNotIdentifier(prefix string) bool {
 //Tries to match the current prefix against a series of strings, if it doesn't get a match, it logs the error
 func (l *lexer) lexMatchingPrefix(prefixes []tok.TokenType) stateFn {
 	for _, prefix := range prefixes {
-		if (l.isNextPrefix(string(prefix))) {
+		if (l.isKeyWordAndNotIdentifier(string(prefix))) {
 			l.pos += len(prefix)
 			l.emit(prefix)
 			return lexToken
