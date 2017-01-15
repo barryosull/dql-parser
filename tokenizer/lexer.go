@@ -28,13 +28,14 @@ var easyLexTokens = []tok.TokenType{}
 const EOF = -1
 
 func lex(name, input string) (*lexer) {
-	l := &lexer{
+
+	l := &lexer {
 		name:  name,
 		input: input,
 		length: len(input),
 	}
 
-	tokenToLexer = map[string]stateFn{
+	tokenToLexer = map[string]stateFn {
 		"create": lexCreate,
 		"using": lexUsingDatabase,
 		"for": lexForDomain,
@@ -46,7 +47,7 @@ func lex(name, input string) (*lexer) {
 		"when": lexWhenEvent,
 	}
 
-	easyLexKeywords = []tok.TokenType{
+	easyLexKeywords = []tok.TokenType {
 		tok.AND,
 		tok.OR,
 		tok.PROPERTIES,
@@ -95,75 +96,98 @@ func lex(name, input string) (*lexer) {
 }
 
 func (l *lexer) run() {
+
 	for state := lexToken; state != nil; {
 		state = state(l)
 	}
+
 	return
 }
 
 func (l *lexer) emit(t tok.TokenType) {
+
 	l.tokens = append(l.tokens, tok.Token{t, l.input[l.start:l.pos], l.start});
 	l.start = l.pos
 }
 
 func (l *lexer) isNextPrefix(prefix string) bool {
+
 	var unlexed string;
+
 	if (l.pos + len(prefix) < l.length) {
 		unlexed = l.input[l.pos: l.pos + len(prefix)];
 	} else {
 		unlexed = l.input[l.pos:];
 	}
+
 	return strings.HasPrefix(strings.ToLower(unlexed), strings.ToLower(prefix));
 }
 
 //Check if the prefix matches and is not followed immediately by another identifier character
 func (l *lexer) isKeyWordAndNotIdentifier(prefix string) bool {
+
 	hasPrefix := l.isNextPrefix(prefix)
+
 	if (!hasPrefix) {
 		return false
 	}
+
 	nextRune, _ := l.runeAtPos(l.pos + len(prefix));
+
 	if (isDigit(nextRune) || isLetter(nextRune)) {
 		return false
 	}
+
 	return true
 }
 
 //Tries to match the current prefix against a series of strings, if it doesn't get a match, it logs the error
 func (l *lexer) lexMatchingPrefix(prefixes []tok.TokenType) stateFn {
+
 	for _, prefix := range prefixes {
+
 		if (l.isKeyWordAndNotIdentifier(string(prefix))) {
 			l.pos += len(prefix)
 			l.emit(prefix)
 			return lexToken
 		}
 	}
+
 	expected := []string{}
+
 	for _, prefix := range prefixes {
 		expected = append(expected, string(prefix))
 	}
+
 	found := l.scanWord()
 	l.err(strings.Join(expected, ", "), found)
+
 	return nil
 }
 
 var whitespace = []int{' ', '\n', '\r', '\t'}
 
 func contains(s []int, e int) bool {
+
 	for _, a := range s {
+
 		if a == e {
 			return true
 		}
 	}
+
 	return false
 }
 
 //Just skip over whitespace
 func (l *lexer) skipWS() {
+
 	for {
 		switch r := l.next(); {
-		case contains(whitespace, r):
+
+		case contains(whitespace, r) :
 			l.ignore()
+
 		default :
 			l.backup()
 			return
@@ -233,7 +257,14 @@ func (l *lexer) peek() int {
 }
 
 func (l *lexer) err(expected string, found string) stateFn {
-	l.error = &tok.Error{l.input, l.start, expected, found}
+
+	l.error = &tok.Error {
+		l.input,
+		l.start,
+		expected,
+		found,
+	}
+
 	return nil
 }
 
@@ -243,29 +274,36 @@ func (l *lexer) scanWord() string {
 		if (!isLetter(l.peek()) && !isDigit(l.peek())) {
 			break;
 		}
+
 		l.next();
 	}
-	return l.input[l.start:l.pos]
+
+	return l.input[ l.start : l.pos ]
 }
 
 //Scan until the quotedname is finished, or the EOF
 func (l *lexer) scanQuotedName() (found string, isEOF bool) {
+
 	for {
 		if (l.peek() == '\'') {
 			isEOF = false
 			break;
 		}
+
 		if (l.peek() == EOF) {
 			isEOF = true
 			break;
 		}
+
 		l.next();
 	}
-	found = l.input[l.start:l.pos]
+
+	found = l.input[ l.start : l.pos ]
+
 	return
 }
 
-var objectTypes = []string{
+var objectTypes = []string {
 	tok.VALUE,
 	tok.ENTITY,
 	tok.EVENT,
