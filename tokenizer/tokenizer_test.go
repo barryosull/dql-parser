@@ -415,8 +415,7 @@ var expressions = testStatements{
 			tk(tok.GTOREQ, ">="),
 			tk(tok.IDENT, "a"),
 		},
-	},
-	{
+	},{
 		"a + b - c",
 		[]tok.Token{
 			tk(tok.IDENT, "a"),
@@ -425,8 +424,7 @@ var expressions = testStatements{
 			tk(tok.MINUS, "-"),
 			tk(tok.IDENT, "c"),
 		},
-	},
-	{
+	},{
 		"a + (a - b) % a",
 		[]tok.Token{
 			tk(tok.IDENT, "a"),
@@ -439,8 +437,7 @@ var expressions = testStatements{
 			tk(tok.REMAINDER, "%"),
 			tk(tok.IDENT, "a"),
 		},
-	},
-	{
+	},{
 		"a->b->c + a->b() - !b and a == b and a < b or a > b ",
 		[]tok.Token{
 			tk(tok.IDENT, "a"),

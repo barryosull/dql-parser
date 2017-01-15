@@ -39,12 +39,13 @@ func (i *Token) String() string {
 type TokenType string
 
 const (
-	EOF 		= "eof"
+	EOF TokenType	= "eof"
 
 	USINGDATABASE 	= "usingDatabase"
 	FORDOMAIN 	= "forDomain"
 	INCONTEXT 	= "inContext"
 	WITHINAGGREGATE = "withinAggregate"
+
 	CLASSOPEN 	= "<|"
 	CLASSCLOSE 	= "|>"
 	OBJECTNAME 	= "objectName"

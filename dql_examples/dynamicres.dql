@@ -10,7 +10,6 @@ using database 'dynamic-res' for domain 'sales':
 	create context 'quoting';
 }
 
-
 using database 'dynamic-res' for domain 'sales' in context 'quoting':
 {
 	<| value 'address'
